@@ -6,25 +6,25 @@ import org.junit.Test;
 
 public class TaskTest {
 
-    private String testDescription;
+    private String description;
     private Task testTask;
 
     public void setup() {
-        testDescription = "test description";
-        testTask = new Task(testDescription);
+        description = "a description";
+        testTask = new Task(description);
     }
 
     @Test
     public void testTask() {
         setup();
-        assertEquals(testDescription, testTask.getDescription());
+        assertEquals(description, testTask.getDescription());
     }
 
     @Test
     public void testSetDescription() {
         setup();
-        String anotherTestDescription = "another test description";
-        testTask.setDescription(anotherTestDescription);
-        assertEquals(anotherTestDescription, testTask.getDescription());
+        String description = "another description";
+        testTask.setDescription(description);
+        assertEquals(description, testTask.getDescription());
     }
 }
