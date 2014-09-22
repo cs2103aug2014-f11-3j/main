@@ -1,5 +1,12 @@
 package taskbuddy.file;
 
+/**
+ * Stores and manipulates dates from user input. An object of this class is to
+ * be used in the <code>Task</code> class.
+ * 
+ * @author Soh Yong Sheng
+ *
+ */
 public class Date {
     /**
      * Refers to the actual date of the month, e.g. the <code>date</code> field
