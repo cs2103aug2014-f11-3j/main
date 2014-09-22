@@ -12,7 +12,8 @@ public class Task {
 
     /**
      * Constructor for a <code>Task</code>, which initialises the task
-     * description.
+     * description. Initalisation of task description in here emphasies the fact
+     * that you cannot have a task without its description.
      * 
      * @param inputDescription
      *            task description
