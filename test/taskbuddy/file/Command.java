@@ -81,5 +81,17 @@ public class Command {
     public void setTask(Task task) {
         this.task = task;
     }
+    
+    public String execute() {
+        // TODO Logic please implement this
+        // can implement this through polymorphism if you like
+        return null;
+    }
+    
+    public String undo() {
+        // TODO Logic please implement this
+        // can implement this through polymorphism if you like
+        return null;
+    }
 
 }
