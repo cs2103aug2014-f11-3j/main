@@ -13,16 +13,6 @@ package taskbuddy.file;
  */
 public class DbCommand {
     /**
-     * The command type. For example, the command type of "add this task" is
-     * add. For a general Command object, a field is needed to identify the
-     * precise command type. For example, "add something" is a command and can
-     * be represented as a Command object. However, to execute this add command,
-     * one needs to know that it is an add command. Having the commandType field
-     * thus achieves the above mentioned.
-     */
-    CommandType commandType;
-
-    /**
      * The task to be manipulated by the command. For example, the task
      * description of "add this task" is "this task". Having a task stored in
      * this class also aids easy retrieval and emphasises the strong association
@@ -39,30 +29,8 @@ public class DbCommand {
      * @param commandType
      *            the command type
      */
-    public DbCommand(CommandType commandType) {
-        this.commandType = commandType;
-    }
-
-    /**
-     * Retrieves and returns the command type. Useful for execution, for
-     * example, the execution of "add this task" is opposite to that of
-     * "delete this task". The behaviour of execution depends on the command
-     * type retrieved by this method.
-     * 
-     * @return the command type of this object
-     */
-    public CommandType getCommandType() {
-        return commandType;
-    }
-
-    /**
-     * Sets the command type of this object.
-     * 
-     * @param command
-     *            the command type of this object.
-     */
-    public void setCommandType(CommandType command) {
-        this.commandType = command;
+    public DbCommand(Task task) {
+        this.task = task;
     }
 
     /**
@@ -74,19 +42,8 @@ public class DbCommand {
         return task;
     }
 
-    /**
-     * Sets the task to be manipulated by the command.
-     * 
-     * @param task
-     *            task to be manipulated by the command.
-     */
-    public void setTask(Task task) {
-        this.task = task;
-    }
-
     public boolean execute() {
-        // TODO Implement this
-        // can implement this through polymorphism if you like
+        // TODO Implement this through polymorphism
         return false;
     }
 
