@@ -1,15 +1,7 @@
-package taskbuddy.file;
+package taskbuddy.logic;
 
-/**
- * Encapsulates task description, date and time into a single <code>Task</code>
- * object.
- * 
- * @author Soh Yong Sheng
- *
- */
 import java.util.ArrayList;
 import java.util.Calendar;
-
 
 class Task {
 	private String __title;
@@ -106,3 +98,4 @@ class Task {
 		return toDisplay;
 	}
 }
+
