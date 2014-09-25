@@ -10,45 +10,22 @@ public class CommandParser {
 	private Stack<ArrayList<String>> redoStack = new Stack<ArrayList<String>>();
 	// if new command is parsed, clear redo stack;
 
-	static enum Command {
-		CREATE(1), READ(2), UDPATE(3), DELETE(4), UNDO(5), REDO(6);
-
-		private int code;
-
-		private Command(int c) {
-			code = c;
-		}
-
-		public int getCode() {
-			return code;
-		}
-
-		@Override
-		public String toString() {
-			String s = super.toString();
-			return s.substring(0, 1) + s.substring(1).toLowerCase();
-		}
-	}
-
-	public enum Acknowledge {
-
-	}
-
-	public Task createTask() {
-		Task task = new Task();
-
-		return task;
-	}
-
-	public void putTask(Task task) {
-		//Database.addTask(task);
+	Task addTask(ArrayList<String> extras) {
+		String desc = extras.get(1);
+		String endDate = extras.get(2);
+		String endTime = extras.get(3);
+		String title = extras.get(4);
+		Task newTask = new Task(title);
+		newTask.setDescription(desc);
+		newTask.setEndTime(endDate, endTime);
+		return newTask;
 	}
 	
-	public void readTask(String title){
+	void readTask(String title){
 		
 	}
 	
-	public void deleteTask(String title){
+	void deleteTask(String title){
 		
 	}
 
@@ -57,11 +34,8 @@ public class CommandParser {
 		if (commandType.equalsIgnoreCase("add")) {
 			redoStack = new Stack<ArrayList<String>>();
 			commandStack.add(userIn);
-			String desc = userIn.get(1);
-			String endDate = userIn.get(2);
-			String endTime = userIn.get(3);
-			String title = userIn.get(4);
-			
+			Task newTask = addTask(userIn);
+			//database.addTask(newTask);
 		}
 		if (commandType.equalsIgnoreCase("display")) {
 			String title = userIn.get(4);

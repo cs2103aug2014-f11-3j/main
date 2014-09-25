@@ -67,6 +67,26 @@ class Task {
 		this.__endTime = nextEnd;
 	}
 	
+	public void setEndTime(String endDate, String endTime){
+		int date = Integer.parseInt(endDate.substring(0, 2));
+		int month = Integer.parseInt(endDate.substring(2, 4));
+		int year = Integer.parseInt(endDate.substring(4));
+		int hour = Integer.parseInt(endTime.substring(0, 2));
+		int minute = Integer.parseInt(endTime.substring(2));
+		Calendar ending = Calendar.getInstance();
+		ending.set(year, month, date, hour, minute);
+		this.__endTime = ending;
+	}
+	
+	public void setEndTime(String endDate){
+		int date = Integer.parseInt(endDate.substring(0, 2));
+		int month = Integer.parseInt(endDate.substring(2, 4));
+		int year = Integer.parseInt(endDate.substring(4));
+		Calendar ending = Calendar.getInstance();
+		ending.set(year, month, date);
+		this.__endTime = ending;
+	}
+	
 	public void setPriority(int nextPriority){
 		this.__priorityFlag = nextPriority;
 	}
