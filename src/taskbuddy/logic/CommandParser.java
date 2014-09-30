@@ -21,6 +21,14 @@ public class CommandParser {
 		return newTask;
 	}
 	
+	void displayTasks(){
+		
+	}
+	
+	void printTask(){
+		
+	}
+	
 	void readTask(String title){
 		
 	}
@@ -35,11 +43,10 @@ public class CommandParser {
 			redoStack = new Stack<ArrayList<String>>();
 			commandStack.add(userIn);
 			Task newTask = addTask(userIn);
-			//database.addTask(newTask);
+			//Database.add(newTask);
 		}
 		if (commandType.equalsIgnoreCase("display")) {
-			String title = userIn.get(4);
-			//Task newTask = readTask(title);
+			
 		}
 		if (commandType.equalsIgnoreCase("edit")) {
 			redoStack = new Stack<ArrayList<String>>();
