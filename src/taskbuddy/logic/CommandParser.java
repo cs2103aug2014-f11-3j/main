@@ -25,8 +25,9 @@ public class CommandParser {
 		
 	}
 	
-	void printTask(){
-		
+	void printTask(String title){
+		//Task task = Database.getTask(title);
+		//GUI.print(task);
 	}
 	
 	void readTask(String title){
