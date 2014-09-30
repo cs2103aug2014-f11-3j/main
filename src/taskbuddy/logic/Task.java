@@ -1,16 +1,9 @@
-package taskbuddy.file;
+package taskbuddy.logic;
 
-/**
- * Encapsulates task description, date and time into a single <code>Task</code>
- * object.
- * 
- * @author Soh Yong Sheng
- *
- */
 import java.util.ArrayList;
 import java.util.Calendar;
 
-
+//Author: andrew
 class Task {
 	private String __title;
 	private String __description;
@@ -74,6 +67,26 @@ class Task {
 		this.__endTime = nextEnd;
 	}
 	
+	public void setEndTime(String endDate, String endTime){
+		int date = Integer.parseInt(endDate.substring(0, 2));
+		int month = Integer.parseInt(endDate.substring(2, 4));
+		int year = Integer.parseInt(endDate.substring(4));
+		int hour = Integer.parseInt(endTime.substring(0, 2));
+		int minute = Integer.parseInt(endTime.substring(2));
+		Calendar ending = Calendar.getInstance();
+		ending.set(year, month, date, hour, minute);
+		this.__endTime = ending;
+	}
+	
+	public void setEndTime(String endDate){
+		int date = Integer.parseInt(endDate.substring(0, 2));
+		int month = Integer.parseInt(endDate.substring(2, 4));
+		int year = Integer.parseInt(endDate.substring(4));
+		Calendar ending = Calendar.getInstance();
+		ending.set(year, month, date);
+		this.__endTime = ending;
+	}
+	
 	public void setPriority(int nextPriority){
 		this.__priorityFlag = nextPriority;
 	}
@@ -106,3 +119,4 @@ class Task {
 		return toDisplay;
 	}
 }
+
