@@ -1,8 +1,11 @@
-package taskbuddy.file;
+package taskbuddy.database;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import taskbuddy.database.DbCommand;
+import taskbuddy.logic.Task;
 
 public class DbCommandTest {
     DbCommand dbCommand;

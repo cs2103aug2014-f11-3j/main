@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 //Author: andrew
-class Task {
+public class Task {
 	private String __title;
 	private String __description;
 	private Calendar __startTime;

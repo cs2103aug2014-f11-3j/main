@@ -1,4 +1,6 @@
-package taskbuddy.file;
+package taskbuddy.database;
+
+import taskbuddy.logic.*;
 
 /**
  * Represents a command to be executed by Google Calendar. Commands are stored
