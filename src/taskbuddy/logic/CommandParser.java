@@ -47,7 +47,7 @@ public class CommandParser {
 		String commandType = userIn.get(0);
 		if (commandType.equalsIgnoreCase("add")) {
 			redoStack = new Stack<ArrayList<String>>();
-			commandStack.add(userIn);
+			undoStack.add(userIn);
 			Task newTask = addTask(userIn);
 			//Database.add(newTask);
 		}
@@ -56,11 +56,11 @@ public class CommandParser {
 		}
 		if (commandType.equalsIgnoreCase("edit")) {
 			redoStack = new Stack<ArrayList<String>>();
-			commandStack.add(userIn);
+			undoStack.add(userIn);
 		}
 		if (commandType.equalsIgnoreCase("delete")) {
 			redoStack = new Stack<ArrayList<String>>();
-			commandStack.add(userIn);
+			undoStack.add(userIn);
 		}
 		if (commandType.equalsIgnoreCase("undo")) {
 
