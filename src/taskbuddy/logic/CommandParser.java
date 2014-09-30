@@ -6,7 +6,7 @@ import java.util.Stack;
 //Author: andrew
 public class CommandParser {
 
-	private Stack<ArrayList<String>> commandStack = new Stack<ArrayList<String>>();
+	private Stack<ArrayList<String>> undoStack = new Stack<ArrayList<String>>();
 	private Stack<ArrayList<String>> redoStack = new Stack<ArrayList<String>>();
 	// if new command is parsed, clear redo stack;
 
@@ -22,11 +22,16 @@ public class CommandParser {
 	}
 	
 	void displayTasks(){
-		
+		/*
+		Stack<Task> tempCache = Database.getAllTasks();
+		while(!tempCache.isEmpty()){
+			Task current = tempCache.pop();
+			printTask(current);
+		}
+		*/
 	}
 	
-	void printTask(String title){
-		//Task task = Database.getTask(title);
+	void printTask(Task task){
 		//GUI.print(task);
 	}
 	
