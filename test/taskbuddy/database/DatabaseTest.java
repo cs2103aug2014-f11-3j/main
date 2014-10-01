@@ -39,6 +39,8 @@ public class DatabaseTest {
     public void testAddTask() throws Exception {
         setup();
         assertTrue(database.addTask(task));
+        assertEquals("Number of tasks did not increase from 0 to 1 after task "
+                + "addition", 1, database.getTasks().size());
         assertTrue("Task not added properly", database.getTasks().get(0)
                 .equals(task));
     }
@@ -49,7 +51,7 @@ public class DatabaseTest {
         assertNull(database.read(title));
 
         database.addTask(task);
-        assertTrue("Task titled 'task' not retrieved.", database.read(title)
+        assertTrue("Task titled 'Title' not retrieved.", database.read(title)
                 .equals(task));
 
         // Task titled 'untitled' not added yet
@@ -58,8 +60,28 @@ public class DatabaseTest {
 
         task.setTitle(title);
         database.addTask(task);
-        assertTrue("Task titled 'untitled' not retrieved.",
-                database.read(title).equals(task));
+        assertTrue("Task titled 'Untitled' not retrieved.", database
+                .read(title).equals(task));
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+        setup();
+        assertFalse("Task is deleted even though list of tasks is empty",
+                database.delete(title));
+
+        // Number of tasks is now 1
+        database.addTask(task);
+
+        assertFalse("Delete method returns true even when there's no task "
+                + "titled 'Untitled'.", database.delete("Untitled"));
+        assertEquals("Number of tasks is not 1 even no task was deleted.", 1,
+                database.getTasks().size());
+
+        assertTrue("Delete method does not return true after deletion.",
+                database.delete(title));
+        assertTrue("List of tasks is not empty after deletion.", database
+                .getTasks().isEmpty());
 
     }
 }

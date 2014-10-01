@@ -66,7 +66,7 @@ public class Database {
      *            of task to be searched
      * @return task whose title matches search string, null if no match found
      */
-    public Task searchTask(String title) {
+    public Task search(String title) {
         for (Task aTask : this.getTasks()) {
             if (aTask.getTitle().equalsIgnoreCase(title)) {
                 return aTask;
@@ -83,13 +83,34 @@ public class Database {
      * @param title
      *            title of task to retrieve
      * @return task whose title matches search string, null if stored list of
-     *         task is empty or if no match found.
+     *         task is empty or if no title match found.
      */
     public Task read(String title) {
         if (this.getTasks().isEmpty()) {
             return null;
         } else {
-            return searchTask(title);
+            return search(title);
         }
+    }
+
+    /**
+     * Searches for and deletes a task based on its title from an empty or
+     * non-empty stored list of tasks. It is assumed that all task titles are
+     * unique ignoring case.
+     * 
+     * @param title
+     *            title of task to be deleted
+     * @return true if task is deleted, false if list of tasks is empty or if no
+     *         title match found
+     */
+    public boolean delete(String title) {
+        if (!this.getTasks().isEmpty()) {
+            Task task = new Task();
+            if ((task = search(title)) != null) {
+                this.tasks.remove(task);
+                return true;
+            }
+        }
+        return false;
     }
 }
