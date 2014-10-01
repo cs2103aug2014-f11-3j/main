@@ -85,7 +85,7 @@ public class Database {
      * @return task whose title matches search string, null if stored list of
      *         task is empty or if no match found.
      */
-    public Task getTask(String title) {
+    public Task read(String title) {
         if (this.getTasks().isEmpty()) {
             return null;
         } else {

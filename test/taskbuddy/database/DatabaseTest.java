@@ -44,22 +44,22 @@ public class DatabaseTest {
     }
 
     @Test
-    public void testGetTask() throws Exception {
+    public void testRead() throws Exception {
         setup();
-        assertNull(database.getTask(title));
+        assertNull(database.read(title));
 
         database.addTask(task);
-        assertTrue("Task titled 'task' not retrieved.", database.getTask(title)
+        assertTrue("Task titled 'task' not retrieved.", database.read(title)
                 .equals(task));
 
         // Task titled 'untitled' not added yet
         title = "Untitled";
-        assertNull(database.getTask(title));
+        assertNull(database.read(title));
 
         task.setTitle(title);
         database.addTask(task);
         assertTrue("Task titled 'untitled' not retrieved.",
-                database.getTask(title).equals(task));
+                database.read(title).equals(task));
 
     }
 }
