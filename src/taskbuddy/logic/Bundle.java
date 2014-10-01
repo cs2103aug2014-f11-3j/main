@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 //Author: andrew
 
-class Bundle{
+public class Bundle{
 	HashMap<String, Object> bundle;
 	
 	//e.g bundle.putString("Failure", "Failed to load etc");

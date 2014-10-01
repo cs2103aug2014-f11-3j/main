@@ -14,9 +14,11 @@ public class DatabaseTest {
 
     Database database;
     Task task;
+    String title;
 
     public void createTask() {
-        task = new Task();
+        title = "Title";
+        task = new Task("Title");
     }
 
     public void setup() {
@@ -36,8 +38,28 @@ public class DatabaseTest {
     @Test
     public void testAddTask() throws Exception {
         setup();
-        database.addTask(task);
+        assertTrue(database.addTask(task));
         assertTrue("Task not added properly", database.getTasks().get(0)
                 .equals(task));
+    }
+
+    @Test
+    public void testGetTask() throws Exception {
+        setup();
+        assertNull(database.getTask(title));
+
+        database.addTask(task);
+        assertTrue("Task titled 'task' not retrieved.", database.getTask(title)
+                .equals(task));
+
+        // Task titled 'untitled' not added yet
+        title = "Untitled";
+        assertNull(database.getTask(title));
+
+        task.setTitle(title);
+        database.addTask(task);
+        assertTrue("Task titled 'untitled' not retrieved.",
+                database.getTask(title).equals(task));
+
     }
 }
