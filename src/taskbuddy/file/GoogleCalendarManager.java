@@ -52,8 +52,12 @@ public class GoogleCalendarManager {
 		return true;
 	}
 	
-	public static String displayTaskDescription(Task theTask) {
-		return theTask.getDescription();		
+	public static String displayTaskDescription(Task task) {
+		return task.getDescription();		
+	}
+	
+	public static String displayTaskDate(Task task) {
+		return task.getDate().getDate() + "." + task.getDate().getMonth() + "." + task.getDate().getYear();
 	}
 	
 	public static boolean delete(Task task) {
