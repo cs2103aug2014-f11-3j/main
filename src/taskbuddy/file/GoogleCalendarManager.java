@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.StringWriter;
+//import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,11 +23,11 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.HttpRequest;
+//import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.JsonGenerator;
+//import com.google.api.client.json.JsonGenerator;
 import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
@@ -38,14 +38,52 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
-public class SimpleCalendarTest {
+public class GoogleCalendarManager {
 
+	
+	public static Task theTask = new Task(null);
+	
+	public static boolean add(Task task) {
+		String taskDescription = displayTaskDescription(task);
+		// Adds task to Google Calendar
+		
+		// Returns true if task has successfully been added to Google Calendar
+		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
+		return true;
+	}
+	
+	public static String displayTaskDescription(Task task) {
+		return task.getDescription();		
+	}
+	
+	public static String displayTaskDate(Task task) {
+		return task.getDate().getDate() + "." + task.getDate().getMonth() + "." + task.getDate().getYear();
+	}
+	
+	public static String displayTaskTime(Task task) {
+		return task.getTime().getHour() + "." + task.getTime().getMinute();
+	}
+	
+	
+	
+	public static boolean delete(Task task) {
+		String taskDescription = displayTaskDescription(task);
+		//Deletes task from Google Calendar
+		
+		// Returns true if task has successfully been deleted from Google Calendar
+		// Returns false if task has not been successfully deleted from Google Calendar (Eg: When user is offline)
+		return true;
+	}
+	
+	
+	
 	enum CommandType {
-		GET_CALENDARLIST_SUMMARY, GET_ALL_CALENDARLIST_SUMMARY, GET_CALENDAR_SUMMARY, LIST_EVENTS, ADD_EVENT, INVALID
+		GET_CALENDARLIST_SUMMARY, GET_ALL_CALENDARLIST_SUMMARY, GET_CALENDAR_SUMMARY, LIST_EVENTS, ADD_EVENT, EXIT, INVALID
 	};
 
+	
 	public static void main(String[] args) throws IOException {
-		clearDb();
+		//clearDb();
 		if (isTokenDbEmpty()) {
 			Calendar calendar = authorizeCal();
 			executeCalendarTasks(calendar);
@@ -64,6 +102,7 @@ public class SimpleCalendarTest {
 			showToUser("3. GET_CALENDAR_SUMMARY");
 			showToUser("4. LIST_EVENTS");
 			showToUser("5. ADD_EVENT");
+			showToUser("6. EXIT");
 
 			String calendarID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
 			Scanner sc = new Scanner(System.in);
@@ -98,6 +137,8 @@ public class SimpleCalendarTest {
 			return CommandType.LIST_EVENTS;
 		case "5":
 			return CommandType.ADD_EVENT;
+		case "6":
+			return CommandType.EXIT;
 		default:
 			return CommandType.INVALID;
 		}
@@ -121,6 +162,8 @@ public class SimpleCalendarTest {
 		case ADD_EVENT:
 			addEvent(calendarID, calendar);
 			break;
+		case EXIT:
+			exitProgram();
 		case INVALID:
 			showToUser(String.format("Invalid!"));
 		}
@@ -140,7 +183,7 @@ public class SimpleCalendarTest {
 
 	public static void addToDb(String accessToken) {
 		try {
-			FileOutputStream fout = new FileOutputStream("db.txt");
+			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken.txt");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(accessToken);
 			oos.close();
@@ -153,7 +196,7 @@ public class SimpleCalendarTest {
 
 	public static void clearDb() {
 		try {
-			FileOutputStream fout = new FileOutputStream("db.txt");
+			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken.txt");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject("");
 			oos.close();
@@ -168,7 +211,7 @@ public class SimpleCalendarTest {
 		String accessToken;
 
 		try {
-			FileInputStream fin = new FileInputStream("db.txt");
+			FileInputStream fin = new FileInputStream("GoogleCalAuthenticationToken.txt");
 			ObjectInputStream ois = new ObjectInputStream(fin);
 			accessToken = (String) ois.readObject();
 			ois.close();
@@ -487,6 +530,10 @@ public class SimpleCalendarTest {
 
 	public static void newLine() {
 		System.out.println();
+	}
+	
+	public static void exitProgram() {
+		System.exit(0);
 	}
 }
 
