@@ -40,12 +40,21 @@ import com.google.api.services.calendar.model.Events;
 
 public class GoogleCalendarManager {
 
+	
+	public static Task theTask = new Task(null);
+	
 	public static boolean add(Task task) {
+		
+		String description = displayTaskDescription(task);
 		// Adds task to Google Calendar
 		
 		// Returns true if task has successfully been added to Google Calendar
 		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
 		return true;
+	}
+	
+	public static String displayTaskDescription(Task theTask) {
+		return theTask.getDescription();		
 	}
 	
 	public static boolean delete(Task task) {
