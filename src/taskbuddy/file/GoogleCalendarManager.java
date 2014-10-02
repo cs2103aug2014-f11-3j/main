@@ -40,10 +40,29 @@ import com.google.api.services.calendar.model.Events;
 
 public class GoogleCalendarManager {
 
+	public static boolean add(Task task) {
+		// Adds task to Google Calendar
+		
+		// Returns true if task has successfully been added to Google Calendar
+		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
+		return true;
+	}
+	
+	public static boolean delete(Task task) {
+		//Deletes task from Google Calendar
+		
+		// Returns true if task has successfully been deleted from Google Calendar
+		// Returns false if task has not been successfully deleted from Google Calendar (Eg: When user is offline)
+		return true;
+	}
+	
+	
+	
 	enum CommandType {
 		GET_CALENDARLIST_SUMMARY, GET_ALL_CALENDARLIST_SUMMARY, GET_CALENDAR_SUMMARY, LIST_EVENTS, ADD_EVENT, EXIT, INVALID
 	};
 
+	
 	public static void main(String[] args) throws IOException {
 		//clearDb();
 		if (isTokenDbEmpty()) {
