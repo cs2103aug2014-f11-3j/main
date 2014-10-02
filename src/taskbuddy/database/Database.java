@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import taskbuddy.logic.Task;
 import taskbuddy.logic.Bundle;
+import taskbuddy.file.GoogleCalendarManager;
 
 /**
  * Stores tasks and implements methods associated with adding/retrieval of
@@ -36,17 +37,6 @@ public class Database {
     }
 
     /**
-     * Returns message indicating success of task addition
-     * 
-     * @return message indicating success of task addition
-     */
-    public Bundle resultTaskAdded() {
-        Bundle result = new Bundle();
-        result.putString("Success", "Task added.");
-        return result;
-    }
-
-    /**
      * Adds task to the current storage of tasks.
      * 
      * @param task
@@ -54,7 +44,7 @@ public class Database {
      * @return true if task is added successfully, false otherwise
      */
     public boolean addTask(Task task) {
-        return this.tasks.add(task);
+        return tasks.add(task) && GoogleCalendarManager.add(task);
     }
 
     /**
@@ -107,8 +97,7 @@ public class Database {
         if (!this.getTasks().isEmpty()) {
             Task task = new Task();
             if ((task = search(title)) != null) {
-                this.tasks.remove(task);
-                return true;
+                return tasks.remove(task) && GoogleCalendarManager.delete(task);
             }
         }
         return false;
