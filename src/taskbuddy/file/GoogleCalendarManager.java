@@ -60,6 +60,12 @@ public class GoogleCalendarManager {
 		return task.getDate().getDate() + "." + task.getDate().getMonth() + "." + task.getDate().getYear();
 	}
 	
+	public static String displayTaskTime(Task task) {
+		return task.getTime().getHour() + "." + task.getTime().getMinute();
+	}
+	
+	
+	
 	public static boolean delete(Task task) {
 		String taskDescription = displayTaskDescription(task);
 		//Deletes task from Google Calendar
