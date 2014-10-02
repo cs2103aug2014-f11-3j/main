@@ -44,8 +44,7 @@ public class GoogleCalendarManager {
 	public static Task theTask = new Task(null);
 	
 	public static boolean add(Task task) {
-		
-		String description = displayTaskDescription(task);
+		String taskDescription = displayTaskDescription(task);
 		// Adds task to Google Calendar
 		
 		// Returns true if task has successfully been added to Google Calendar
@@ -58,6 +57,7 @@ public class GoogleCalendarManager {
 	}
 	
 	public static boolean delete(Task task) {
+		String taskDescription = displayTaskDescription(task);
 		//Deletes task from Google Calendar
 		
 		// Returns true if task has successfully been deleted from Google Calendar
