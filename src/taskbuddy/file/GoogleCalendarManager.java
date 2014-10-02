@@ -41,11 +41,11 @@ import com.google.api.services.calendar.model.Events;
 public class GoogleCalendarManager {
 
 	enum CommandType {
-		GET_CALENDARLIST_SUMMARY, GET_ALL_CALENDARLIST_SUMMARY, GET_CALENDAR_SUMMARY, LIST_EVENTS, ADD_EVENT, INVALID
+		GET_CALENDARLIST_SUMMARY, GET_ALL_CALENDARLIST_SUMMARY, GET_CALENDAR_SUMMARY, LIST_EVENTS, ADD_EVENT, EXIT, INVALID
 	};
 
 	public static void main(String[] args) throws IOException {
-		clearDb();
+		//clearDb();
 		if (isTokenDbEmpty()) {
 			Calendar calendar = authorizeCal();
 			executeCalendarTasks(calendar);
@@ -64,6 +64,7 @@ public class GoogleCalendarManager {
 			showToUser("3. GET_CALENDAR_SUMMARY");
 			showToUser("4. LIST_EVENTS");
 			showToUser("5. ADD_EVENT");
+			showToUser("6. EXIT");
 
 			String calendarID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
 			Scanner sc = new Scanner(System.in);
@@ -98,6 +99,8 @@ public class GoogleCalendarManager {
 			return CommandType.LIST_EVENTS;
 		case "5":
 			return CommandType.ADD_EVENT;
+		case "6":
+			return CommandType.EXIT;
 		default:
 			return CommandType.INVALID;
 		}
@@ -121,6 +124,8 @@ public class GoogleCalendarManager {
 		case ADD_EVENT:
 			addEvent(calendarID, calendar);
 			break;
+		case EXIT:
+			exitProgram();
 		case INVALID:
 			showToUser(String.format("Invalid!"));
 		}
@@ -140,7 +145,7 @@ public class GoogleCalendarManager {
 
 	public static void addToDb(String accessToken) {
 		try {
-			FileOutputStream fout = new FileOutputStream("db.txt");
+			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken.txt");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(accessToken);
 			oos.close();
@@ -153,7 +158,7 @@ public class GoogleCalendarManager {
 
 	public static void clearDb() {
 		try {
-			FileOutputStream fout = new FileOutputStream("db.txt");
+			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken.txt");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject("");
 			oos.close();
@@ -168,7 +173,7 @@ public class GoogleCalendarManager {
 		String accessToken;
 
 		try {
-			FileInputStream fin = new FileInputStream("db.txt");
+			FileInputStream fin = new FileInputStream("GoogleCalAuthenticationToken.txt");
 			ObjectInputStream ois = new ObjectInputStream(fin);
 			accessToken = (String) ois.readObject();
 			ois.close();
@@ -487,6 +492,10 @@ public class GoogleCalendarManager {
 
 	public static void newLine() {
 		System.out.println();
+	}
+	
+	public static void exitProgram() {
+		System.exit(0);
 	}
 }
 
