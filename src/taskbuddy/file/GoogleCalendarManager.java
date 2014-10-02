@@ -1,4 +1,8 @@
+//Author: Pee Choon Hian (A0108411W)
+
 package taskbuddy.file;
+import taskbuddy.logic.Task;
+
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -39,10 +43,6 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
 public class GoogleCalendarManager {
-
-	
-	public static Task theTask = new Task(null);
-	
 	public static boolean add(Task task) {
 		String taskDescription = displayTaskDescription(task);
 		// Adds task to Google Calendar
@@ -83,7 +83,7 @@ public class GoogleCalendarManager {
 
 	
 	public static void main(String[] args) throws IOException {
-		//clearDb();
+		clearDb();
 		if (isTokenDbEmpty()) {
 			Calendar calendar = authorizeCal();
 			executeCalendarTasks(calendar);
