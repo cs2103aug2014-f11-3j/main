@@ -44,13 +44,14 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
 public class GoogleCalendarManager {
-	public static boolean add(Task task) {
+	public static String add(Task task) {
 		String taskDescription = displayTaskDescription(task);
 		// Adds task to Google Calendar
 		
 		// Returns true if task has successfully been added to Google Calendar
 		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
-		return true;
+		String GCalID = "Dummy GCal ID";
+		return GCalID;
 	}
 	
 	public static String displayTaskDescription(Task task) {
