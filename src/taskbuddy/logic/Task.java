@@ -14,6 +14,7 @@ public class Task {
 	private int __priorityFlag;
 	private boolean __completionFlag;
 	private boolean __floatingTask;
+	private String __googleID;
 
 	// basic constructors
 	public Task() {
@@ -52,12 +53,20 @@ public class Task {
 	public boolean isFloatingTask() {
 		return this.__floatingTask;
 	}
+	
+	public String getGID(){
+		return this.__googleID;
+	}
 
 	// basic mutators
 	public void setTitle(String nextTitle) {
 		this.__title = nextTitle;
 	}
-
+	
+	public void setGId(String newID){
+		this.__googleID = newID;
+	}
+	
 	public void setDescription(String nextDescription) {
 		if (!nextDescription.equals(nullValue)) {
 			this.__description = nextDescription;

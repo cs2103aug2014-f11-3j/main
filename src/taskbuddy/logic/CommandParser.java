@@ -13,7 +13,7 @@ public class CommandParser {
 	private Stack<ArrayList<String>> editStack = new Stack<ArrayList<String>>();
 
 	// if new command is parsed, clear redo stack;
-	
+
 	Bundle addTask(ArrayList<String> extras) {
 		String desc = extras.get(1);
 		String endDate = extras.get(2);
@@ -48,7 +48,7 @@ public class CommandParser {
 		String title = extras.get(4);
 		Bundle ack = new Bundle();
 		Bundle foundTask = deleteTask(title);
-		if (foundTask.getItem("status").equals("Success")){
+		if (foundTask.getItem("status").equals("Success")) {
 			ack = addTask(extras);
 		} else {
 			ack = ackFromLogic("Failed", "Nonexistent task", null);
@@ -59,7 +59,7 @@ public class CommandParser {
 	Bundle deleteTask(String title) {
 		Bundle ack = new Bundle();
 		boolean result = Database.delete(title);
-		if (result){
+		if (result) {
 			ack = ackFromLogic("Success", null, null);
 		} else {
 			ack = ackFromLogic("Failure", "Nonexistent task", null);
@@ -100,36 +100,35 @@ public class CommandParser {
 		// send to gui
 	}
 
-	public void userInputs(ArrayList<String> userIn) {
+	public Bundle userInputs(ArrayList<String> userIn) {
 		String commandType = userIn.get(0);
 		Bundle status = new Bundle();
 		if (commandType.equalsIgnoreCase("add")) {
 			redoStack = new Stack<ArrayList<String>>();
 			undoStack.push(userIn);
 			status = addTask(userIn);
-			sendAck(status);
-		}
-		if (commandType.equalsIgnoreCase("display")) {
+			return status;
+		} else if (commandType.equalsIgnoreCase("display")) {
 			displayTasks();
-		}
-		if (commandType.equalsIgnoreCase("edit")) {
+			status = ackFromLogic(null, null, null);
+			return status;
+		} else if (commandType.equalsIgnoreCase("edit")) {
 			redoStack = new Stack<ArrayList<String>>();
 			undoStack.push(userIn);
 			editTask(userIn);
-			sendAck(status);
-		}
-		if (commandType.equalsIgnoreCase("delete")) {
+			return status;
+		} else if (commandType.equalsIgnoreCase("delete")) {
 			redoStack = new Stack<ArrayList<String>>();
 			undoStack.push(userIn);
 			String taskToDelete = userIn.get(4);
 			status = deleteTask(taskToDelete);
-			sendAck(status);
-		}
-		if (commandType.equalsIgnoreCase("undo")) {
-
-		}
-		if (commandType.equalsIgnoreCase("redo")) {
-
+			return status;
+		} else if (commandType.equalsIgnoreCase("undo")) {
+			return status;
+		} else if (commandType.equalsIgnoreCase("redo")) {
+			return status;
+		} else {
+			return status;
 		}
 	}
 }
