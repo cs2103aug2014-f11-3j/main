@@ -50,18 +50,13 @@ public class GoogleCalendarManager {
 		
 		// Returns true if task has successfully been added to Google Calendar
 		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
-		String GID = "Dummy GCal ID";
-		return GID;
+		return addEventFromDB(task, calendarID, service);
 	}
 	
 	public static String addEventFromDB(Task task, String calendarID, Calendar service) throws IOException {
+		String GID = "Dummy GoogleCal ID";
 		
-		
-		
-		
-		return "GID";
-	
-	
+		return GID;
 	}
 	
 	
