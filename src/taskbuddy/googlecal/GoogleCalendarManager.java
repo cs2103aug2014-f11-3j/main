@@ -50,8 +50,8 @@ public class GoogleCalendarManager {
 		
 		// Returns true if task has successfully been added to Google Calendar
 		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
-		String GCalID = "Dummy GCal ID";
-		return GCalID;
+		String GID = "Dummy GCal ID";
+		return GID;
 	}
 	
 	public static String displayTaskDescription(Task task) {
