@@ -54,6 +54,18 @@ public class GoogleCalendarManager {
 		return GID;
 	}
 	
+	public static String addEventFromDB(Task task, String calendarID, Calendar service) throws IOException {
+		
+		
+		
+		
+		return "GID";
+	
+	
+	}
+	
+	
+	
 	public static String displayTaskDescription(Task task) {
 		return task.getDescription();		
 	}
