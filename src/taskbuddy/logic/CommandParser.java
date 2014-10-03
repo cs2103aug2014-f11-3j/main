@@ -8,6 +8,7 @@ import taskbuddy.database.Database;
 //Author: andrew
 public class CommandParser {
 
+	private Database database = new Database();
 	private Stack<ArrayList<String>> undoStack = new Stack<ArrayList<String>>();
 	private Stack<ArrayList<String>> redoStack = new Stack<ArrayList<String>>();
 	private Stack<ArrayList<String>> editStack = new Stack<ArrayList<String>>();
@@ -22,17 +23,18 @@ public class CommandParser {
 		Task newTask = new Task(title);
 		newTask.setDescription(desc);
 		newTask.setEndTime(endDate, endTime);
-		boolean result = Database.addTask(newTask);
+		boolean result = database.addTask(newTask);
 		Bundle acknowledgement = new Bundle();
 		if (result) {
 			acknowledgement = ackFromLogic("Success", null, newTask);
 		} else {
 			acknowledgement = ackFromLogic("Failure", "Add failure", newTask);
 		}
+		return acknowledgement;
 	}
 
 	void displayTasks() {
-		ArrayList<Task> tempCache = Database.getTasks();
+		ArrayList<Task> tempCache = database.getTasks();
 		for (Task task : tempCache) {
 			printTask(task);
 		}
@@ -58,7 +60,7 @@ public class CommandParser {
 
 	Bundle deleteTask(String title) {
 		Bundle ack = new Bundle();
-		boolean result = Database.delete(title);
+		boolean result = database.delete(title);
 		if (result) {
 			ack = ackFromLogic("Success", null, null);
 		} else {

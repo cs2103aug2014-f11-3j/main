@@ -63,7 +63,7 @@ public class Task {
 		this.__title = nextTitle;
 	}
 	
-	public void setGId(String newID){
+	public void setGID(String newID){
 		this.__googleID = newID;
 	}
 	
@@ -155,6 +155,7 @@ public class Task {
 		toDisplay.add(this.__description);
 		toDisplay.add(this.__startTime.toString());
 		toDisplay.add(Integer.toString(this.__priorityFlag));
+		toDisplay.add(this.__googleID);
 		return toDisplay;
 	}
 }
