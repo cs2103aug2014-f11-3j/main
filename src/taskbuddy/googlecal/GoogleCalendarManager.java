@@ -3,6 +3,7 @@
 package taskbuddy.googlecal;
 import taskbuddy.logic.Task;
 
+//import java.util.Calendar;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -55,6 +56,8 @@ public class GoogleCalendarManager {
 	public static String displayTaskDescription(Task task) {
 		return task.getDescription();		
 	}
+	
+	
 	
 	public static String displayTaskDate(Task task) {
 		return task.getDate().getDate() + "." + task.getDate().getMonth() + "." + task.getDate().getYear();
@@ -425,6 +428,10 @@ public class GoogleCalendarManager {
 		System.out.println(createdEvent.getId());
 	}
 
+	
+	
+	
+	
 	public static void addEvent(String calendarID, Calendar service)
 			throws IOException {
 		while (true) {
