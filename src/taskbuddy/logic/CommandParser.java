@@ -44,11 +44,16 @@ public class CommandParser {
 		return taskInfo;
 	}
 
-	void editTask(ArrayList<String> extras) {
-		String desc = extras.get(1);
-		String endDate = extras.get(2);
-		String endTime = extras.get(3);
+	Bundle editTask(ArrayList<String> extras) {
 		String title = extras.get(4);
+		Bundle ack = new Bundle();
+		Bundle foundTask = deleteTask(title);
+		if (foundTask.getItem("status").equals("Success")){
+			ack = addTask(extras);
+		} else {
+			ack = ackFromLogic("Failed", "Nonexistent task", null);
+		}
+		return ack;
 	}
 
 	Bundle deleteTask(String title) {
@@ -111,7 +116,7 @@ public class CommandParser {
 			redoStack = new Stack<ArrayList<String>>();
 			undoStack.push(userIn);
 			editTask(userIn);
-
+			sendAck(status);
 		}
 		if (commandType.equalsIgnoreCase("delete")) {
 			redoStack = new Stack<ArrayList<String>>();
