@@ -7,7 +7,6 @@ import java.util.LinkedList;
 
 import org.junit.Test;
 
-import taskbuddy.database.Database;
 import taskbuddy.logic.Task;
 
 public class DatabaseTest {
@@ -50,11 +49,17 @@ public class DatabaseTest {
         setup();
         assertNull(database.read(title));
 
+        // Test for normal task retrieval
         database.addTask(task);
-        assertTrue("Task titled 'Title' not retrieved.", database.read(title)
-                .equals(task));
+        Task readTask = database.read(title);
+        assertTrue("Task titled 'Title' not retrieved.", readTask.equals(task));
 
-        // Task titled 'untitled' not added yet
+        // Confirm that task is passed by reference
+        String description = "description";
+        readTask.setDescription(description);
+        assertTrue(database.read(title).getDescription().equals(description));
+
+        // Test for retrieval of task with invalid title
         title = "Untitled";
         assertNull(database.read(title));
 
