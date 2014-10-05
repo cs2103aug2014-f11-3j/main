@@ -1,10 +1,16 @@
 package taskbuddy.database;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
 import taskbuddy.logic.Task;
-import taskbuddy.logic.Bundle;
 
 /**
  * Stores tasks and implements methods associated with adding/retrieval of
@@ -15,15 +21,34 @@ import taskbuddy.logic.Bundle;
  *
  */
 public class Database {
+    File log;
     ArrayList<Task> tasks;
     LinkedList<DbCommand> commands;
+    BufferedWriter writer;
 
     /**
-     * Constructor for this class.
+     * Constructor for this class. Initialises temporary and logged memory for
+     * tasks and commands.
+     * 
+     * @throws IOException
+     *             when log file cannot be loaded (if existing) or created.
      */
-    public Database() {
+    public Database() throws IOException {
         tasks = new ArrayList<Task>();
         commands = new LinkedList<DbCommand>();
+
+        String logName = "log";
+        this.prepareLog(logName);
+    }
+
+    /**
+     * Returns the <code>File</code> object representing the log file. Used
+     * primarily for <code>File</code> and <code>Path</code> manipulation.
+     * 
+     * @return the <code>File</code> object representing the log file
+     */
+    public File getLog() {
+        return log;
     }
 
     /**
@@ -36,14 +61,48 @@ public class Database {
     }
 
     /**
-     * Returns message indicating success of task addition
+     * Writes all existing tasks represented as a <code>String</code> into the
+     * log file
      * 
-     * @return message indicating success of task addition
+     * @param tasks
+     *            all currently existing tasks in TextBuddy's task manager
+     *            represented as a <code>String</code>
+     * @throws IOException
+     *             if there are write problems to the log file
      */
-    public Bundle resultTaskAdded() {
-        Bundle result = new Bundle();
-        result.putString("Success", "Task added.");
-        return result;
+    public void writeToLogFile(String tasks) throws IOException {
+        Path logFilePath = this.getLog().toPath();
+        try {
+            writer = Files.newBufferedWriter(logFilePath,
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            writer.write(tasks);
+        } finally {
+            writer.close();
+        }
+    }
+
+    /**
+     * Prepares the log file to be read/written from/to. If the log file exists,
+     * this method assumes that the log file came from a previous session. Thus
+     * to use an existing log file, the text in the log file must be properly
+     * formatted. If the log file does not exist, this method creates it and
+     * logs all tasks into newly created log file.
+     * 
+     * @param tbTaskManager
+     *            the task manager of TextBuddy handling all task operations
+     * @return status message describing status of preparation
+     * @throws IOException
+     *             if there are read/write problems from/to the log file
+     */
+    public void prepareLog(String logName) throws IOException {
+
+        log = new File(logName);
+        if (log.isFile() && log.canRead() && log.canWrite()) {
+            // load tasks and use existing log file for writing
+        } else {
+            log.createNewFile();
+        }
     }
 
     /**
@@ -112,5 +171,10 @@ public class Database {
             }
         }
         return false;
+    }
+
+    public String displayTask(Task task) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

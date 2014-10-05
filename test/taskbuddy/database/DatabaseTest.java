@@ -2,6 +2,8 @@ package taskbuddy.database;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -13,14 +15,36 @@ public class DatabaseTest {
 
     Database database;
     Task task;
+
     String title;
+    String description;
+    String start;
+    String endDate;
+    String endTime;
+    int priority;
+    boolean isComplete;
+    boolean isFloating;
 
     public void createTask() {
         title = "Title";
+        description = "Description";
+        start = "";
+        endDate = "31122014";
+        endTime = "2359";
+        priority = 1;
+        isComplete = true;
+        isFloating = false;
+
         task = new Task("Title");
+        task.setCompletion(true);
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(endDate, endTime);
+        task.setFloating(isFloating);
+        task.setPriority(priority);
     }
 
-    public void setup() {
+    public void setup() throws IOException {
         database = new Database();
         createTask();
     }
@@ -32,6 +56,21 @@ public class DatabaseTest {
                 database.tasks instanceof ArrayList);
         assertTrue("Database not constructed with linkedlist of DbCommand "
                 + "objects.", database.commands instanceof LinkedList);
+        assertTrue("Database not constructed with log file object.",
+                database.log instanceof File);
+    }
+
+    // TODO Test case incomplete
+    @Test
+    public void testDisplayTask() throws Exception {
+        String delimiter = " | ";
+        createTask();
+        for (String anAttribute : task.getTaskInfo()) {
+            System.out.print(anAttribute + delimiter);
+        }
+
+
+        
     }
 
     @Test
