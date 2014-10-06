@@ -50,6 +50,7 @@ import com.google.api.services.calendar.model.Events;
 public class GoogleCalendarManager {
 	
 	public static boolean isUserOnline() throws UnknownHostException, IOException {
+		// Added the method to check whether user is online
 		Socket socket = null;
 		boolean reachable = false;
 		try {
