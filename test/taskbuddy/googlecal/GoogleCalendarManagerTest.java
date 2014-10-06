@@ -17,14 +17,16 @@ public class GoogleCalendarManagerTest {
 
 	GoogleCalendarManager gooCal = new GoogleCalendarManager();
 	Task task = new Task ("Event Summary");
+	
+	
 
 	
 	
 	
 	// This tests the ability to read the description of a task sent to it  
 	@Test
-	public void testShowSummary() {
-		assertEquals("Faled because event summary is wrong", "Event Summary", gooCal.showSummary(task));		
+	public void testGetSummary() {
+		assertEquals("Faled because event summary is wrong", "Event Summary", gooCal.getSummary(task));		
 	}
 	
 	// This test tests the ability for GoogleCalendarManager to successfully add an event to Google Calendar servers.
@@ -32,6 +34,16 @@ public class GoogleCalendarManagerTest {
 	@Test
 	public void testAdd() {
 		assertTrue("Failed because event was not successfully added to Google Calendar Server", gooCal.add(task));		
+	}
+	*/
+	
+	
+	// This tests the ability to read the start time of a task sent to it  
+	/*
+	@Test
+	public void testShowStartTime() throws NullPointerException {
+		task.setStartTime("");
+		assertEquals("Faled because start time is wrong", "", gooCal.showStartTime(task));		
 	}
 	*/
 	

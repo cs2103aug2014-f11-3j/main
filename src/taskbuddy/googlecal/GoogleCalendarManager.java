@@ -3,10 +3,6 @@
 package taskbuddy.googlecal;
 import taskbuddy.logic.Task;
 
-//import java.util.Calendar;
-
-
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,9 +44,7 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
 public class GoogleCalendarManager {
-	
 	public static boolean isUserOnline() throws UnknownHostException, IOException {
-		// Added the method to check whether user is online
 		Socket socket = null;
 		boolean reachable = false;
 		try {
@@ -73,9 +67,8 @@ public class GoogleCalendarManager {
 	public static Calendar initializeCalendar() throws IOException {
 		Calendar service;
 
-		
-		//clearDb(); // For debugging
-		//addToDb("abc"); // To purposely create an invalid code in the database for testing
+		clearDb(); // For debugging
+		addToDb("abc"); // To purposely create an invalid code in the database for testing
 				
 		if (isTokenDbEmpty()) {			
 			// Generate new Google Calendar Authentication
@@ -88,7 +81,8 @@ public class GoogleCalendarManager {
 				// Check if authentication key is valid. If it is invalid, IOException unauthorized will be caught.
 				service = createCalendar(readDb());
 				try { 
-					getAllCalendarListSummary(createCalendar(readDb()));
+					checkCalendar(createCalendar(readDb()));
+					//getAllCalendarListSummary(createCalendar(readDb()));
 				} catch (UnknownHostException connectionProblem) {
 					System.out.println("Unable to connect to Google 1");
 					return null;
@@ -104,13 +98,21 @@ public class GoogleCalendarManager {
 	}
 	
 	public static boolean add(Task task) throws IOException {
-		Calendar service = null;
+		// Adds task to Google Calendar
 
+		// Returns true if task has successfully been added to Google Calendar
+		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
+		Calendar service = null;
+		String calendarID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
+		String gooCalEventID;
+		
+		// First, check user online status.
 		if (!isUserOnline()) {
 			return false;
 		}
-		
+	
 		else {
+			// This try catch blocks checks if Google's servers can be read
 			try {
 				service = initializeCalendar();
 			} catch (UnknownHostException connectionProblem) {
@@ -118,33 +120,129 @@ public class GoogleCalendarManager {
 				return false;
 			}
 
-			System.out.println("calendar is initialised");
-			getAllCalendarListSummary(service);
-
-			String eventSummary = showSummary(task);
-			// Adds task to Google Calendar
-
-			// Returns true if task has successfully been added to Google Calendar
-			// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
-
-
-
+			//getAllCalendarListSummary(service);
+			String eventSummary = getSummary(task);
+			String eventStartDate = getStartDate(task);
+			String eventStartTime = getStartTime(task);
+			String eventEndDate = getEndDate(task);
+			String eventEndTime = getEndTime(task);
+			
+			gooCalEventID = addEventToCalendar(service, eventSummary, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
+			
+			if (gooCalEventID.equals("")) {
+				return false;
+			}
+			
+			task.setGID(gooCalEventID);
+			
+			return true;
 		}
-		return true;
 	}
 	
-	public static String showSummary(Task task) {
+	public static String getSummary(Task task) {
 		return task.getTitle();
 	}
 	
-
-	/*
-	public boolean isTokenValid() {
-		String token = readDb();
-		createCalendar(token);
-		return true;
+	
+	public static String getStartDate(Task task) throws NullPointerException {
+	// This is a stub
+		String startDate = "8/10/2014";
+		return startDate;
+		//return task.toString(task.getStartTime());
 	}
-	*/
+	
+	public static String getStartTime(Task task) throws NullPointerException {
+	// This is a stub
+		String startTime = "10:30";
+		return startTime;
+		//return task.toString(task.getStartTime());
+	}
+	
+	
+	public static String getEndDate(Task task) {
+		// This is a stub
+		String endDate = "8/10/2014";
+		return endDate;
+	}
+	
+	
+	public static String getEndTime(Task task) {
+		// This is a stub
+		String endTime = "13:30";
+		return endTime;
+	}
+	
+	public static String addEventToCalendar(Calendar service, String eventSummary, String calendarID, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime) throws IOException {
+		Event event = new Event();
+
+		event.setSummary(eventSummary);
+
+
+		SimpleDateFormat simpleDateFormatAllDay = new SimpleDateFormat("dd/MM/yyyy");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+		if (eventStartTime.isEmpty() || eventEndTime.isEmpty()) {
+			System.out.println("CREATE AN ALL-DAY EVENT IF END TIMES ARE LEFT BLANK:");
+			try {
+				// To parse string into Date object
+				Date dateFirst = simpleDateFormatAllDay.parse(eventStartDate);
+				Date dateSecond = simpleDateFormatAllDay.parse(eventEndDate);
+
+				// Creates string from date object, string must be in a
+				// particular format to create a DateTime object with no
+				// time element
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				String startDateStr = dateFormat.format(dateFirst);
+				String endDateStr = dateFormat.format(dateSecond);
+
+				// Out of the 6 methods for creating a DateTime object with
+				// no time element, only the String version works
+				DateTime startDateTime = new DateTime(startDateStr);
+				DateTime endDateTime = new DateTime(endDateStr);
+
+				// Must use the setDate() method for an all-day event
+				// (setDateTime() is used for timed events)
+				EventDateTime startEventDateTime = new EventDateTime().setDate(startDateTime);
+				EventDateTime endEventDateTime = new EventDateTime().setDate(endDateTime);
+
+				// Set event parameters
+				event.setStart(startEventDateTime);
+				event.setEnd(endEventDateTime);
+			} catch (ParseException ex) {
+				System.out.println("Exception " + ex);
+			}
+		} else {
+			System.out.println("CREATE A NORMAL TIMED EVENT:");
+			try {
+
+				// To parse string into Date object
+				Date dateFirst = simpleDateFormat.parse(eventStartDate + " " + eventStartTime);
+				Date dateSecond = simpleDateFormat.parse(eventEndDate + " " + eventEndTime);
+
+				// Formats Date object according to simpleDateFormat, print.
+				System.out.println("date : " + simpleDateFormat.format(dateFirst));
+				System.out.println("date : " + simpleDateFormat.format(dateSecond));
+
+				// Create DateTime object to add to event object
+				DateTime dateTime1 = new DateTime(dateFirst,TimeZone.getTimeZone("UTC"));
+				event.setStart(new EventDateTime().setDateTime(dateTime1));
+				DateTime dateTime2 = new DateTime(dateSecond,TimeZone.getTimeZone("UTC"));
+				event.setEnd(new EventDateTime().setDateTime(dateTime2));
+			} catch (ParseException ex) {
+				System.out.println("Exception " + ex);
+			}
+		}
+		// Create event object, execute the insertion of this event into the google calendar
+		Event createdEvent = service.events().insert(calendarID, event).execute();
+		return createdEvent.getId();
+	}
+
+	
+	
+	
+	
+
+	
 	
 	public static Calendar createCalendar(String token) throws IOException {
 		System.out.println("creating calendar");
@@ -249,11 +347,11 @@ public class GoogleCalendarManager {
 	public static void main(String[] args) throws IOException {
 		Task task = new Task ("test");
  
-			add(task);
-
+		System.out.println(add(task));
 		
 		
-		/*clearDb();
+		/*
+		clearDb();
 		if (isTokenDbEmpty()) {
 			Calendar calendar = authorizeCal();
 			executeCalendarTasks(calendar);
@@ -506,6 +604,12 @@ public class GoogleCalendarManager {
 		}
 		newLine();
 		newLine();
+	}
+	
+	
+	public static void checkCalendar(Calendar calendar) throws IOException {
+		Calendar.CalendarList.List listRequest = calendar.calendarList().list();
+		CalendarList feed = listRequest.execute();
 	}
 
 	public static void getCalendarSummary(String calendarID, Calendar service)
