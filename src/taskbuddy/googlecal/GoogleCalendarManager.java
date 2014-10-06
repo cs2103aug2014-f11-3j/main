@@ -67,8 +67,8 @@ public class GoogleCalendarManager {
 	public static Calendar initializeCalendar() throws IOException {
 		Calendar service;
 
-		clearDb(); // For debugging
-		addToDb("abc"); // To purposely create an invalid code in the database for testing
+		//clearDb(); // For debugging
+		//addToDb("abc"); // To purposely create an invalid code in the database for testing
 				
 		if (isTokenDbEmpty()) {			
 			// Generate new Google Calendar Authentication
