@@ -36,7 +36,7 @@ public class TaskTest {
     int priority;
     boolean isComplete;
     boolean isFloating;
-    String googleCalendarId = "11111";
+    String googleCalendarId;
 
     public void createTask() {
 
@@ -61,6 +61,7 @@ public class TaskTest {
         priority = 1;
         isComplete = true;
         isFloating = false;
+        googleCalendarId = "11111";
 
         task = new Task("Title");
         task.setDescription(description);
@@ -73,7 +74,7 @@ public class TaskTest {
     }
 
     @Test
-    public void testToString() throws Exception {
+    public void testDisplayTask() throws Exception {
         setup();
         String expected;
         String actual;

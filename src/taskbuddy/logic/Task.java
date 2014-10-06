@@ -199,6 +199,9 @@ public class Task {
      * 
      * @return a string containing all the information of a <code>Task</code>
      *         object.
+     * 
+     * @author Soh Yong Sheng
+     * 
      */
     public String displayTask() {
         // Do not change this string conversion format - this is for Database's
@@ -232,7 +235,7 @@ public class Task {
         String result = displayTitle + displayDescription + displayStart
                 + displayEnd + displayPriority + displayIsCompleted
                 + displayIsFloating + displayGoogleId;
-        
+
         return result;
     }
 }

@@ -21,6 +21,7 @@ import taskbuddy.logic.Task;
  *
  */
 public class Database {
+    private static final String TASKS = " tasks:";
     File log;
     ArrayList<Task> tasks;
     LinkedList<DbCommand> commands;
@@ -61,8 +62,26 @@ public class Database {
     }
 
     /**
+     * Converts list of tasks to a string for writing to task log.
+     * 
+     * @param tasks
+     *            list of tasks to be converted to string
+     * @return string containing all tasks and associated information
+     */
+    public String tasksToString(ArrayList<Task> tasks) {
+        int numberOfTasks = this.getTasks().size();
+        String result = Integer.toString(numberOfTasks) + TASKS + "\n";
+
+        for (Task aTask : tasks) {
+            result = result + aTask.displayTask() + "\n";
+        }
+        return result;
+    }
+
+    /**
      * Writes all existing tasks represented as a <code>String</code> into the
-     * log file
+     * log file. The <code>prepareLog</code> method must be called first before
+     * calling this.
      * 
      * @param tasks
      *            all currently existing tasks in TextBuddy's task manager
@@ -70,13 +89,13 @@ public class Database {
      * @throws IOException
      *             if there are write problems to the log file
      */
-    public void writeToLogFile(String tasks) throws IOException {
+    public void writeToLogFile(ArrayList<Task> tasks) throws IOException {
         Path logFilePath = this.getLog().toPath();
         try {
             writer = Files.newBufferedWriter(logFilePath,
                     StandardCharsets.UTF_8,
                     StandardOpenOption.TRUNCATE_EXISTING);
-            writer.write(tasks);
+            writer.write(this.tasksToString(this.getTasks()));
         } finally {
             writer.close();
         }
@@ -173,8 +192,4 @@ public class Database {
         return false;
     }
 
-    public String displayTask(Task task) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }
