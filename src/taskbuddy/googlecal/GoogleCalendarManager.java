@@ -44,37 +44,36 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
 public class GoogleCalendarManager {
-	public static String add(Task task) {
-		String taskDescription = displayTaskDescription(task);
+	public boolean add(Task task) {
+		String eventSummary = showSummary(task);
 		// Adds task to Google Calendar
 		
 		// Returns true if task has successfully been added to Google Calendar
 		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
-		return addEventFromDB(task, calendarID, service);
-	}
-	
-	public static String addEventFromDB(Task task, String calendarID, Calendar service) throws IOException {
-		String GID = "Dummy GoogleCal ID";
 		
-		return GID;
+		
+	
+		
+		
+		
+		
+		if (!eventSummary.equals("")) {
+			return false;
+		}
+		else {
+			return false;
+		}
 	}
 	
-	
-	
-	public static String displayTaskDescription(Task task) {
-		return task.getDescription();		
+	public String showSummary(Task task) {
+		return task.getTitle();
 	}
 	
+
 	
 	
-	public static String displayTaskDate(Task task) {
-		return task.getDate().getDate() + "." + task.getDate().getMonth() + "." + task.getDate().getYear();
-	}
 	
-	public static String displayTaskTime(Task task) {
-		return task.getTime().getHour() + "." + task.getTime().getMinute();
-	}
-	
+
 	
 	
 	public static boolean delete(Task task) {
