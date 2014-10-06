@@ -53,6 +53,9 @@ public class GoogleCalendarManagerTest {
 	public void testIsUserOnline()  throws UnknownHostException, IOException  {
 			assertTrue("Failed because of the inability to detect correct online status", gooCal.isUserOnline());
 	}
+	
+	
+	
 
 	
 }

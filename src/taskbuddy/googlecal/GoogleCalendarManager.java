@@ -43,7 +43,94 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
+
+
+
+
+
 public class GoogleCalendarManager {
+
+	public static void main(String[] args) throws IOException {
+		Task task1 = new Task ("Task number 1");
+		Task task2 = new Task ("Task number 2");
+		add(task1);
+		add(task2);
+		delete(task1.getGID());
+	}
+	
+	
+	
+	public static boolean add(Task task) throws IOException {
+		// Adds task to Google Calendar
+		// Returns true if task has successfully been added to Google Calendar
+		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
+		Calendar service = null;
+		String calendarID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
+		String gooCalEventID;
+		
+		// First, check user online status.
+		if (!isUserOnline()) {
+			return false;
+		}
+		else {
+			// This try catch blocks checks if Google's servers can be read
+			try {
+				service = initializeCalendar();
+			} catch (UnknownHostException connectionProblem) {
+				System.out.println("Unable to connect to Google");
+				return false;
+			}
+
+			String eventSummary = getSummary(task);
+			String eventStartDate = getStartDate(task);
+			String eventStartTime = getStartTime(task);
+			String eventEndDate = getEndDate(task);
+			String eventEndTime = getEndTime(task);
+			
+			gooCalEventID = addEventToCalendar(service, eventSummary, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
+			
+			if (gooCalEventID.equals("")) {
+				return false;
+			}
+			task.setGID(gooCalEventID);
+			return true;
+		}
+	}
+	
+	
+	
+
+	
+	
+	
+	public static boolean delete(String eventId) throws IOException {
+		// Deletes task from Google Calendar
+		// Returns true if task has successfully been deleted from Google Calendar
+		// Returns false if task has not been successfully deleted from Google Calendar (Eg: When user is offline)
+		
+		Calendar service = null;
+		String calendarId = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
+		System.out.println(eventId);
+		// First, check user online status.
+		if (!isUserOnline()) {
+			return false;
+		}
+		else {
+			// This try catch blocks checks if Google's servers can be read
+			try {
+				service = initializeCalendar();
+			} catch (UnknownHostException connectionProblem) {
+				System.out.println("Unable to connect to Google");
+				return false;
+			}
+			System.out.println(service.events().delete(calendarId,eventId).execute());
+			return true;
+		}
+	}
+
+	
+	
+	
 	public static boolean isUserOnline() throws UnknownHostException, IOException {
 		Socket socket = null;
 		boolean reachable = false;
@@ -97,47 +184,6 @@ public class GoogleCalendarManager {
 		return service;
 	}
 	
-	public static boolean add(Task task) throws IOException {
-		// Adds task to Google Calendar
-
-		// Returns true if task has successfully been added to Google Calendar
-		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
-		Calendar service = null;
-		String calendarID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
-		String gooCalEventID;
-		
-		// First, check user online status.
-		if (!isUserOnline()) {
-			return false;
-		}
-	
-		else {
-			// This try catch blocks checks if Google's servers can be read
-			try {
-				service = initializeCalendar();
-			} catch (UnknownHostException connectionProblem) {
-				System.out.println("Unable to connect to Google");
-				return false;
-			}
-
-			//getAllCalendarListSummary(service);
-			String eventSummary = getSummary(task);
-			String eventStartDate = getStartDate(task);
-			String eventStartTime = getStartTime(task);
-			String eventEndDate = getEndDate(task);
-			String eventEndTime = getEndTime(task);
-			
-			gooCalEventID = addEventToCalendar(service, eventSummary, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
-			
-			if (gooCalEventID.equals("")) {
-				return false;
-			}
-			
-			task.setGID(gooCalEventID);
-			
-			return true;
-		}
-	}
 	
 	public static String getSummary(Task task) {
 		return task.getTitle();
@@ -146,7 +192,7 @@ public class GoogleCalendarManager {
 	
 	public static String getStartDate(Task task) throws NullPointerException {
 	// This is a stub
-		String startDate = "8/10/2014";
+		String startDate = "9/10/2014";
 		return startDate;
 		//return task.toString(task.getStartTime());
 	}
@@ -161,7 +207,7 @@ public class GoogleCalendarManager {
 	
 	public static String getEndDate(Task task) {
 		// This is a stub
-		String endDate = "8/10/2014";
+		String endDate = "9/10/2014";
 		return endDate;
 	}
 	
@@ -328,14 +374,7 @@ public class GoogleCalendarManager {
 	}
 	
 	
-	public static boolean delete(Task task) {
-		String taskDescription = displayTaskDescription(task);
-		//Deletes task from Google Calendar
-		
-		// Returns true if task has successfully been deleted from Google Calendar
-		// Returns false if task has not been successfully deleted from Google Calendar (Eg: When user is offline)
-		return true;
-	}
+
 	
 	
 	
@@ -344,23 +383,7 @@ public class GoogleCalendarManager {
 	};
 
 	
-	public static void main(String[] args) throws IOException {
-		Task task = new Task ("test");
- 
-		System.out.println(add(task));
-		
-		
-		/*
-		clearDb();
-		if (isTokenDbEmpty()) {
-			Calendar calendar = authorizeCal();
-			executeCalendarTasks(calendar);
-		} else {
-			Calendar calendar = initializeCalWithExistingToken();
-			executeCalendarTasks(calendar);
-		}
-		*/
-	}
+
 
 	
 	public static void executeCalendarTasks(Calendar calendar)
