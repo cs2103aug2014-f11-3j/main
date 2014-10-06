@@ -8,6 +8,15 @@ import java.util.GregorianCalendar;
 import org.junit.Test;
 
 public class TaskTest {
+    private static final String DELIMITER = " | ";
+    private static final String TITLE = "Title: ";
+    private static final String DESCRIPTION = "Description: ";
+    private static final String START = "Start: ";
+    private static final String END = "End: ";
+    private static final String PRIORITY = "Priority: ";
+    private static final String IS_COMPLETE = "Completed: ";
+    private static final String IS_FLOATING = "Floating task: ";
+    private static final String GOOGLE_CALENDAR_ID = "Google Calendar ID: ";
 
     int year;
     int month;
@@ -16,7 +25,22 @@ public class TaskTest {
     int minute;
     int second;
     Calendar cal;
+
     Task task;
+
+    String title;
+    String description;
+    String start;
+    String endDate;
+    String endTime;
+    int priority;
+    boolean isComplete;
+    boolean isFloating;
+    String googleCalendarId;
+
+    public void createTask() {
+
+    }
 
     public void setup() {
         year = 1;
@@ -28,17 +52,53 @@ public class TaskTest {
 
         // Month argument is an int from 0-11, not 1-12
         cal = new GregorianCalendar(year, month - 1, date, hour, minute, second);
-        task = new Task();
+
+        title = "Title";
+        description = "Description";
+        start = "";
+        endDate = "01000001";
+        endTime = "0101";
+        priority = 1;
+        isComplete = true;
+        isFloating = false;
+        googleCalendarId = "11111";
+
+        task = new Task("Title");
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(endDate, endTime);
+        task.setPriority(priority);
+        task.setCompletion(true);
+        task.setFloating(isFloating);
+        task.setGID(googleCalendarId);
     }
 
     @Test
-    public void testToString() throws Exception {
+    public void testDisplayTask() throws Exception {
         setup();
-        
-        String expected = date + "-" + month + "-" + year + " at " + hour + ":"
+        String expected;
+        String actual;
+
+        expected = date + "-" + month + "-" + year + " at " + hour + ":"
                 + minute;
-        String actual = task.toString(cal);
+        actual = task.displayDateTime(cal);
         assertTrue("Calendar not converted to string properly.",
                 actual.equals(expected));
+
+        // @formatter:off
+        expected = TITLE + title + DELIMITER + 
+                   DESCRIPTION + description + DELIMITER + 
+                   START + task.displayDateTime(cal) + DELIMITER +
+                   END + task.displayDateTime(cal) + DELIMITER +
+                   PRIORITY + priority + DELIMITER +
+                   IS_COMPLETE + Boolean.toString(isComplete) + DELIMITER + 
+                   IS_FLOATING + Boolean.toString(isFloating) + DELIMITER + 
+                   GOOGLE_CALENDAR_ID + googleCalendarId;
+        // @formatter:on
+
+        actual = task.displayTask();
+        assertTrue("Task does not convert to string properly.",
+                expected.equals(actual));
+
     }
 }

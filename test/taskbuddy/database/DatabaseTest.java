@@ -11,6 +11,12 @@ import org.junit.Test;
 
 import taskbuddy.logic.Task;
 
+/**
+ * Contains unit tests for <code>Database</code> class
+ * 
+ * @author Soh Yong Sheng
+ *
+ */
 public class DatabaseTest {
 
     Database database;
@@ -24,6 +30,7 @@ public class DatabaseTest {
     int priority;
     boolean isComplete;
     boolean isFloating;
+    String googleCalendarId = "11111";
 
     public void createTask() {
         title = "Title";
@@ -60,17 +67,40 @@ public class DatabaseTest {
                 database.log instanceof File);
     }
 
-    // TODO Test case incomplete
     @Test
-    public void testDisplayTask() throws Exception {
-        String delimiter = " | ";
-        createTask();
-        for (String anAttribute : task.getTaskInfo()) {
-            System.out.print(anAttribute + delimiter);
-        }
+    public void testTasksToString() throws Exception {
+        setup();
+        database.addTask(task);
+        database.addTask(task);
+        assertEquals("There are no two tasks stored.", database.getTasks()
+                .size(), 2);
 
+        ArrayList<Task> tasks = database.getTasks();
+        int numberOfTasks = tasks.size();
+        String expected = Integer.toString(numberOfTasks) + " tasks:\n"
+                + tasks.get(0).displayTask() + "\n"
+                + tasks.get(1).displayTask() + "\n";
+        String actual = database.tasksToString(tasks);
+        assertTrue("List of tasks not converted to string properly.",
+                actual.equals(expected));
+    }
 
+    /**
+     * Physically check log file to see if tasks are written to the former.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testWrite() throws Exception {
+        setup();
         
+        // No tasks written to log file
+//        database.writeToLogFile(database.getTasks());
+        
+        // Two tasks written to log file
+        database.addTask(task);
+        database.addTask(task);
+        database.writeToLogFile(database.getTasks());
     }
 
     @Test
