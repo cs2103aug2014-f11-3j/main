@@ -8,6 +8,16 @@ import java.util.Calendar;
 //Author: andrew
 public class Task {
 
+    private static final String DELIMITER = " | ";
+    private static final String TITLE = "Title: ";
+    private static final String DESCRIPTION = "Description: ";
+    private static final String START = "Start: ";
+    private static final String END = "End: ";
+    private static final String PRIORITY = "Priority: ";
+    private static final String IS_COMPLETE = "Completed: ";
+    private static final String IS_FLOATING = "Floating task: ";
+    private static final String GOOGLE_CALENDAR_ID = "Google Calendar ID: ";
+
     private static String nullValue = "PADDING_VALUE";
     private String __title;
     private String __description;
@@ -172,7 +182,7 @@ public class Task {
      * @return a string showing the date and time of the argument
      *         <code>Calendar</code> object.
      */
-    public String toString(Calendar cal) {
+    public String displayDateTime(Calendar cal) {
         Date date = cal.getTime();
 
         // Do not change this formatter - this is for Database's log file. You
@@ -183,23 +193,46 @@ public class Task {
         return formatter.format(date);
     }
 
-    /*
-     * TODO Method not tested yet.
+    /**
+     * Converts a <code>Task</code> object and its attributes to a string for
+     * logging into a text file.
+     * 
+     * @return a string containing all the information of a <code>Task</code>
+     *         object.
      */
-    public String toString() {
+    public String displayTask() {
         // Do not change this string conversion format - this is for Database's
         // log file. You need to at least tell me how you've changed it if you
         // want to change it, or write your method for your own formatter.
-        String delimiter = " | ";
-        // @formatter:off
-        String result = this.__title + delimiter + 
-                        Boolean.toString(this.__completionFlag) + delimiter +
-                        this.toString(__startTime) + delimiter + 
-                        this.toString(__startTime) + delimiter +
-                        this.__description +  delimiter + 
-                        Integer.toString(this.__priorityFlag) + delimiter +
-                        this.__googleID;
-        // @formatter:on
+
+        String displayTitle = TITLE + this.__title + DELIMITER;
+
+        String displayDescription = DESCRIPTION + this.__description
+                + DELIMITER;
+
+        // TODO Following should be start time, but setStartTime method is
+        // currently incomplete
+        String displayStart = START + this.displayDateTime(this.getEndTime())
+                + DELIMITER;
+
+        String displayEnd = END + this.displayDateTime(this.getEndTime())
+                + DELIMITER;
+
+        String displayPriority = PRIORITY
+                + Integer.toString(this.getPriority()) + DELIMITER;
+
+        String displayIsCompleted = IS_COMPLETE
+                + Boolean.toString(this.getCompletionStatus()) + DELIMITER;
+
+        String displayIsFloating = IS_FLOATING
+                + Boolean.toString(this.isFloatingTask()) + DELIMITER;
+
+        String displayGoogleId = GOOGLE_CALENDAR_ID + this.getGID();
+
+        String result = displayTitle + displayDescription + displayStart
+                + displayEnd + displayPriority + displayIsCompleted
+                + displayIsFloating + displayGoogleId;
+        
         return result;
     }
 }

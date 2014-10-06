@@ -65,9 +65,8 @@ public class DatabaseTest {
     public void testDisplayTask() throws Exception {
         String delimiter = " | ";
         createTask();
-        for (String anAttribute : task.getTaskInfo()) {
-            System.out.print(anAttribute + delimiter);
-        }
+        
+        
 
 
         
