@@ -5,11 +5,15 @@ import taskbuddy.logic.Task;
 
 //import java.util.Calendar;
 
+
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.UnknownHostException;
+import java.net.Socket;
 //import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -44,36 +48,185 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
 public class GoogleCalendarManager {
-	public boolean add(Task task) {
-		String eventSummary = showSummary(task);
-		// Adds task to Google Calendar
-		
-		// Returns true if task has successfully been added to Google Calendar
-		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
-		
-		
 	
-		
-		
-		
-		
-		if (!eventSummary.equals("")) {
+	public static boolean isUserOnline() throws UnknownHostException, IOException {
+		Socket socket = null;
+		boolean reachable = false;
+		try {
+		    socket = new Socket("www.google.com", 80);
+		    reachable = true;
+		} catch (UnknownHostException e) {
+			System.out.println("User is offline");
 			return false;
 		}
-		else {
-			return false;
+		finally { 
+			if (socket != null) {
+		    	try { 
+		    		socket.close(); 
+		    	} catch(IOException e) {}
+		    }
 		}
+		return true;
 	}
 	
-	public String showSummary(Task task) {
+	public static Calendar initializeCalendar() throws IOException {
+		Calendar service;
+
+		
+		//clearDb(); // For debugging
+		//addToDb("abc"); // To purposely create an invalid code in the database for testing
+				
+		if (isTokenDbEmpty()) {			
+			// Generate new Google Calendar Authentication
+			addToDb(generateNewToken());
+			service = createCalendar(readDb());		
+		}
+		
+		else {
+			try {
+				// Check if authentication key is valid. If it is invalid, IOException unauthorized will be caught.
+				service = createCalendar(readDb());
+				try { 
+					getAllCalendarListSummary(createCalendar(readDb()));
+				} catch (UnknownHostException connectionProblem) {
+					System.out.println("Unable to connect to Google 1");
+					return null;
+				}
+			} catch (IOException unauthorized) {
+				System.out.println("Invalid authentication code");
+				clearDb();
+				addToDb(generateNewToken());
+				service = createCalendar(readDb());
+			}
+		}
+		return service;
+	}
+	
+	public static boolean add(Task task) throws IOException {
+		Calendar service = null;
+
+		if (!isUserOnline()) {
+			return false;
+		}
+		
+		else {
+			try {
+				service = initializeCalendar();
+			} catch (UnknownHostException connectionProblem) {
+				System.out.println("Unable to connect to Google");
+				return false;
+			}
+
+			System.out.println("calendar is initialised");
+			getAllCalendarListSummary(service);
+
+			String eventSummary = showSummary(task);
+			// Adds task to Google Calendar
+
+			// Returns true if task has successfully been added to Google Calendar
+			// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
+
+
+
+		}
+		return true;
+	}
+	
+	public static String showSummary(Task task) {
 		return task.getTitle();
 	}
 	
 
+	/*
+	public boolean isTokenValid() {
+		String token = readDb();
+		createCalendar(token);
+		return true;
+	}
+	*/
 	
-	
-	
+	public static Calendar createCalendar(String token) throws IOException {
+		System.out.println("creating calendar");
+		
+		// Two globals that will be used in each step.
+		HttpTransport httpTransport = new NetHttpTransport();
+		JsonFactory jsonFactory = new JacksonFactory();
 
+		// Create the authorization code flow manager
+		Set<String> scope = Collections.singleton(CalendarScopes.CALENDAR);
+		String clientId = "369332843116-gr8ct1guerlf1fudpgivfjv43h0oleip.apps.googleusercontent.com";
+		String clientSecret = "ISvEBCzHT-jheksy-kO-oBvs";
+
+		AuthorizationCodeFlow.Builder codeFlowBuilder = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, clientId, clientSecret, scope);
+
+		AuthorizationCodeFlow codeFlow = codeFlowBuilder.build();
+		TokenResponse existingToken = new TokenResponse();
+
+		// Read existing token from file
+		existingToken.setAccessToken(token);
+
+		existingToken.setExpiresInSeconds(null);
+		String userId = "ipeech";
+		Credential credential = codeFlow.createAndStoreCredential(existingToken, userId);
+
+		// Credentials may be used to initialize http requests
+		HttpRequestInitializer initializer = credential;
+
+		// and thus are used to initialize the calendar service
+		Calendar.Builder serviceBuilder = new Calendar.Builder(httpTransport,jsonFactory, initializer);
+		serviceBuilder.setApplicationName("GooCal");
+		Calendar calendar = serviceBuilder.build();
+		
+		
+		return calendar;
+		
+		
+	}
+
+	
+	
+	public static String generateNewToken() throws IOException {
+		// Two globals that will be used in each step.
+		HttpTransport httpTransport = new NetHttpTransport();
+		JsonFactory jsonFactory = new JacksonFactory();
+
+		// Create the authorization code flow manager
+		Set<String> scope = Collections.singleton(CalendarScopes.CALENDAR);
+		String clientId = "369332843116-gr8ct1guerlf1fudpgivfjv43h0oleip.apps.googleusercontent.com";
+		String clientSecret = "ISvEBCzHT-jheksy-kO-oBvs";
+
+		// Use a factory pattern to create the code flow
+		AuthorizationCodeFlow.Builder codeFlowBuilder = new GoogleAuthorizationCodeFlow.Builder(
+				httpTransport, jsonFactory, clientId, clientSecret, scope);
+		AuthorizationCodeFlow codeFlow = codeFlowBuilder.build();
+
+		// set the code flow to use a dummy user
+		// in a servlet, this could be the session id
+		String userId = "ipeech";
+
+		// "redirect" to the authentication url
+		String redirectUri = "urn:ietf:wg:oauth:2.0:oob";
+		AuthorizationCodeRequestUrl authorizationUrl = codeFlow
+				.newAuthorizationUrl();
+		authorizationUrl.setRedirectUri(redirectUri);
+		// System.out.println("Go to the following address:");
+		System.out.println(authorizationUrl);
+
+		// use the code that is returned as a url parameter
+		// to request an authorization token
+		// System.out.println("What is the 'code' url parameter?");
+		String code = new Scanner(System.in).nextLine();
+
+		AuthorizationCodeTokenRequest tokenRequest = codeFlow
+				.newTokenRequest(code);
+
+		tokenRequest.setRedirectUri(redirectUri);
+		TokenResponse tokenResponse = tokenRequest.execute();
+		System.out.println(tokenResponse.getAccessToken());
+		addToDb(tokenResponse.getAccessToken());
+		
+		return tokenResponse.getAccessToken();
+	}
 	
 	
 	public static boolean delete(Task task) {
@@ -93,7 +246,13 @@ public class GoogleCalendarManager {
 
 	
 	public static void main(String[] args) throws IOException {
-		clearDb();
+		Task task = new Task ("test");
+ 
+			add(task);
+
+		
+		
+		/*clearDb();
 		if (isTokenDbEmpty()) {
 			Calendar calendar = authorizeCal();
 			executeCalendarTasks(calendar);
@@ -101,8 +260,10 @@ public class GoogleCalendarManager {
 			Calendar calendar = initializeCalWithExistingToken();
 			executeCalendarTasks(calendar);
 		}
+		*/
 	}
 
+	
 	public static void executeCalendarTasks(Calendar calendar)
 			throws IOException {
 		while (true) {
@@ -183,10 +344,8 @@ public class GoogleCalendarManager {
 		// System.out.println("Inside the db: " + readDb());
 
 		if (readDb().equals("")) {
-			showToUser("Token Database empty! Proceed to generate new token!");
 			return true;
 		} else {
-			showToUser("Token Database contains key! Using existing key!");
 			return false;
 		}
 	}
@@ -197,8 +356,6 @@ public class GoogleCalendarManager {
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(accessToken);
 			oos.close();
-			System.out.println("Done");
-
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -210,8 +367,6 @@ public class GoogleCalendarManager {
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject("");
 			oos.close();
-			System.out.println("Cleared");
-
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -233,36 +388,35 @@ public class GoogleCalendarManager {
 		}
 	}
 
-	public static Calendar authorizeCal() throws IOException {
-		// Two globals that will be used in each step.
+
+
+/*	public static Calendar authorizeCal() throws IOException {
+		
 		HttpTransport httpTransport = new NetHttpTransport();
 		JsonFactory jsonFactory = new JacksonFactory();
 
-		// Create the authorization code flow manager
+		
 		Set<String> scope = Collections.singleton(CalendarScopes.CALENDAR);
 		String clientId = "369332843116-gr8ct1guerlf1fudpgivfjv43h0oleip.apps.googleusercontent.com";
 		String clientSecret = "ISvEBCzHT-jheksy-kO-oBvs";
 
-		// Use a factory pattern to create the code flow
+		
 		AuthorizationCodeFlow.Builder codeFlowBuilder = new GoogleAuthorizationCodeFlow.Builder(
 				httpTransport, jsonFactory, clientId, clientSecret, scope);
 		AuthorizationCodeFlow codeFlow = codeFlowBuilder.build();
 
-		// set the code flow to use a dummy user
-		// in a servlet, this could be the session id
+	
 		String userId = "ipeech";
 
-		// "redirect" to the authentication url
+	
 		String redirectUri = "urn:ietf:wg:oauth:2.0:oob";
 		AuthorizationCodeRequestUrl authorizationUrl = codeFlow
 				.newAuthorizationUrl();
 		authorizationUrl.setRedirectUri(redirectUri);
-		// System.out.println("Go to the following address:");
+	
 		System.out.println(authorizationUrl);
 
-		// use the code that is returned as a url parameter
-		// to request an authorization token
-		// System.out.println("What is the 'code' url parameter?");
+
 		String code = new Scanner(System.in).nextLine();
 
 		AuthorizationCodeTokenRequest tokenRequest = codeFlow
@@ -273,27 +427,30 @@ public class GoogleCalendarManager {
 		System.out.println(tokenResponse.getAccessToken());
 		addToDb(tokenResponse.getAccessToken());
 
-		// Now, with the token and user id, we have credentials
+	
 		Credential credential = codeFlow.createAndStoreCredential(
 				tokenResponse, userId);
 
-		// Credentials may be used to initialize http requests
+
 		HttpRequestInitializer initializer = credential;
 
-		// and thus are used to initialize the calendar service
+		
 		Calendar.Builder serviceBuilder = new Calendar.Builder(httpTransport,
 				jsonFactory, initializer);
 		serviceBuilder.setApplicationName("GooCal");
 		Calendar calendar = serviceBuilder.build();
 		return calendar;
 	}
-
+*/
+	
+	
+	/*
 	public static Calendar initializeCalWithExistingToken() throws IOException {
-		// Two globals that will be used in each step.
+		
 		HttpTransport httpTransport = new NetHttpTransport();
 		JsonFactory jsonFactory = new JacksonFactory();
 
-		// Create the authorization code flow manager
+		
 		Set<String> scope = Collections.singleton(CalendarScopes.CALENDAR);
 		String clientId = "369332843116-gr8ct1guerlf1fudpgivfjv43h0oleip.apps.googleusercontent.com";
 		String clientSecret = "ISvEBCzHT-jheksy-kO-oBvs";
@@ -304,13 +461,7 @@ public class GoogleCalendarManager {
 		AuthorizationCodeFlow codeFlow = codeFlowBuilder.build();
 		TokenResponse existingToken = new TokenResponse();
 
-		// This line is needed when running the program in java.
-		// By right, when actually read from a file, if this line is already in
-		// the file,
-		// then there is no need to add it again.
-		// addToDb("ya29.iADrzAhsD-Yda-Hb6ZpXrmYzneDnQXLWUULo6veuloDk4S_wJ2QRYJLN");
 
-		// Read existing token from file
 		existingToken.setAccessToken(readDb());
 
 		existingToken.setExpiresInSeconds(null);
@@ -318,18 +469,20 @@ public class GoogleCalendarManager {
 		Credential credential = codeFlow.createAndStoreCredential(
 				existingToken, userId);
 
-		// Credentials may be used to initialize http requests
+	
 		HttpRequestInitializer initializer = credential;
 
-		// and thus are used to initialize the calendar service
+	
 		Calendar.Builder serviceBuilder = new Calendar.Builder(httpTransport,
 				jsonFactory, initializer);
 		serviceBuilder.setApplicationName("GooCal");
 		Calendar calendar = serviceBuilder.build();
-		// System.out.println(existingToken);
+
 		return calendar;
 	}
-
+*/
+	
+	
 	public static void getCalendarListSummary(String calendarID,
 			Calendar calendar) throws IOException {
 		showToUser("Running getCalendarListSummary");
