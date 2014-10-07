@@ -31,15 +31,6 @@ public class DatabaseTest {
     private static final int POSITION_GOOGLE_ID     = 7;
     // @formatter:on
 
-    private static final String TITLE = "Title: ";
-    private static final String DESCRIPTION = "Description: ";
-    private static final String START = "Start: ";
-    private static final String END = "End: ";
-    private static final String PRIORITY = "Priority: ";
-    private static final String IS_COMPLETE = "Completed: ";
-    private static final String IS_FLOATING = "Floating task: ";
-    private static final String GOOGLE_CALENDAR_ID = "Google Calendar ID: ";
-
     Database database;
     Task task;
 
@@ -205,11 +196,56 @@ public class DatabaseTest {
         // time
         String actual = task.displayDateTime(extractedEnd);
         String expected = task.displayDateTime(task.getEndTime());
-        assertTrue("End time not extracted properly.",
-                actual.equals(expected));
+        assertTrue("End time not extracted properly.", actual.equals(expected));
     }
-    
-    // TODO more test methods here for extraction methods
+
+    @Test
+    public void testExtractPriority() throws Exception {
+        setup();
+        splitFields();
+        String displayPriority = splitFields[POSITION_PRIORITY];
+        int extractedPriority = database.extractPriority(displayPriority);
+
+        assertEquals("Priority not extracted properly", extractedPriority,
+                task.getPriority());
+    }
+
+    @Test
+    public void testExtractIsComplete() throws Exception {
+        setup();
+        splitFields();
+        String displayIsComplete = splitFields[POSITION_IS_COMPLETE];
+        boolean extractedIsComplete = database
+                .extractIsComplete(displayIsComplete);
+
+        assertEquals("isComplete not extracted properly", extractedIsComplete,
+                task.getCompletionStatus());
+    }
+
+    @Test
+    public void testExtractIsFloating() throws Exception {
+        setup();
+        splitFields();
+        String displayIsFloating = splitFields[POSITION_IS_FLOATING];
+        boolean extractedIsFloating = database
+                .extractIsComplete(displayIsFloating);
+
+        assertEquals("isFloating not extracted properly", extractedIsFloating,
+                task.isFloatingTask());
+    }
+
+    @Test
+    public void testExtractGoogleId() throws Exception {
+        setup();
+        splitFields();
+        String displayGoogleId = splitFields[POSITION_GOOGLE_ID];
+        String extractedGoogleId = database.extractGoogleId(displayGoogleId);
+
+        assertEquals("Google Calendar ID not extracted properly",
+                extractedGoogleId, task.getGID());
+    }
+
+    // TODO more test methods here for extraction methods from log file
 
     @Test
     public void testAddTask() throws Exception {

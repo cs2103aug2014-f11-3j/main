@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Calendar;
@@ -25,21 +24,20 @@ import taskbuddy.logic.Task;
  */
 public class Database {
 
-    private static final String DELIMITER_SPLIT = "\\|";
-    private static final int NUMBER_OF_FIELDS = 8;
+    // @formatter:off
+    private static final String TITLE               = "Title: ";
+    private static final String DESCRIPTION         = "Description: ";
+    private static final String START               = "Start: ";
+    private static final String END                 = "End: ";
+    private static final String PRIORITY            = "Priority: ";
+    private static final String IS_COMPLETE         = "Completed: ";
+    private static final String IS_FLOATING         = "Floating task: ";
+    private static final String GOOGLE_CALENDAR_ID  = "Google Calendar ID: ";
 
-    // TODO remove these constants if they're not used
-
-    private static final int POSITION_TITLE = 0;
-
-    private static final String TITLE = "Title: ";
-    private static final String DESCRIPTION = "Description: ";
-    private static final String START = "Start: ";
-    private static final String END = "End: ";
-    private static final String PRIORITY = "Priority: ";
-    private static final String IS_COMPLETE = "Completed: ";
-    private static final String IS_FLOATING = "Floating task: ";
-    private static final String GOOGLE_CALENDAR_ID = "Google Calendar ID: ";
+    private static final String EMPTY_STRING        = "";
+    private static final String DELIMITER_SPLIT     = "\\|";
+    private static final int NUMBER_OF_FIELDS       = 8;
+    // @formatter:on
 
     private static final String TASKS = " tasks:";
 
@@ -241,7 +239,7 @@ public class Database {
      * @return title of this task
      */
     public String extractTitle(String displayTitle) {
-        return displayTitle.replace(TITLE, "");
+        return displayTitle.replace(TITLE, EMPTY_STRING);
     }
 
     /**
@@ -253,7 +251,7 @@ public class Database {
      * @return description of this task
      */
     public String extractDescription(String displayDescription) {
-        return displayDescription.replace(DESCRIPTION, "");
+        return displayDescription.replace(DESCRIPTION, EMPTY_STRING);
     }
 
     /**
@@ -265,27 +263,80 @@ public class Database {
      * @return start time of this task
      */
     public Calendar extractStart(String displayStart) throws ParseException {
-        String startString = displayStart.replace(START, "");
-        
+        String startString = displayStart.replace(START, EMPTY_STRING);
+
         Calendar cal = Calendar.getInstance();
         cal.setTime(Task.formatter.parse(startString));
         return cal;
     }
-    
+
     /**
-     * Similar to <code>extractStart</code> method, except that task's end
-     * time is extracted here.
+     * Similar to <code>extractStart</code> method, except that task's end time
+     * is extracted here.
      * 
      * @param displayEnd
      *            end time field split by <code>splitToField</code> method
      * @return end time of this task
      */
     public Calendar extractEnd(String displayEnd) throws ParseException {
-        String endString = displayEnd.replace(END, "");
-        
+        String endString = displayEnd.replace(END, EMPTY_STRING);
+
         Calendar cal = Calendar.getInstance();
         cal.setTime(Task.formatter.parse(endString));
         return cal;
+    }
+
+    /**
+     * Similar to <code>extractTitle</code> method, except that task's priority
+     * rank is extracted here
+     * 
+     * @param displayPriority
+     *            priority field split by <code>splitToField</code> method
+     * @return priority rank of this task
+     */
+    public int extractPriority(String displayPriority) {
+        String priorityString = displayPriority.replace(PRIORITY, EMPTY_STRING);
+        return Integer.parseInt(priorityString);
+    }
+
+    /**
+     * Similar to <code>extractTitle</code> method, except that task completion
+     * status is extracted here.
+     * 
+     * @param displayIsComplete
+     *            isComplete field split by <code>splitToField</code> method
+     * @return true if task is completed, false otherwise
+     */
+    public boolean extractIsComplete(String displayIsComplete) {
+        String isCompleteString = displayIsComplete.replace(IS_COMPLETE,
+                EMPTY_STRING);
+        return Boolean.parseBoolean(isCompleteString);
+    }
+
+    /**
+     * Similar to <code>extractIsComplete</code> method, except that task
+     * floating status is extracted here.
+     * 
+     * @param displayIsFloating
+     *            isFloating field split by <code>splitToField</code> method
+     * @return true for a floating task, false otherwise
+     */
+    public boolean extractIsFloating(String displayIsFloating) {
+        String isFloatingString = displayIsFloating.replace(IS_FLOATING,
+                EMPTY_STRING);
+        return Boolean.parseBoolean(isFloatingString);
+    }
+
+    /**
+     * Similar to <code>extractTitle</code> method, except that task's Google
+     * Calendar ID is extracted here.
+     * 
+     * @param displayGoogleId
+     *            google ID field split by <code>splitToField</code> method
+     * @return task's Google Calendar ID
+     */
+    public String extractGoogleId(String displayGoogleId) {
+        return displayGoogleId.replace(GOOGLE_CALENDAR_ID, EMPTY_STRING);
     }
 
 }
