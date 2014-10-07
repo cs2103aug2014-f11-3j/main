@@ -18,6 +18,18 @@ import taskbuddy.logic.Task;
  *
  */
 public class DatabaseTest {
+    
+    private static final int POSITION_TITLE = 0;
+    
+    private static final String DELIMITER = " | ";
+    private static final String TITLE = "Title: ";
+    private static final String DESCRIPTION = "Description: ";
+    private static final String START = "Start: ";
+    private static final String END = "End: ";
+    private static final String PRIORITY = "Priority: ";
+    private static final String IS_COMPLETE = "Completed: ";
+    private static final String IS_FLOATING = "Floating task: ";
+    private static final String GOOGLE_CALENDAR_ID = "Google Calendar ID: ";
 
     Database database;
     Task task;
@@ -95,12 +107,22 @@ public class DatabaseTest {
         setup();
         
         // No tasks written to log file
-//        database.writeToLogFile(database.getTasks());
+        // database.writeToLogFile(database.getTasks());
         
         // Two tasks written to log file
         database.addTask(task);
         database.addTask(task);
         database.writeToLogFile(database.getTasks());
+    }
+    
+    @Test
+    public void testSplitToFields() throws Exception {
+        setup();
+        String fields[] = database.splitToFields(task.displayTask());
+        
+        assertTrue("Title field not extracted properly.", fields[POSITION_TITLE].equals(TITLE + title));
+        
+        
     }
 
     @Test

@@ -192,4 +192,9 @@ public class Database {
         return false;
     }
 
+    public String[] splitToFields(String string) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

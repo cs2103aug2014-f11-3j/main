@@ -24,13 +24,14 @@ public class TaskTest {
     int hour;
     int minute;
     int second;
-    Calendar cal;
+    Calendar start;
+    Calendar end;
 
     Task task;
 
     String title;
     String description;
-    String start;
+    String startTime;
     String endDate;
     String endTime;
     int priority;
@@ -51,11 +52,11 @@ public class TaskTest {
         second = 1;
 
         // Month argument is an int from 0-11, not 1-12
-        cal = new GregorianCalendar(year, month - 1, date, hour, minute, second);
+        end = new GregorianCalendar(year, month - 1, date, hour, minute, second);
 
         title = "Title";
         description = "Description";
-        start = "";
+        startTime = "PADDING_VALUE";
         endDate = "01000001";
         endTime = "0101";
         priority = 1;
@@ -65,7 +66,7 @@ public class TaskTest {
 
         task = new Task("Title");
         task.setDescription(description);
-        task.setStartTime(start);
+        task.setStartTime(startTime);
         task.setEndTime(endDate, endTime);
         task.setPriority(priority);
         task.setCompletion(true);
@@ -81,15 +82,15 @@ public class TaskTest {
 
         expected = date + "-" + month + "-" + year + " at " + hour + ":"
                 + minute;
-        actual = task.displayDateTime(cal);
+        actual = task.displayDateTime(end);
         assertTrue("Calendar not converted to string properly.",
                 actual.equals(expected));
 
         // @formatter:off
         expected = TITLE + title + DELIMITER + 
                    DESCRIPTION + description + DELIMITER + 
-                   START + task.displayDateTime(cal) + DELIMITER +
-                   END + task.displayDateTime(cal) + DELIMITER +
+                   START + task.displayDateTime(task.getStartTime()) + DELIMITER +
+                   END + task.displayDateTime(end) + DELIMITER +
                    PRIORITY + priority + DELIMITER +
                    IS_COMPLETE + Boolean.toString(isComplete) + DELIMITER + 
                    IS_FLOATING + Boolean.toString(isFloating) + DELIMITER + 

@@ -204,38 +204,110 @@ public class Task {
      * 
      */
     public String displayTask() {
+
         // Do not change this string conversion format - this is for Database's
         // log file. You need to at least tell me how you've changed it if you
         // want to change it, or write your method for your own formatter.
 
-        String displayTitle = TITLE + this.__title + DELIMITER;
+        ArrayList<String> toDisplay = new ArrayList<String>();
+        toDisplay.add(this.displayTitle());
+        toDisplay.add(this.displayDescription());
+        toDisplay.add(this.displayStart());
+        toDisplay.add(this.displayEnd());
+        toDisplay.add(this.displayPriority());
+        toDisplay.add(this.displayIsComplete());
+        toDisplay.add(this.displayIsFloating());
+        toDisplay.add(this.displayGoogleId());
 
-        String displayDescription = DESCRIPTION + this.__description
-                + DELIMITER;
-
-        // TODO Following should be start time, but setStartTime method is
-        // currently incomplete
-        String displayStart = START + this.displayDateTime(this.getEndTime())
-                + DELIMITER;
-
-        String displayEnd = END + this.displayDateTime(this.getEndTime())
-                + DELIMITER;
-
-        String displayPriority = PRIORITY
-                + Integer.toString(this.getPriority()) + DELIMITER;
-
-        String displayIsCompleted = IS_COMPLETE
-                + Boolean.toString(this.getCompletionStatus()) + DELIMITER;
-
-        String displayIsFloating = IS_FLOATING
-                + Boolean.toString(this.isFloatingTask()) + DELIMITER;
-
-        String displayGoogleId = GOOGLE_CALENDAR_ID + this.getGID();
-
-        String result = displayTitle + displayDescription + displayStart
-                + displayEnd + displayPriority + displayIsCompleted
-                + displayIsFloating + displayGoogleId;
-
+        String result = "";
+        for (String aField : toDisplay) {
+            if (toDisplay.indexOf(aField) == toDisplay.size() - 1) {
+                result = result + aField;
+            } else {
+                result = result + aField + DELIMITER;
+            }
+        }
         return result;
+    }
+
+    /**
+     * @return Google ID of this task as a string
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public String displayGoogleId() {
+        return GOOGLE_CALENDAR_ID + this.getGID();
+    }
+
+    /**
+     * @return "true" if this task is floating, "false" otherwise
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public String displayIsFloating() {
+        return IS_FLOATING + Boolean.toString(this.isFloatingTask());
+    }
+
+    /**
+     * @return "true" if this task is completed, "false" otherwise
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public String displayIsComplete() {
+        return IS_COMPLETE + Boolean.toString(this.getCompletionStatus());
+    }
+
+    /**
+     * @return a number ranking the priority of this task
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public String displayPriority() {
+        return PRIORITY + Integer.toString(this.getPriority());
+    }
+
+    /**
+     * @return the end date and time of this task
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public String displayEnd() {
+        String displayEnd = END + this.displayDateTime(this.getEndTime());
+        return displayEnd;
+    }
+
+    /**
+     * @return the start date and time of this task
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public String displayStart() {
+        return START + this.displayDateTime(this.getStartTime());
+    }
+
+    /**
+     * @return the description of this task
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public String displayDescription() {
+        return DESCRIPTION + this.__description;
+    }
+
+    /**
+     * @return the title of this task
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public String displayTitle() {
+        return TITLE + this.__title;
     }
 }
