@@ -39,10 +39,6 @@ public class TaskTest {
     boolean isFloating;
     String googleCalendarId;
 
-    public void createTask() {
-
-    }
-
     public void setup() {
         year = 1;
         month = 1;

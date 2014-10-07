@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedList;
 
 import org.junit.Test;
@@ -18,10 +19,18 @@ import taskbuddy.logic.Task;
  *
  */
 public class DatabaseTest {
-    
-    private static final int POSITION_TITLE = 0;
-    
-    private static final String DELIMITER = " | ";
+
+    // @formatter:off
+    private static final int POSITION_TITLE         = 0;
+    private static final int POSITION_DESCRIPTION   = 1;
+    private static final int POSITION_START         = 2;
+    private static final int POSITION_END           = 3;
+    private static final int POSITION_PRIORITY      = 4;
+    private static final int POSITION_IS_COMPLETE   = 5;
+    private static final int POSITION_IS_FLOATING   = 6;
+    private static final int POSITION_GOOGLE_ID     = 7;
+    // @formatter:on
+
     private static final String TITLE = "Title: ";
     private static final String DESCRIPTION = "Description: ";
     private static final String START = "Start: ";
@@ -36,36 +45,44 @@ public class DatabaseTest {
 
     String title;
     String description;
-    String start;
+    String startTime;
     String endDate;
     String endTime;
     int priority;
     boolean isComplete;
     boolean isFloating;
-    String googleCalendarId = "11111";
+    String googleCalendarId;
+
+    String[] splitFields;
 
     public void createTask() {
         title = "Title";
         description = "Description";
-        start = "";
-        endDate = "31122014";
-        endTime = "2359";
+        startTime = "PADDING_VALUE";
+        endDate = "01000001";
+        endTime = "0101";
         priority = 1;
         isComplete = true;
         isFloating = false;
+        googleCalendarId = "11111";
 
         task = new Task("Title");
-        task.setCompletion(true);
         task.setDescription(description);
-        task.setStartTime(start);
+        task.setStartTime(startTime);
         task.setEndTime(endDate, endTime);
-        task.setFloating(isFloating);
         task.setPriority(priority);
+        task.setCompletion(true);
+        task.setFloating(isFloating);
+        task.setGID(googleCalendarId);
     }
 
     public void setup() throws IOException {
         database = new Database();
         createTask();
+    }
+
+    public void splitFields() {
+        splitFields = database.splitToFields(task.displayTask());
     }
 
     @Test
@@ -105,25 +122,94 @@ public class DatabaseTest {
     @Test
     public void testWrite() throws Exception {
         setup();
-        
+
         // No tasks written to log file
         // database.writeToLogFile(database.getTasks());
-        
+
         // Two tasks written to log file
         database.addTask(task);
         database.addTask(task);
         database.writeToLogFile(database.getTasks());
     }
-    
+
     @Test
     public void testSplitToFields() throws Exception {
         setup();
         String fields[] = database.splitToFields(task.displayTask());
-        
-        assertTrue("Title field not extracted properly.", fields[POSITION_TITLE].equals(TITLE + title));
-        
-        
+
+        assertTrue("Title field not extracted properly.",
+                fields[POSITION_TITLE].equals(task.displayTitle()));
+        assertTrue("Description field not extracted properly.",
+                fields[POSITION_DESCRIPTION].equals(task.displayDescription()));
+        assertTrue("Start field not extracted properly.",
+                fields[POSITION_START].equals(task.displayStart()));
+        assertTrue("End field not extracted properly.",
+                fields[POSITION_END].equals(task.displayEnd()));
+        assertTrue("End field not extracted properly.",
+                fields[POSITION_PRIORITY].equals(task.displayPriority()));
+        assertTrue("End field not extracted properly.",
+                fields[POSITION_IS_COMPLETE].equals(task.displayIsComplete()));
+        assertTrue("End field not extracted properly.",
+                fields[POSITION_IS_FLOATING].equals(task.displayIsFloating()));
+        assertTrue("End field not extracted properly.",
+                fields[POSITION_GOOGLE_ID].equals(task.displayGoogleId()));
     }
+
+    @Test
+    public void testExtractTitle() throws Exception {
+        setup();
+        splitFields();
+        String displayTitle = splitFields[POSITION_TITLE];
+        String extractedTitle = database.extractTitle(displayTitle);
+
+        assertTrue("Title not extracted properly.",
+                extractedTitle.equals(task.getTitle()));
+    }
+
+    @Test
+    public void testExtractDescription() throws Exception {
+        setup();
+        splitFields();
+        String displayDescription = splitFields[POSITION_DESCRIPTION];
+        String extractedDescription = database
+                .extractDescription(displayDescription);
+
+        assertTrue("Description not extracted properly.",
+                extractedDescription.equals(task.getDescription()));
+    }
+
+    @Test
+    public void testExtractStart() throws Exception {
+        setup();
+        splitFields();
+        String displayStart = splitFields[POSITION_START];
+        Calendar extractedStart = database.extractStart(displayStart);
+
+        // Have to convert to string because extractedStart is only accurate to
+        // minutes and will be different from task.getStartTime() that is
+        // accurate to seconds
+        String actual = task.displayDateTime(extractedStart);
+        String expected = task.displayDateTime(task.getStartTime());
+        assertTrue("Start time not extracted properly.",
+                actual.equals(expected));
+    }
+
+    @Test
+    public void testExtractEnd() throws Exception {
+        setup();
+        splitFields();
+        String displayEnd = splitFields[POSITION_END];
+        Calendar extractedEnd = database.extractEnd(displayEnd);
+
+        // Have to convert to string, same reason as that for extracting start
+        // time
+        String actual = task.displayDateTime(extractedEnd);
+        String expected = task.displayDateTime(task.getEndTime());
+        assertTrue("End time not extracted properly.",
+                actual.equals(expected));
+    }
+    
+    // TODO more test methods here for extraction methods
 
     @Test
     public void testAddTask() throws Exception {

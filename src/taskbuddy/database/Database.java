@@ -7,8 +7,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Calendar;
 
 import taskbuddy.logic.Task;
 
@@ -21,7 +24,25 @@ import taskbuddy.logic.Task;
  *
  */
 public class Database {
+
+    private static final String DELIMITER_SPLIT = "\\|";
+    private static final int NUMBER_OF_FIELDS = 8;
+
+    // TODO remove these constants if they're not used
+
+    private static final int POSITION_TITLE = 0;
+
+    private static final String TITLE = "Title: ";
+    private static final String DESCRIPTION = "Description: ";
+    private static final String START = "Start: ";
+    private static final String END = "End: ";
+    private static final String PRIORITY = "Priority: ";
+    private static final String IS_COMPLETE = "Completed: ";
+    private static final String IS_FLOATING = "Floating task: ";
+    private static final String GOOGLE_CALENDAR_ID = "Google Calendar ID: ";
+
     private static final String TASKS = " tasks:";
+
     File log;
     ArrayList<Task> tasks;
     LinkedList<DbCommand> commands;
@@ -192,9 +213,79 @@ public class Database {
         return false;
     }
 
-    public String[] splitToFields(String string) {
-        // TODO Auto-generated method stub
-        return null;
+    /**
+     * Splits a task string, that is a string representing all the information
+     * of a task, into a string array holding separate fields of the task.
+     * 
+     * @param taskString
+     *            string holding all information of a task
+     * @return a string array holding separate fields of the task
+     */
+    public String[] splitToFields(String taskString) {
+        String[] splitFields = taskString.split(DELIMITER_SPLIT,
+                NUMBER_OF_FIELDS);
+        for (int i = 0; i < NUMBER_OF_FIELDS; i++) {
+            splitFields[i] = splitFields[i].trim();
+        }
+        return splitFields;
+    }
+
+    /**
+     * Extracts the title out of the title field split by
+     * <code>splitToField</code> method.
+     * 
+     * @param displayTitle
+     *            title field split by <code>splitToField</code> method, which
+     *            is also equivalent to the <code>Task</code> class'
+     *            <code>displayTitle</code> method
+     * @return title of this task
+     */
+    public String extractTitle(String displayTitle) {
+        return displayTitle.replace(TITLE, "");
+    }
+
+    /**
+     * Similar to <code>extractTitle</code> method, except that task description
+     * is extracted here.
+     * 
+     * @param displayDescription
+     *            description field split by <code>splitToField</code> method
+     * @return description of this task
+     */
+    public String extractDescription(String displayDescription) {
+        return displayDescription.replace(DESCRIPTION, "");
+    }
+
+    /**
+     * Similar to <code>extractTitle</code> method, except that task's start
+     * time is extracted here.
+     * 
+     * @param displayStart
+     *            start time field split by <code>splitToField</code> method
+     * @return start time of this task
+     */
+    public Calendar extractStart(String displayStart) throws ParseException {
+        String startString = displayStart.replace(START, "");
+        
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(Task.formatter.parse(startString));
+        return cal;
+    }
+    
+    /**
+     * Similar to <code>extractStart</code> method, except that task's end
+     * time is extracted here.
+     * 
+     * @param displayEnd
+     *            end time field split by <code>splitToField</code> method
+     * @return end time of this task
+     */
+    public Calendar extractEnd(String displayEnd) throws ParseException {
+        String endString = displayEnd.replace(END, "");
+        
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(Task.formatter.parse(endString));
+        return cal;
     }
 
 }

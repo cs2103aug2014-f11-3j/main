@@ -28,6 +28,8 @@ public class Task {
     private boolean __floatingTask;
     private String __googleID;
 
+    public static SimpleDateFormat formatter;
+    
     // basic constructors
     public Task() {
     }
@@ -187,9 +189,8 @@ public class Task {
 
         // Do not change this formatter - this is for Database's log file. You
         // need to at least tell me how you've changed it if you want to change
-        // it, or write your method for your own formatter.
-        SimpleDateFormat formatter = new SimpleDateFormat("d-M-y 'at' H:m");
-
+        // it, or write your method for your own formatter.        
+        formatter = new SimpleDateFormat("d-M-y 'at' H:m");
         return formatter.format(date);
     }
 
@@ -208,7 +209,6 @@ public class Task {
         // Do not change this string conversion format - this is for Database's
         // log file. You need to at least tell me how you've changed it if you
         // want to change it, or write your method for your own formatter.
-
         ArrayList<String> toDisplay = new ArrayList<String>();
         toDisplay.add(this.displayTitle());
         toDisplay.add(this.displayDescription());
