@@ -10,6 +10,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import taskbuddy.logic.Task;
+import taskbuddy.logic.Bundle;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 
 public class GoogleCalendarManagerTest {
@@ -17,6 +23,8 @@ public class GoogleCalendarManagerTest {
 
 	GoogleCalendarManager gooCal = new GoogleCalendarManager();
 	Task task = new Task ("Event Summary");
+
+	
 	
 	
 
@@ -39,13 +47,33 @@ public class GoogleCalendarManagerTest {
 	
 	
 	// This tests the ability to read the start time of a task sent to it  
-	/*
 	@Test
-	public void testShowStartTime() throws NullPointerException {
-		task.setStartTime("");
-		assertEquals("Faled because start time is wrong", "", gooCal.showStartTime(task));		
+	public void testGetStartDate() throws NullPointerException {
+		task.setStartTime("PADDING_VALUE");
+		assertEquals("Faled because start date is wrong", "9/10/2014", gooCal.getStartDate(task));		
 	}
-	*/
+	
+	// This tests the ability to read the start time of a task sent to it  
+	@Test
+	public void testGetStartTime() throws NullPointerException {
+		task.setStartTime("PADDING_VALUE");
+		assertEquals("Faled because start time is wrong", "01:25", gooCal.getStartTime(task));		
+	}
+	
+	
+	// This tests the ability to read the end time of a task sent to it  
+	@Test
+	public void testGetEndDate() throws NullPointerException {
+		task.setStartTime("PADDING_VALUE");
+		assertEquals("Faled because end date is wrong", "9/10/2014", gooCal.getEndDate(task));		
+	}
+	
+	// This tests the ability to read the end time of a task sent to it  
+	@Test
+	public void testGetEndTime() throws NullPointerException {
+		task.setStartTime("PADDING_VALUE");
+		assertEquals("Faled because end time is wrong", "01:25", gooCal.getStartTime(task));		
+	}
 	
 	
 	// This test tests the ability for GoogleCalendarManager to detect the online status of the user. 
@@ -55,7 +83,7 @@ public class GoogleCalendarManagerTest {
 	}
 	
 	
-	
+
 
 	
 }
