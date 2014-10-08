@@ -2,6 +2,7 @@
 
 package taskbuddy.googlecal;
 import taskbuddy.logic.Task;
+import taskbuddy.logic.Bundle;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -60,25 +61,35 @@ public class GoogleCalendarManager {
 	
 	
 	
-	public static boolean add(Task task) throws IOException {
+	public static Bundle add(Task task) throws IOException {
 		// Adds task to Google Calendar
 		// Returns true if task has successfully been added to Google Calendar
 		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
 		Calendar service = null;
 		String calendarID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
 		String gooCalEventID;
+		Bundle success = new Bundle();
+		Bundle failureNoInternet = new Bundle();
+		Bundle failureUnableToConnectToGoogle = new Bundle();
+		Bundle failureEventFailedToCreate = new Bundle();
+		
+		success.putString("Success", "Event has been successfully added to Google Calendar.");
+		failureNoInternet.putString("Failure", "User is offline.");
+		failureUnableToConnectToGoogle.putString("Failure", "Unable to connect to Google.");
+		failureEventFailedToCreate.putString("Failure", "Event failed to be created.");
+		
 		
 		// First, check user online status.
 		if (!isUserOnline()) {
-			return false;
+			return failureNoInternet;
 		}
 		else {
 			// This try catch blocks checks if Google's servers can be read
 			try {
 				service = initializeCalendar();
 			} catch (UnknownHostException connectionProblem) {
-				System.out.println("Unable to connect to Google");
-				return false;
+				//System.out.println("Unable to connect to Google");
+				return failureUnableToConnectToGoogle;
 			}
 
 			String eventSummary = getSummary(task);
@@ -90,10 +101,10 @@ public class GoogleCalendarManager {
 			gooCalEventID = addEventToCalendar(service, eventSummary, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
 			
 			if (gooCalEventID.equals("")) {
-				return false;
+				return failureEventFailedToCreate;
 			}
 			task.setGID(gooCalEventID);
-			return true;
+			return success;
 		}
 	}
 	
