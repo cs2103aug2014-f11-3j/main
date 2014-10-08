@@ -90,6 +90,10 @@ public class Task {
             this.__description = "nil";
         }
     }
+    
+    public void setStartTime(Calendar nextStart) {
+        this.__startTime = nextStart;
+    }
 
     public void setStartTime(String nextStart) {
         if (!nextStart.equals(nullValue)) {

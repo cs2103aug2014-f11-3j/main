@@ -1,5 +1,6 @@
 package taskbuddy.database;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -27,12 +28,22 @@ public class TaskLogger {
     private static final String EMPTY_STRING        = "";
     private static final String DELIMITER_SPLIT     = "\\|";
     private static final int NUMBER_OF_FIELDS       = 8;
+    
+    private static final int POSITION_TITLE         = 0;
+    private static final int POSITION_DESCRIPTION   = 1;
+    private static final int POSITION_START         = 2;
+    private static final int POSITION_END           = 3;
+    private static final int POSITION_PRIORITY      = 4;
+    private static final int POSITION_IS_COMPLETE   = 5;
+    private static final int POSITION_IS_FLOATING   = 6;
+    private static final int POSITION_GOOGLE_ID     = 7;
     // @formatter:on
 
     private static final String TASKS = " tasks:";
 
     File log;
     BufferedWriter writer;
+    BufferedReader reader;
 
     /**
      * Returns the <code>File</code> object representing the log file. Used
@@ -51,19 +62,27 @@ public class TaskLogger {
      * formatted. If the log file does not exist, this method creates it and
      * logs all tasks into newly created log file.
      * 
-     * @param tbTaskManager
-     *            the task manager of TextBuddy handling all task operations
-     * @return status message describing status of preparation
+     * @param logName
+     *            name of log file
+     * @return list of tasks read from existing log file, otherwise empty list
+     *         of tasks for non-existing log file
      * @throws IOException
-     *             if there are read/write problems from/to the log file
+     *             when log file cannot be read properly
+     * @throws ParseException
+     *             when tasks cannot be parsed from log file properly
      */
-    public void prepareLog(String logName) throws IOException {
-        log = new File(logName);
-        if (log.isFile() && log.canRead() && log.canWrite()) {
-            // load tasks and use existing log file for writing
+    public ArrayList<Task> prepareLog(String logName) throws IOException,
+            ParseException {
+        ArrayList<Task> tasks = new ArrayList<Task>();
+        this.log = new File(logName);
+
+        if (this.getLog().isFile() && this.getLog().canRead()
+                && this.getLog().canWrite()) {
+            tasks = this.readTasks();
         } else {
             log.createNewFile();
         }
+        return tasks;
     }
 
     /**
@@ -234,4 +253,64 @@ public class TaskLogger {
         return displayGoogleId.replace(GOOGLE_CALENDAR_ID, EMPTY_STRING);
     }
 
+    /**
+     * Converts a string representing all information of a task to a
+     * <code>Task</code> object.
+     * 
+     * @param taskString
+     *            string representing all information of a task
+     * @return this task as a <code>Task</code> object
+     * @throws ParseException
+     *             when task string is not parsed properly
+     */
+    public Task readTask(String taskString) throws ParseException {
+        Task result = new Task();
+        String[] splitFields = this.splitToFields(taskString);
+
+        result.setTitle(this.extractTitle(splitFields[POSITION_TITLE]));
+        result.setDescription(this
+                .extractDescription(splitFields[POSITION_DESCRIPTION]));
+        result.setStartTime(this.extractStart(splitFields[POSITION_START]));
+        result.setEndTime(this.extractEnd(splitFields[POSITION_END]));
+        result.setPriority(this.extractPriority(splitFields[POSITION_PRIORITY]));
+        result.setCompletion(this
+                .extractIsComplete(splitFields[POSITION_IS_COMPLETE]));
+        result.setFloating(this
+                .extractIsFloating(splitFields[POSITION_IS_FLOATING]));
+        result.setGID(this.extractGoogleId(splitFields[POSITION_GOOGLE_ID]));
+
+        return result;
+    }
+
+    /**
+     * Reads tasks from the log file and returns an arraylist of tasks.
+     * 
+     * @throws ParseException
+     *             when task string read from log file is not parsed properly
+     * @throws IOException
+     *             when log file is not readable
+     * @return arraylist of read tasks
+     *
+     */
+    public ArrayList<Task> readTasks() throws IOException, ParseException {
+        Path logPath = this.getLog().toPath();
+        ArrayList<Task> result = new ArrayList<Task>();
+        String aTaskString;
+
+        try {
+            reader = Files.newBufferedReader(logPath);
+            // Always remove first header line, i.e. the line that says
+            // "n tasks:", where n is the number of stored tasks.
+            @SuppressWarnings("unused")
+            String headerLineToDiscard = reader.readLine();
+
+            while ((aTaskString = reader.readLine()) != null) {
+                Task aTask = this.readTask(aTaskString);
+                result.add(aTask);
+            }
+        } finally {
+            reader.close();
+        }
+        return result;
+    }
 }

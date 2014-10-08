@@ -1,8 +1,10 @@
 package taskbuddy.database;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+
 import taskbuddy.logic.Task;
 
 /**
@@ -25,8 +27,10 @@ public class Database {
      * 
      * @throws IOException
      *             when log file cannot be loaded (if existing) or created.
+     * @throws ParseException
+     *             when tasks cannot be parsed from existing log file
      */
-    public Database() throws IOException {
+    public Database() throws IOException, ParseException {
         tasks = new ArrayList<Task>();
         commands = new LinkedList<DbCommand>();
 
@@ -34,7 +38,7 @@ public class Database {
         // file
         String logName = "log";
         taskLogger = new TaskLogger();
-        taskLogger.prepareLog(logName);
+        tasks = taskLogger.prepareLog(logName);
     }
 
     /**

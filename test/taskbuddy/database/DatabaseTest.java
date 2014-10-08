@@ -3,6 +3,7 @@ package taskbuddy.database;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -52,14 +53,15 @@ public class DatabaseTest {
         task.setGID(googleCalendarId);
     }
 
-    public void setup() throws IOException {
+    public void setup() throws IOException, ParseException {
         database = new Database();
-        createTask();
     }
 
     @Test
     public void testDatabase() throws Exception {
         setup();
+        createTask();
+
         assertTrue("Database not constructed with arraylist of Task objects.",
                 database.tasks instanceof ArrayList);
         assertTrue("Database not constructed with linkedlist of DbCommands"
@@ -71,6 +73,8 @@ public class DatabaseTest {
     @Test
     public void testAddTask() throws Exception {
         setup();
+        createTask();
+
         assertTrue(database.addTask(task));
         assertEquals("Number of tasks did not increase from 0 to 1 after task "
                 + "addition", 1, database.getTasks().size());
@@ -81,6 +85,8 @@ public class DatabaseTest {
     @Test
     public void testRead() throws Exception {
         setup();
+        createTask();
+
         assertNull(database.read(title));
 
         // Test for normal task retrieval
@@ -106,6 +112,8 @@ public class DatabaseTest {
     @Test
     public void testDelete() throws Exception {
         setup();
+        createTask();
+
         assertFalse("Task is deleted even though list of tasks is empty",
                 database.delete(title));
 
