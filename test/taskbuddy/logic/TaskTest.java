@@ -76,21 +76,22 @@ public class TaskTest {
         String expected;
         String actual;
 
-        expected = date + "-" + month + "-" + year + " at " + hour + ":"
-                + minute;
+        expected = date + "-" + month + "-" + String.format("%04d", year)
+                + " at " + String.format("%02d", hour) + ":"
+                + String.format("%02d", minute);
         actual = task.displayDateTime(end);
         assertTrue("Calendar not converted to string properly.",
                 actual.equals(expected));
 
         // @formatter:off
         expected = TITLE + title + DELIMITER + 
-                   DESCRIPTION + description + DELIMITER + 
-                   START + task.displayDateTime(task.getStartTime()) + DELIMITER +
-                   END + task.displayDateTime(end) + DELIMITER +
-                   PRIORITY + priority + DELIMITER +
-                   IS_COMPLETE + Boolean.toString(isComplete) + DELIMITER + 
-                   IS_FLOATING + Boolean.toString(isFloating) + DELIMITER + 
-                   GOOGLE_CALENDAR_ID + googleCalendarId;
+               DESCRIPTION + description + DELIMITER + 
+               START + task.displayDateTime(task.getStartTime()) + DELIMITER +
+               END + task.displayDateTime(end) + DELIMITER +
+               PRIORITY + priority + DELIMITER +
+               IS_COMPLETE + Boolean.toString(isComplete) + DELIMITER + 
+               IS_FLOATING + Boolean.toString(isFloating) + DELIMITER + 
+               GOOGLE_CALENDAR_ID + googleCalendarId;
         // @formatter:on
 
         actual = task.displayTask();

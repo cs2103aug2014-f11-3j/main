@@ -192,7 +192,7 @@ public class Task {
         // Do not change this formatter - this is for Database's log file. You
         // need to at least tell me how you've changed it if you want to change
         // it, or write your method for your own formatter.        
-        formatter = new SimpleDateFormat("d-M-y 'at' H:m");
+        formatter = new SimpleDateFormat("d-M-yyyy 'at' HH:mm");
         return formatter.format(date);
     }
 
