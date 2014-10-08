@@ -1,5 +1,3 @@
-//Author: Pee Choon Hian (A0108411W)
-
 package taskbuddy.googlecal;
 import taskbuddy.logic.Task;
 import taskbuddy.logic.Bundle;
@@ -46,33 +44,87 @@ import com.google.api.services.calendar.model.Events;
 
 
 
-
-
+/**
+ * Communicates with Google Calendar Servers
+ * Creates a calendar object with the existing authentication token. If authentication token is invalid, generates new token.
+ * Receives calls from database. Task object passed from database.
+ * Parses task title, task start date, task start time, task end date, task end time
+ * Add method: Posts these tasks as Google Calendar Events onto google calendar
+ * Stores Google Calendar Event ID into task object
+ * Delete method: Deletes event from Google Calendar based on event ID
+ * 
+ * @author Pee Choon Hian 
+ *
+ */
 
 public class GoogleCalendarManager {
 
+	// Strings which are currently hardcoded
+    private static final String CALENDAR_ID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
+    private static final String USER_ID = "ipeech";
+    
+    
+    
 	public static void main(String[] args) throws IOException {
 		Task task1 = new Task ("Task number 1");
 		Task task2 = new Task ("Task number 2");
+		Task task3 = new Task ("Task number 3");
+		Task task4 = new Task ("Task number 4");
+		Task task5 = new Task ("Task number 5");
+		Task task6 = new Task ("Task number 6");
+		
+		task1.setStartTime("PADDING_VALUE");
+		task1.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		
+		task2.setStartTime("PADDING_VALUE");
+		task2.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		
+		task3.setStartTime("PADDING_VALUE");
+		task3.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+	
+		task4.setStartTime("PADDING_VALUE");
+		task4.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		
+		task5.setStartTime("PADDING_VALUE");
+		task5.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		
+		task6.setStartTime("PADDING_VALUE");
+		task6.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		
+		
+		
 		add(task1);
 		add(task2);
+		
+		add(task3);
+		add(task4);
+		
+		add(task5);
+		add(task6);
+		
 		delete(task1.getGID());
+		delete(task5.getGID());
+		
+		System.out.println("Completed");
 	}
 	
 	
 	
 	public static Bundle add(Task task) throws IOException {
+		System.out.println("Executing add:"); // For debugging
+		
 		// Adds task to Google Calendar
 		// Returns true if task has successfully been added to Google Calendar
 		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
 		Calendar service = null;
-		String calendarID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
+		String calendarID = CALENDAR_ID;   // CURRENTLY HARDCODED
 		String gooCalEventID;
+		
+		// Bundle Objects
 		Bundle success = new Bundle();
 		Bundle failureNoInternet = new Bundle();
 		Bundle failureUnableToConnectToGoogle = new Bundle();
 		Bundle failureEventFailedToCreate = new Bundle();
-		
 		success.putString("Success", "Event has been successfully added to Google Calendar.");
 		failureNoInternet.putString("Failure1", "User is offline.");
 		failureUnableToConnectToGoogle.putString("Failure2", "Unable to connect to Google.");
@@ -103,19 +155,7 @@ public class GoogleCalendarManager {
 			if (gooCalEventID.equals("")) {
 				return failureEventFailedToCreate;
 			}
-			task.setGID(gooCalEventID);
-			
-			
-			
-			Task taskeeee = new Task ("task");
-			System.out.println("title = " + taskeeee.getTitle());
-			taskeeee.setStartTime("PADDING_VALUE");
-			System.out.println(taskeeee.displayStart());
-			
-			taskeeee.setEndTime("PADDING_VALUE", "PADDING_VALUE");
-			System.out.println(taskeeee.displayEnd());
-			System.out.println(taskeeee.displayTask());
-			
+			task.setGID(gooCalEventID);		
 			return success;
 		}
 	}
@@ -126,42 +166,57 @@ public class GoogleCalendarManager {
 	
 	
 	
-	public static boolean delete(String eventId) throws IOException {
+	public static Bundle delete(String eventId) throws IOException {
+		System.out.println("Executing delete:"); // For debugging
+		
+		
 		// Deletes task from Google Calendar
 		// Returns true if task has successfully been deleted from Google Calendar
 		// Returns false if task has not been successfully deleted from Google Calendar (Eg: When user is offline)
 		
+		
+		// Bundle Objects
+		Bundle success = new Bundle();
+		Bundle failureNoInternet = new Bundle();
+		Bundle failureUnableToConnectToGoogle = new Bundle();
+		success.putString("Success", "Event has been successfully added to Google Calendar.");
+		failureNoInternet.putString("Failure1", "User is offline.");
+		failureUnableToConnectToGoogle.putString("Failure2", "Unable to connect to Google.");
+
+		
 		Calendar service = null;
 		String calendarId = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
-		System.out.println(eventId);
+		//System.out.println(eventId);
 		// First, check user online status.
 		if (!isUserOnline()) {
-			return false;
+			return failureNoInternet;
 		}
 		else {
 			// This try catch blocks checks if Google's servers can be read
 			try {
 				service = initializeCalendar();
 			} catch (UnknownHostException connectionProblem) {
-				System.out.println("Unable to connect to Google");
-				return false;
+				//System.out.println("Unable to connect to Google");
+				return failureUnableToConnectToGoogle;
 			}
-			System.out.println(service.events().delete(calendarId,eventId).execute());
-			return true;
+			//System.out.println(service.events().delete(calendarId,eventId).execute());
+			return success;
 		}
 	}
 
 	
 	
-	
 	public static boolean isUserOnline() throws UnknownHostException, IOException {
+		System.out.println("Executing isUserOnline:"); // For debugging
+		
+		
 		Socket socket = null;
 		boolean reachable = false;
 		try {
 		    socket = new Socket("www.google.com", 80);
 		    reachable = true;
 		} catch (UnknownHostException e) {
-			System.out.println("User is offline");
+			//System.out.println("User is offline");
 			return false;
 		}
 		finally { 
@@ -175,6 +230,9 @@ public class GoogleCalendarManager {
 	}
 	
 	public static Calendar initializeCalendar() throws IOException {
+		System.out.println("Executing initializeCalendar:"); // For debugging
+		
+		
 		Calendar service;
 
 		//clearDb(); // For debugging
@@ -194,7 +252,7 @@ public class GoogleCalendarManager {
 					checkCalendar(createCalendar(readDb()));
 					//getAllCalendarListSummary(createCalendar(readDb()));
 				} catch (UnknownHostException connectionProblem) {
-					System.out.println("Unable to connect to Google 1");
+					//System.out.println("Unable to connect to Google 1");
 					return null;
 				}
 			} catch (IOException unauthorized) {
@@ -209,29 +267,36 @@ public class GoogleCalendarManager {
 	
 	
 	public static String getSummary(Task task) {
+		System.out.println("Executing getSummary:"); // For debugging
 		return task.getTitle();
 	}
 	
 	
 	public static String getStartDate(Task task) throws NullPointerException {
+		System.out.println("Executing getStartDate:"); // For debugging
 		return task.displayStartDate();
 	}
 	
 	public static String getStartTime(Task task) throws NullPointerException {
+		System.out.println("Executing getStartTime:"); // For debugging
 		return task.displayStartTime();
 	}
 	
 	
 	public static String getEndDate(Task task) {
+		System.out.println("Executing getEndDate:"); // For debugging
 		return task.displayEndDate();
 	}
 	
 	
 	public static String getEndTime(Task task) {
+		System.out.println("Executing getEndTime:"); // For debugging
 		return task.displayEndTime();
 	}
 	
 	public static String addEventToCalendar(Calendar service, String eventSummary, String calendarID, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime) throws IOException {
+		System.out.println("Executing addEventToCalendar:"); // For debugging
+		
 		Event event = new Event();
 
 		event.setSummary(eventSummary);
@@ -241,7 +306,7 @@ public class GoogleCalendarManager {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
 		if (eventStartTime.isEmpty() || eventEndTime.isEmpty()) {
-			System.out.println("CREATE AN ALL-DAY EVENT IF END TIMES ARE LEFT BLANK:");
+			//System.out.println("CREATE AN ALL-DAY EVENT IF END TIMES ARE LEFT BLANK:");
 			try {
 				// To parse string into Date object
 				Date dateFirst = simpleDateFormatAllDay.parse(eventStartDate);
@@ -271,7 +336,7 @@ public class GoogleCalendarManager {
 				System.out.println("Exception " + ex);
 			}
 		} else {
-			System.out.println("CREATE A NORMAL TIMED EVENT:");
+			//System.out.println("CREATE A NORMAL TIMED EVENT:");
 			try {
 
 				// To parse string into Date object
@@ -279,8 +344,8 @@ public class GoogleCalendarManager {
 				Date dateSecond = simpleDateFormat.parse(eventEndDate + " " + eventEndTime);
 
 				// Formats Date object according to simpleDateFormat, print.
-				System.out.println("date : " + simpleDateFormat.format(dateFirst));
-				System.out.println("date : " + simpleDateFormat.format(dateSecond));
+				//System.out.println("date : " + simpleDateFormat.format(dateFirst));
+				//System.out.println("date : " + simpleDateFormat.format(dateSecond));
 
 				// Create DateTime object to add to event object
 				DateTime dateTime1 = new DateTime(dateFirst,TimeZone.getTimeZone("UTC"));
@@ -300,11 +365,9 @@ public class GoogleCalendarManager {
 	
 	
 	
-
-	
-	
 	public static Calendar createCalendar(String token) throws IOException {
-		System.out.println("creating calendar");
+		System.out.println("Executing createCalendar:"); // For debugging
+	
 		
 		// Two globals that will be used in each step.
 		HttpTransport httpTransport = new NetHttpTransport();
@@ -324,7 +387,7 @@ public class GoogleCalendarManager {
 		existingToken.setAccessToken(token);
 
 		existingToken.setExpiresInSeconds(null);
-		String userId = "ipeech";
+		String userId = USER_ID;  // CURRENTLY HARDCODED 
 		Credential credential = codeFlow.createAndStoreCredential(existingToken, userId);
 
 		// Credentials may be used to initialize http requests
@@ -344,6 +407,8 @@ public class GoogleCalendarManager {
 	
 	
 	public static String generateNewToken() throws IOException {
+		System.out.println("Executing generateNewToken:"); // For debugging
+		
 		// Two globals that will be used in each step.
 		HttpTransport httpTransport = new NetHttpTransport();
 		JsonFactory jsonFactory = new JacksonFactory();
@@ -388,94 +453,10 @@ public class GoogleCalendarManager {
 	
 	
 
-	
-	
-	
-	enum CommandType {
-		GET_CALENDARLIST_SUMMARY, GET_ALL_CALENDARLIST_SUMMARY, GET_CALENDAR_SUMMARY, LIST_EVENTS, ADD_EVENT, EXIT, INVALID
-	};
-
-	
-
-
-	
-	public static void executeCalendarTasks(Calendar calendar)
-			throws IOException {
-		while (true) {
-			showToUser("Enter a choice: ");
-			showToUser("1. GET_CALENDARLIST_SUMMARY");
-			showToUser("2. GET_ALL_CALENDARLIST_SUMMARY");
-			showToUser("3. GET_CALENDAR_SUMMARY");
-			showToUser("4. LIST_EVENTS");
-			showToUser("5. ADD_EVENT");
-			showToUser("6. EXIT");
-
-			String calendarID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
-			Scanner sc = new Scanner(System.in);
-			String command = getCommand(sc);
-			CommandType commandToExecute = identifyCommand(command, sc);
-			executeCommand(commandToExecute, calendarID, calendar);
-
-			/*
-			 * getCalendarListSummary(calendarID,calendar);
-			 * getAllCalendarListSummary(calendar);
-			 * getCalendarSummary(calendarID,calendar); listEvents(calendarID,
-			 * calendar); addEventCurrentDateTime(calendarID, calendar);
-			 * addEvent(calendarID, calendar);
-			 */
-		}
-	}
-
-	private static String getCommand(Scanner sc) {
-		String command = sc.next();
-		return command;
-	}
-
-	private static CommandType identifyCommand(String command, Scanner sc) {
-		switch (command) {
-		case "1":
-			return CommandType.GET_CALENDARLIST_SUMMARY;
-		case "2":
-			return CommandType.GET_ALL_CALENDARLIST_SUMMARY;
-		case "3":
-			return CommandType.GET_CALENDAR_SUMMARY;
-		case "4":
-			return CommandType.LIST_EVENTS;
-		case "5":
-			return CommandType.ADD_EVENT;
-		case "6":
-			return CommandType.EXIT;
-		default:
-			return CommandType.INVALID;
-		}
-	}
-
-	private static void executeCommand(CommandType commandToExecute,
-			String calendarID, Calendar calendar) throws IOException {
-		switch (commandToExecute) {
-		case GET_CALENDARLIST_SUMMARY:
-			getCalendarListSummary(calendarID, calendar);
-			break;
-		case GET_ALL_CALENDARLIST_SUMMARY:
-			getAllCalendarListSummary(calendar);
-			break;
-		case GET_CALENDAR_SUMMARY:
-			getCalendarSummary(calendarID, calendar);
-			break;
-		case LIST_EVENTS:
-			listEvents(calendarID, calendar);
-			break;
-		case ADD_EVENT:
-			addEvent(calendarID, calendar);
-			break;
-		case EXIT:
-			exitProgram();
-		case INVALID:
-			showToUser(String.format("Invalid!"));
-		}
-	}
-
 	public static boolean isTokenDbEmpty() {
+		System.out.println("Executing isTokenDbEmpty:"); // For debugging
+		
+		
 		// System.out.println("Inside the db: " + readDb());
 
 		if (readDb().equals("")) {
@@ -486,6 +467,9 @@ public class GoogleCalendarManager {
 	}
 
 	public static void addToDb(String accessToken) {
+		System.out.println("Executing addToDb:"); // For debugging
+		
+		
 		try {
 			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken.txt");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
@@ -497,6 +481,9 @@ public class GoogleCalendarManager {
 	}
 
 	public static void clearDb() {
+		System.out.println("Executing clearDb:"); // For debugging
+		
+		
 		try {
 			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken.txt");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
@@ -508,8 +495,10 @@ public class GoogleCalendarManager {
 	}
 
 	private static String readDb() {
+		System.out.println("Executing readDb:"); // For debugging
+		
+		
 		String accessToken;
-
 		try {
 			FileInputStream fin = new FileInputStream("GoogleCalAuthenticationToken.txt");
 			ObjectInputStream ois = new ObjectInputStream(fin);
@@ -523,325 +512,13 @@ public class GoogleCalendarManager {
 		}
 	}
 
-
-
-/*	public static Calendar authorizeCal() throws IOException {
-		
-		HttpTransport httpTransport = new NetHttpTransport();
-		JsonFactory jsonFactory = new JacksonFactory();
-
-		
-		Set<String> scope = Collections.singleton(CalendarScopes.CALENDAR);
-		String clientId = "369332843116-gr8ct1guerlf1fudpgivfjv43h0oleip.apps.googleusercontent.com";
-		String clientSecret = "ISvEBCzHT-jheksy-kO-oBvs";
-
-		
-		AuthorizationCodeFlow.Builder codeFlowBuilder = new GoogleAuthorizationCodeFlow.Builder(
-				httpTransport, jsonFactory, clientId, clientSecret, scope);
-		AuthorizationCodeFlow codeFlow = codeFlowBuilder.build();
-
-	
-		String userId = "ipeech";
-
-	
-		String redirectUri = "urn:ietf:wg:oauth:2.0:oob";
-		AuthorizationCodeRequestUrl authorizationUrl = codeFlow
-				.newAuthorizationUrl();
-		authorizationUrl.setRedirectUri(redirectUri);
-	
-		System.out.println(authorizationUrl);
-
-
-		String code = new Scanner(System.in).nextLine();
-
-		AuthorizationCodeTokenRequest tokenRequest = codeFlow
-				.newTokenRequest(code);
-
-		tokenRequest.setRedirectUri(redirectUri);
-		TokenResponse tokenResponse = tokenRequest.execute();
-		System.out.println(tokenResponse.getAccessToken());
-		addToDb(tokenResponse.getAccessToken());
-
-	
-		Credential credential = codeFlow.createAndStoreCredential(
-				tokenResponse, userId);
-
-
-		HttpRequestInitializer initializer = credential;
-
-		
-		Calendar.Builder serviceBuilder = new Calendar.Builder(httpTransport,
-				jsonFactory, initializer);
-		serviceBuilder.setApplicationName("GooCal");
-		Calendar calendar = serviceBuilder.build();
-		return calendar;
-	}
-*/
-	
-	
-	/*
-	public static Calendar initializeCalWithExistingToken() throws IOException {
-		
-		HttpTransport httpTransport = new NetHttpTransport();
-		JsonFactory jsonFactory = new JacksonFactory();
-
-		
-		Set<String> scope = Collections.singleton(CalendarScopes.CALENDAR);
-		String clientId = "369332843116-gr8ct1guerlf1fudpgivfjv43h0oleip.apps.googleusercontent.com";
-		String clientSecret = "ISvEBCzHT-jheksy-kO-oBvs";
-
-		AuthorizationCodeFlow.Builder codeFlowBuilder = new GoogleAuthorizationCodeFlow.Builder(
-				httpTransport, jsonFactory, clientId, clientSecret, scope);
-
-		AuthorizationCodeFlow codeFlow = codeFlowBuilder.build();
-		TokenResponse existingToken = new TokenResponse();
-
-
-		existingToken.setAccessToken(readDb());
-
-		existingToken.setExpiresInSeconds(null);
-		String userId = "ipeech";
-		Credential credential = codeFlow.createAndStoreCredential(
-				existingToken, userId);
-
-	
-		HttpRequestInitializer initializer = credential;
-
-	
-		Calendar.Builder serviceBuilder = new Calendar.Builder(httpTransport,
-				jsonFactory, initializer);
-		serviceBuilder.setApplicationName("GooCal");
-		Calendar calendar = serviceBuilder.build();
-
-		return calendar;
-	}
-*/
-	
-	
-	public static void getCalendarListSummary(String calendarID,
-			Calendar calendar) throws IOException {
-		showToUser("Running getCalendarListSummary");
-		showToUser("Calendar ID used: " + calendarID);
-		CalendarListEntry calendarListEntry = calendar.calendarList()
-				.get(calendarID).execute();
-		showToUser(calendarListEntry.getSummary());
-		newLine();
-		newLine();
-	}
-
-	public static void getAllCalendarListSummary(Calendar calendar)
-			throws IOException {
-		showToUser("Running getAllCalendarListSummary");
-		Calendar.CalendarList.List listRequest = calendar.calendarList().list();
-		CalendarList feed = listRequest.execute();
-		for (CalendarListEntry entry : feed.getItems()) {
-			System.out.println("ID: " + entry.getId());
-			System.out.println("Summary: " + entry.getSummary());
-		}
-		newLine();
-		newLine();
-	}
-	
 	
 	public static void checkCalendar(Calendar calendar) throws IOException {
+		System.out.println("Executing checkCalendar:"); // For debugging
+		
+		
 		Calendar.CalendarList.List listRequest = calendar.calendarList().list();
 		CalendarList feed = listRequest.execute();
-	}
-
-	public static void getCalendarSummary(String calendarID, Calendar service)
-			throws IOException {
-		showToUser("Running getCalendarSummary");
-		// Calendar calendar = service.calendars().get("primary").execute();
-
-		// Generates primary calendar
-		com.google.api.services.calendar.model.Calendar calendar = service
-				.calendars().get("primary").execute();
-		showToUser("Primary calendar summary:");
-		System.out.println(calendar.getSummary());
-
-		// Generates calendar based on calendar ID supplied
-		com.google.api.services.calendar.model.Calendar calendar2 = service
-				.calendars().get(calendarID).execute();
-		showToUser("Calendar ID used: " + calendarID);
-		System.out.println(calendar2.getSummary());
-
-		newLine();
-		newLine();
-	}
-
-	public static void listEvents(String calendarID, Calendar service)
-			throws IOException {
-		showToUser("Running listEvents:");
-
-		String pageToken = null;
-		do {
-			Events events = service.events().list(calendarID)
-					.setPageToken(pageToken).execute();
-
-			// Generates a list of items obtained from Google Calendar
-			List<Event> items = events.getItems();
-
-			// Accesses this list and get information about each event
-			for (Event event : items) {
-				// Show event summary (title)
-				showToUser(event.getSummary());
-
-				// Show event date/time details
-				if (!(event.getStart().getDate() == null)) {
-					showToUser("This is an all-day event");
-					showToUserSameLine("Start date: ");
-					System.out.println(event.getStart().getDate());
-					showToUserSameLine("End date: ");
-					System.out.println(event.getEnd().getDate());
-				} else {
-					showToUserSameLine("Start date/time: ");
-					System.out.println(event.getStart().getDateTime());
-					showToUserSameLine("End date/time: ");
-					System.out.println(event.getEnd().getDateTime());
-				}
-
-				// Shows event description only if description is not null
-				if (!(event.getDescription() == null)) {
-					showToUser(event.getDescription());
-				}
-
-				newLine();
-			}
-			pageToken = events.getNextPageToken();
-		} while (pageToken != null);
-
-		newLine();
-		newLine();
-	}
-
-	public static void addEventCurrentDateTime(String calendarID,
-			Calendar service) throws IOException {
-		Event event = new Event();
-		event.setSummary("Appointment");
-		Date startDate = new Date();
-		Date endDate = new Date(startDate.getTime() + 3600000);
-		DateTime start = new DateTime(startDate, TimeZone.getTimeZone("UTC"));
-		event.setStart(new EventDateTime().setDateTime(start));
-		DateTime end = new DateTime(endDate, TimeZone.getTimeZone("UTC"));
-		event.setEnd(new EventDateTime().setDateTime(end));
-		Event createdEvent = service.events().insert(calendarID, event)
-				.execute();
-		System.out.println(createdEvent.getId());
-	}
-
-	
-	
-	
-	
-	public static void addEvent(String calendarID, Calendar service)
-			throws IOException {
-		while (true) {
-			Scanner sc = new Scanner(System.in);
-			Event event = new Event();
-			showToUserSameLine("Enter title: ");
-			event.setSummary(sc.nextLine());
-			showToUserSameLine("Enter start date (Format: DD/MM/YYYY): ");
-			String s1_date = sc.nextLine();
-			showToUserSameLine("Enter start time (Format: HH:MM) (Leave blank of all-day event): ");
-			String s1_time = sc.nextLine();
-			showToUserSameLine("Enter end date (Format: DD/MM/YYYY): ");
-			String s2_date = sc.nextLine();
-			showToUserSameLine("Enter end time (Format: HH:MM) (Leave blank of all-day event): ");
-			String s2_time = sc.nextLine();
-
-			SimpleDateFormat simpleDateFormatAllDay = new SimpleDateFormat(
-					"dd/MM/yyyy");
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-					"dd/MM/yyyy HH:mm");
-
-			if (s1_time.isEmpty() || s2_time.isEmpty()) {
-				System.out
-						.println("CREATE AN ALL-DAY EVENT IF END TIMES ARE LEFT BLANK:");
-				try {
-					// To parse string into Date object
-					Date dateFirst = simpleDateFormatAllDay.parse(s1_date);
-					Date dateSecond = simpleDateFormatAllDay.parse(s2_date);
-
-					// Creates string from date object, string must be in a
-					// particular format to create a DateTime object with no
-					// time element
-					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-					String startDateStr = dateFormat.format(dateFirst);
-					String endDateStr = dateFormat.format(dateSecond);
-
-					// Out of the 6 methods for creating a DateTime object with
-					// no time element, only the String version works
-					DateTime startDateTime = new DateTime(startDateStr);
-					DateTime endDateTime = new DateTime(endDateStr);
-
-					// Must use the setDate() method for an all-day event
-					// (setDateTime() is used for timed events)
-					EventDateTime startEventDateTime = new EventDateTime()
-							.setDate(startDateTime);
-					EventDateTime endEventDateTime = new EventDateTime()
-							.setDate(endDateTime);
-
-					// Set event parameters
-					event.setStart(startEventDateTime);
-					event.setEnd(endEventDateTime);
-				} catch (ParseException ex) {
-					System.out.println("Exception " + ex);
-				}
-			} else {
-				System.out.println("CREATE A NORMAL TIMED EVENT:");
-				try {
-
-					// To parse string into Date object
-					Date dateFirst = simpleDateFormat.parse(s1_date + " "
-							+ s1_time);
-					Date dateSecond = simpleDateFormat.parse(s2_date + " "
-							+ s2_time);
-
-					// Formats Date object according to simpleDateFormat, print.
-					System.out.println("date : "
-							+ simpleDateFormat.format(dateFirst));
-					System.out.println("date : "
-							+ simpleDateFormat.format(dateSecond));
-
-					// Create DateTime object to add to event object
-					DateTime dateTime1 = new DateTime(dateFirst,
-							TimeZone.getTimeZone("UTC"));
-					event.setStart(new EventDateTime().setDateTime(dateTime1));
-					DateTime dateTime2 = new DateTime(dateSecond,
-							TimeZone.getTimeZone("UTC"));
-					event.setEnd(new EventDateTime().setDateTime(dateTime2));
-				} catch (ParseException ex) {
-					System.out.println("Exception " + ex);
-				}
-			}
-			// Create event object, execute the insertion of this event into the
-			// google calendar
-			Event createdEvent = service.events().insert(calendarID, event)
-					.execute();
-			System.out.println("Event ID: " + createdEvent.getId());
-
-			showToUserSameLine("Create another event? Y/N: ");
-			String response = sc.next();
-			if (response.equalsIgnoreCase("N")) {
-				break;
-			}
-		}
-	}
-
-	public static void showToUser(String message) {
-		System.out.println(message);
-	}
-
-	public static void showToUserSameLine(String message) {
-		System.out.print(message);
-	}
-
-	public static void newLine() {
-		System.out.println();
-	}
-	
-	public static void exitProgram() {
-		System.exit(0);
 	}
 }
 
