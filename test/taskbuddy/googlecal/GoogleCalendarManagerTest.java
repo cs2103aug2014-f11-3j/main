@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import taskbuddy.logic.Task;
+import taskbuddy.logic.Bundle;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -82,7 +83,7 @@ public class GoogleCalendarManagerTest {
 	}
 	
 	
-	
+
 
 	
 }
