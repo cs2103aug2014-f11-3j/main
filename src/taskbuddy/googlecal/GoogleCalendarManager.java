@@ -104,6 +104,18 @@ public class GoogleCalendarManager {
 				return failureEventFailedToCreate;
 			}
 			task.setGID(gooCalEventID);
+			
+			
+			
+			Task taskeeee = new Task ("task");
+			System.out.println("title = " + taskeeee.getTitle());
+			taskeeee.setStartTime("PADDING_VALUE");
+			System.out.println(taskeeee.displayStart());
+			
+			taskeeee.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+			System.out.println(taskeeee.displayEnd());
+			System.out.println(taskeeee.displayTask());
+			
 			return success;
 		}
 	}
@@ -202,31 +214,21 @@ public class GoogleCalendarManager {
 	
 	
 	public static String getStartDate(Task task) throws NullPointerException {
-	// This is a stub
-		String startDate = "9/10/2014";
-		return startDate;
-		//return task.toString(task.getStartTime());
+		return task.displayStartDate();
 	}
 	
 	public static String getStartTime(Task task) throws NullPointerException {
-	// This is a stub
-		String startTime = "10:30";
-		return startTime;
-		//return task.toString(task.getStartTime());
+		return task.displayStartTime();
 	}
 	
 	
 	public static String getEndDate(Task task) {
-		// This is a stub
-		String endDate = "9/10/2014";
-		return endDate;
+		return task.displayEndDate();
 	}
 	
 	
 	public static String getEndTime(Task task) {
-		// This is a stub
-		String endTime = "13:30";
-		return endTime;
+		return task.displayEndTime();
 	}
 	
 	public static String addEventToCalendar(Calendar service, String eventSummary, String calendarID, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime) throws IOException {
