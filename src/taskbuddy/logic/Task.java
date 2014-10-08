@@ -195,6 +195,58 @@ public class Task {
         formatter = new SimpleDateFormat("d-M-yyyy 'at' HH:mm");
         return formatter.format(date);
     }
+    
+    
+    
+    /**
+     * Returns a string showing the date of the argument
+     * <code>Calendar</code> object. For example, the date returned may be
+     * "1-1-1", as opposed to having leading zeroes like 01-01-0001 at
+     * 01:01.
+     * 
+     * @param cal
+     *            the <code>Calendar</code> object to be converted into a string
+     * @return a string showing the date and time of the argument
+     *         <code>Calendar</code> object.
+     * 
+     * @author Pee Choon Hian
+     */
+    public String displayDate(Calendar cal) {
+        Date date = cal.getTime();
+
+        // Do not change this formatter - this is for GoogleCalendarManager. You
+        // need to at least tell me how you've changed it if you want to change
+        // it, or write your method for your own formatter.        
+        formatter = new SimpleDateFormat("d/M/yyyy");
+        return formatter.format(date);
+    }
+    
+    
+    /**
+     * Returns a string showing the time of the argument
+     * <code>Calendar</code> object.
+     * 
+     * @param cal
+     *            the <code>Calendar</code> object to be converted into a string
+     * @return a string showing the date and time of the argument
+     *         <code>Calendar</code> object.
+     * 
+     * @author Pee Choon Hian
+     */
+    public String displayTime(Calendar cal) {
+        Date date = cal.getTime();
+
+        // Do not change this formatter - this is for GoogleCalendarManager. You
+        // need to at least tell me how you've changed it if you want to change
+        // it, or write your method for your own formatter.        
+        formatter = new SimpleDateFormat("HH:mm");
+        return formatter.format(date);
+    }
+    
+    
+    
+    
+    
 
     /**
      * Converts a <code>Task</code> object and its attributes to a string for
@@ -284,6 +336,28 @@ public class Task {
     }
 
     /**
+     * @return the end date of this task. This method is used by GooglCalendarManager, please do not change. 
+     * 
+     * @author Pee Choon Hian
+     * 
+     */
+    public String displayEndDate() {
+    	return this.displayDate(this.getStartTime());
+    }
+    
+    /**
+     * @return the end time of this task. This method is used by GooglCalendarManager, please do not change. 
+     * 
+     * @author Pee Choon Hian
+     * 
+     */
+    public String displayEndTime() {
+    	return this.displayTime(this.getStartTime());
+    }
+    
+    
+    
+    /**
      * @return the start date and time of this task
      * 
      * @author Soh Yong Sheng
@@ -293,6 +367,30 @@ public class Task {
         return START + this.displayDateTime(this.getStartTime());
     }
 
+    /**
+     * @return the start date of this task. This method is used by GooglCalendarManager, please do not change. 
+     * 
+     * @author Pee Choon Hian
+     * 
+     */
+    public String displayStartDate() {
+    	return this.displayDate(this.getStartTime());
+    }
+    
+    /**
+     * @return the start time of this task. This method is used by GooglCalendarManager, please do not change. 
+     * 
+     * @author Pee Choon Hian
+     * 
+     */
+    public String displayStartTime() {
+    	return this.displayTime(this.getStartTime());
+    }
+    
+    
+    
+    
+    
     /**
      * @return the description of this task
      * 
