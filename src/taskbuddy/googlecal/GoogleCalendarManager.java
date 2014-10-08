@@ -125,10 +125,10 @@ public class GoogleCalendarManager {
 		Bundle failureNoInternet = new Bundle();
 		Bundle failureUnableToConnectToGoogle = new Bundle();
 		Bundle failureEventFailedToCreate = new Bundle();
-		success.putString("GooCalSuccessAdd", "Event has been successfully added to Google Calendar.");
-		failureNoInternet.putString("Failure1", "User is offline.");
-		failureUnableToConnectToGoogle.putString("Failure2", "Unable to connect to Google.");
-		failureEventFailedToCreate.putString("Failure3", "Event failed to be created.");
+		success.putString("Success", "Event has been successfully added to Google Calendar.");
+		failureNoInternet.putString("Failure", "User is offline.");
+		failureUnableToConnectToGoogle.putString("Failure", "Unable to connect to Google.");
+		failureEventFailedToCreate.putString("Failure", "Event failed to be created.");
 		
 		
 		// First, check user online status.
@@ -179,9 +179,9 @@ public class GoogleCalendarManager {
 		Bundle success = new Bundle();
 		Bundle failureNoInternet = new Bundle();
 		Bundle failureUnableToConnectToGoogle = new Bundle();
-		success.putString("GooCalSuccessDelete", "Event has been successfully deleted from Google Calendar.");
-		failureNoInternet.putString("Failure1", "User is offline.");
-		failureUnableToConnectToGoogle.putString("Failure2", "Unable to connect to Google.");
+		success.putString("Success", "Event has been successfully deleted from Google Calendar.");
+		failureNoInternet.putString("Failure", "User is offline.");
+		failureUnableToConnectToGoogle.putString("Failure", "Unable to connect to Google.");
 
 		
 		Calendar service = null;
