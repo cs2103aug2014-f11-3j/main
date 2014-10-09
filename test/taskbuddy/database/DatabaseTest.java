@@ -22,10 +22,17 @@ import taskbuddy.logic.Task;
  */
 public class DatabaseTest {
 
-    private static final String SUCCESS = "Successful";
-    private static final String FAIL = "Fail";
-    private static final String SUCCESS_ADD_TASK = "Task added successfully.";
-    private static final String FAIL_ADD_TASK = "Unable to add task.";
+    private static final String STATUS = "Status";
+    private static final String MESSAGE = "Message";
+
+    private static final String SUCCESS = "Success";
+    private static final String SUCCESS_ADD = "Task added successfully.";
+    private static final String SUCCESS_DELETE = "Task removed successfully.";
+
+    private static final String FAILURE = "Failure";
+    private static final String FAIL_ADD = "Unable to add task.";
+    private static final String FAIL_DELETE_NO_TASKS = "No tasks to delete.";
+    private static final String FAIL_DELETE_TITLE_NOT_FOUND = "No such title.";
 
     Database database;
     Task task;
@@ -159,15 +166,12 @@ public class DatabaseTest {
     public void testAddTask() throws Exception {
         setup();
         createTask();
-        Bundle addTask = database.addTask(task);
 
-        boolean isAdded = addTask.bundle.containsKey(SUCCESS);
-        assertTrue(isAdded);
+        Bundle addTask = database.addTask(task);
+        assertTrue("Success status not returned by addTask method.", addTask
+                .getItem(STATUS).equals(SUCCESS));
         assertTrue("Success message not returned by addTask method.", addTask
-                .getItem(SUCCESS).equals(SUCCESS_ADD_TASK));
-        boolean isNotAdded = addTask.bundle.containsKey(FAIL);
-        assertFalse("Message returned by addTask method contains fail status.",
-                isNotAdded);
+                .getItem(MESSAGE).equals(SUCCESS_ADD));
 
         assertEquals("Number of tasks did not increase from 0 to 1 after task "
                 + "addition", 1, database.getTasks().size());
@@ -219,33 +223,31 @@ public class DatabaseTest {
     // TODO Pass this test
     @Test
     public void testDelete() throws Exception {
-        Bundle deleteTask;
-        boolean isDeleted;
-        boolean isNotDeleted;
+        Bundle ack;
         ArrayList<Task> readTasks;
         String expected;
         String actual;
         setup();
         createTask();
 
-        deleteTask = database.delete(title);
-        isDeleted = deleteTask.bundle.containsKey(SUCCESS);
-        assertFalse("Success status for deletion even though "
-                + "list of tasks is empty", isDeleted);
-        isNotDeleted = deleteTask.bundle.containsKey(FAIL);
-        assertTrue("Fail status not returned for deletion in empty "
-                + "list of tasks.", isNotDeleted);
+        ack = database.delete(title);
+        assertTrue("Failure status for deletion not returned even though "
+                + "there are no tasks to delete.",
+                ack.getItem(STATUS).equals(FAILURE));
+        assertTrue("Failure message for deletion not returned even though "
+                + "there are no tasks to delete.",
+                ack.getItem(MESSAGE).equals(FAIL_DELETE_NO_TASKS));
 
         // Number of tasks is now one.
         database.addTask(task);
 
-        deleteTask = database.delete("Untitled");
-        isNotDeleted = deleteTask.bundle.containsKey(FAIL);
-        assertTrue("Fail status not returned for deletion of task "
-                + "with invalid title.", isNotDeleted);
-        isDeleted = deleteTask.bundle.containsKey(SUCCESS);
-        assertFalse("Success status wrongly returned for deletion of "
-                + "task with invalid title.", isDeleted);
+        ack = database.delete("Untitled");
+        assertTrue(
+                "Failure status for deletion not returned for no title match.",
+                ack.getItem(STATUS).equals(FAILURE));
+        assertTrue(
+                "Failure message for deletion not returned for no title match.",
+                ack.getItem(MESSAGE).equals(FAIL_DELETE_TITLE_NOT_FOUND));
         assertEquals("Number of tasks is not one even no task was deleted.", 1,
                 database.getTasks().size());
         readTasks = database.taskLogger.readTasks();
@@ -255,13 +257,13 @@ public class DatabaseTest {
         assertTrue("Task in log is not the same as that of in arraylist.",
                 actual.equals(expected));
 
-        deleteTask = database.delete(title);
-        isDeleted = deleteTask.bundle.containsKey(SUCCESS);
-        assertTrue("Success status for deletion not returned for valid "
-                + "deletion.", isDeleted);
-        isNotDeleted = deleteTask.bundle.containsKey(FAIL);
-        assertFalse("Fail status wrongly returned for valid deletion.",
-                isNotDeleted);
+        ack = database.delete(title);
+        assertTrue(
+                "Success status for deletion not returned for valid deletion.",
+                ack.getItem(STATUS).equals(SUCCESS));
+        assertTrue(
+                "Success message for deletion not returned for valid deletion.",
+                ack.getItem(MESSAGE).equals(SUCCESS_DELETE));
         assertTrue("List of tasks is not empty after deletion.", database
                 .getTasks().isEmpty());
         readTasks = database.taskLogger.readTasks();
