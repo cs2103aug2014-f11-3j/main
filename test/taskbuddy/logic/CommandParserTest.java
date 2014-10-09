@@ -1,6 +1,7 @@
 package taskbuddy.logic;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 import org.junit.Test;
 
@@ -23,7 +24,7 @@ public class CommandParserTest {
 	private String task = "Task";
 	
 	@Test
-	public void testAdd() {
+	public void testAdd() throws ParseException {
 		try {
 			db = new Database();
 		} catch (IOException e) {
@@ -47,7 +48,7 @@ public class CommandParserTest {
 		//assertEquals(expected, d);
 	}
 
-	public void testDelete(){
+	public void testDelete() throws ParseException{
 		try {
 			db = new Database();
 		} catch (IOException e) {
