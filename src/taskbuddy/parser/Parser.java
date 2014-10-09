@@ -3,6 +3,7 @@ package taskbuddy.parser;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import taskbuddy.logic.Bundle;
 import taskbuddy.logic.CommandParser;
 
 /*
@@ -29,6 +30,14 @@ public class Parser {
 	private static final int TITLE_INDEX = 5;
 	private static final String NULL_VALUE = "padding value";
 	
+	// use bundle instead of arraylist
+	private Bundle userInputs = new Bundle();
+	private String user_command = "command";
+	private String user_description = "description";
+	private String user_endDate = "endDate";
+	private String user_start = "startTime";
+	private String user_endTime = "endTime";
+	private String user_title = "title";
 	
 	public static void main(String[] args) {
 		while (true) {
@@ -47,7 +56,7 @@ public class Parser {
 				//pass the arraylist to Logic
 //				arrayOutput(commandSplit);   //for testing
 				CommandParser commandParser = new CommandParser();
-				commandParser.userInputs(commandSplit);
+				commandParser.parseUserInputs(commandSplit);
 				
 			}else if(commandType.equalsIgnoreCase("add")){
 				
@@ -63,6 +72,7 @@ public class Parser {
 					if(hasDateSpecifier(contentToAdd)){
 						date = findDate(contentToAdd);
 						contentToAdd = removeDate(contentToAdd);
+						
 					}else{
 						date = NULL_VALUE;
 					}
@@ -70,6 +80,7 @@ public class Parser {
 					if(hasStartTimeSpecifier(contentToAdd)){
 						startTime = findStartTime(contentToAdd);
 						contentToAdd = removeStartTime(contentToAdd);
+						
 					}else{
 						startTime = NULL_VALUE;
 					}
@@ -96,7 +107,7 @@ public class Parser {
 					//pass the arraylist to Logic
 //					arrayOutput(commandSplit);   //for testing
 					CommandParser commandParser = new CommandParser();
-					commandParser.userInputs(commandSplit);
+					commandParser.parseUserInputs(commandSplit);
 													
 				}else{
 					showInvalidMessage();
@@ -153,7 +164,7 @@ public class Parser {
 					//pass the arraylist to Logic
 //					arrayOutput(commandSplit);   //for testing
 					CommandParser commandParser = new CommandParser();
-					commandParser.userInputs(commandSplit);
+					commandParser.parseUserInputs(commandSplit);
 									
 				}else{
 					showInvalidMessage();
@@ -175,7 +186,7 @@ public class Parser {
 					//pass the arraylist to Logic
 //					arrayOutput(commandSplit);   //for testing
 					CommandParser commandParser = new CommandParser();
-					commandParser.userInputs(commandSplit);
+					commandParser.parseUserInputs(commandSplit);
 					
 				}else if(contentToDisplay.equalsIgnoreCase("all")){
 					commandSplit.add(DESCRIPTION_INDEX, "all");
@@ -187,7 +198,7 @@ public class Parser {
 					//pass the arraylist to Logic
 //					arrayOutput(commandSplit);   //for testing
 					CommandParser commandParser = new CommandParser();
-					commandParser.userInputs(commandSplit);
+					commandParser.parseUserInputs(commandSplit);
 					
 				}else if(hasDateSpecifier(contentToDisplay)){
 					commandSplit.add(DESCRIPTION_INDEX, NULL_VALUE);
@@ -199,7 +210,7 @@ public class Parser {
 					//pass the arraylist to Logic
 //					arrayOutput(commandSplit);   //for testing
 					CommandParser commandParser = new CommandParser();
-					commandParser.userInputs(commandSplit);
+					commandParser.parseUserInputs(commandSplit);
 					
 				}else{
 					showInvalidMessage();
@@ -220,7 +231,7 @@ public class Parser {
 					//pass the arraylist to Logic
 //					arrayOutput(commandSplit);   //for testing
 					CommandParser commandParser = new CommandParser();
-					commandParser.userInputs(commandSplit);
+					commandParser.parseUserInputs(commandSplit);
 					
 				}else{
 					showInvalidMessage();
