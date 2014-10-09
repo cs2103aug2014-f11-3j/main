@@ -1,6 +1,7 @@
 package taskbuddy.logic;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -132,7 +133,7 @@ public class CommandParser {
 		}
 	}
 
-	void redo() {
+	void redo() throws ParseException {
 		Bundle prevCommand = redoStack.pop();
 		undoStack.push(prevCommand);
 		parseUserInputs(prevCommand);
@@ -146,7 +147,7 @@ public class CommandParser {
 		return ackBundle;
 	}
 
-	public Bundle parseUserInputs(Bundle userIn) {
+	public Bundle parseUserInputs(Bundle userIn) throws ParseException{
 		try {
 			database = new Database();
 		} catch (IOException e) {
