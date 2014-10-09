@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ DatabaseTest.class, DbCommandTest.class })
+@SuiteClasses({ TaskLogger.class, DatabaseTest.class, DbCommandTest.class })
 public class AllTests {
 
 }

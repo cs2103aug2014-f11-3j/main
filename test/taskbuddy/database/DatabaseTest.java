@@ -222,7 +222,7 @@ public class DatabaseTest {
         Bundle deleteTask;
         boolean isDeleted;
         boolean isNotDeleted;
-        ArrayList<Task> readTasks;  
+        ArrayList<Task> readTasks;
         String expected;
         String actual;
         setup();
@@ -236,31 +236,37 @@ public class DatabaseTest {
         assertTrue("Fail status not returned for deletion in empty "
                 + "list of tasks.", isNotDeleted);
 
-         // Number of tasks is now one.
-         database.addTask(task);
-        
-         deleteTask = database.delete("Untitled");
-         isNotDeleted = deleteTask.bundle.containsKey(FAIL);         
-         assertTrue("Fail status not returned for deletion of task with invalid title.", isNotDeleted);
-         isDeleted = deleteTask.bundle.containsKey(SUCCESS);
-         assertFalse("Success status wrongly returned for deletion of task with invalid title.", isDeleted);         
-         assertEquals("Number of tasks is not one even no task was deleted.", 1,
-         database.getTasks().size());
-         readTasks = database.taskLogger.readTasks();
-         assertEquals("Number of tasks in log is not one.", 1, readTasks.size());
-         actual = readTasks.get(0).displayTask();
-         expected = database.getTasks().get(0).displayTask();
-         assertTrue("Task in log is not the same as that of in arraylist.", actual.equals(expected));
-        
-         deleteTask = database.delete(title);
-         isDeleted = deleteTask.bundle.containsKey(SUCCESS);
-         assertTrue("Success status for deletion not returned for valid deletion.", isDeleted);
-         isNotDeleted = deleteTask.bundle.containsKey(FAIL);
-         assertFalse("Fail status wrongly returned for valid deletion.", isNotDeleted);
-         assertTrue("List of tasks is not empty after deletion.", database
-         .getTasks().isEmpty());
-         readTasks = database.taskLogger.readTasks();
-         assertEquals("Number of tasks in log is not zero.", 0, readTasks.size());
+        // Number of tasks is now one.
+        database.addTask(task);
+
+        deleteTask = database.delete("Untitled");
+        isNotDeleted = deleteTask.bundle.containsKey(FAIL);
+        assertTrue("Fail status not returned for deletion of task "
+                + "with invalid title.", isNotDeleted);
+        isDeleted = deleteTask.bundle.containsKey(SUCCESS);
+        assertFalse("Success status wrongly returned for deletion of "
+                + "task with invalid title.", isDeleted);
+        assertEquals("Number of tasks is not one even no task was deleted.", 1,
+                database.getTasks().size());
+        readTasks = database.taskLogger.readTasks();
+        assertEquals("Number of tasks in log is not one.", 1, readTasks.size());
+        actual = readTasks.get(0).displayTask();
+        expected = database.getTasks().get(0).displayTask();
+        assertTrue("Task in log is not the same as that of in arraylist.",
+                actual.equals(expected));
+
+        deleteTask = database.delete(title);
+        isDeleted = deleteTask.bundle.containsKey(SUCCESS);
+        assertTrue("Success status for deletion not returned for valid "
+                + "deletion.", isDeleted);
+        isNotDeleted = deleteTask.bundle.containsKey(FAIL);
+        assertFalse("Fail status wrongly returned for valid deletion.",
+                isNotDeleted);
+        assertTrue("List of tasks is not empty after deletion.", database
+                .getTasks().isEmpty());
+        readTasks = database.taskLogger.readTasks();
+        assertEquals("Number of tasks in log is not " + "zero.", 0,
+                readTasks.size());
 
         // Remove log file after test
         database.taskLogger.getLog().delete();

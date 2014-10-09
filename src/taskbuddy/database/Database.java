@@ -134,7 +134,8 @@ public class Database {
     /**
      * Searches for and deletes a task based on its title from an empty or
      * non-empty stored list of tasks. It is assumed that all task titles are
-     * unique ignoring case.
+     * unique ignoring case. Deletion of tasks from Google Calendar is based on
+     * Google Calendar ID, not title.
      *
      * @param title
      *            title of task to be deleted
