@@ -30,6 +30,16 @@ public class Task {
     private boolean __floatingTask;
     private String __googleID;
 
+    //bundle strings
+    private String user_description = "description";
+	private String user_endDate = "endDate";
+	private String user_start = "startTime";
+	private String user_endTime = "endTime";
+	private String user_title = "title";
+    private String user_flag = "flag";
+    private String user_priority = "priority";
+    private String user_googleID = "GoogleID";
+	
     public static SimpleDateFormat formatter;
     
     // basic constructors
@@ -163,15 +173,15 @@ public class Task {
     }
 
     // other class methods
-    public ArrayList<String> getTaskInfo() {
-        ArrayList<String> toDisplay = new ArrayList<String>();
-        toDisplay.add(this.__title);
-        toDisplay.add(Boolean.toString(this.__completionFlag));
-        toDisplay.add(this.__endTime.toString());
-        toDisplay.add(this.__description);
-        toDisplay.add(this.__startTime.toString());
-        toDisplay.add(Integer.toString(this.__priorityFlag));
-        toDisplay.add(this.__googleID);
+    public Bundle getTaskInfo() {
+        Bundle toDisplay = new Bundle();
+        toDisplay.putString(user_title, this.__title);
+        toDisplay.putObject(user_flag, this.__completionFlag);
+        toDisplay.putString(user_endTime, this.__endTime.toString());
+        toDisplay.putString(user_description, this.__description);
+        toDisplay.putString(user_start, this.__startTime.toString());
+        toDisplay.putString(user_priority, Integer.toString(this.__priorityFlag));
+        toDisplay.putString(user_googleID, this.__googleID);
         return toDisplay;
     }
 
