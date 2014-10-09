@@ -19,8 +19,8 @@ public class Task {
     private static final String IS_FLOATING         = "Floating task: ";
     private static final String GOOGLE_CALENDAR_ID  = "Google Calendar ID: ";
     // @formatter:on
-
-    private static String nullValue = "PADDING_VALUE";
+    
+    private static String nullValue = "padding value";
     private String __title;
     private String __description;
     private Calendar __startTime;
