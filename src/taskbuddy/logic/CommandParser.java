@@ -118,12 +118,13 @@ public class CommandParser {
 				String delete_description = (String) prevCommand
 						.getItem(user_description);
 				deleteTask(delete_description, db);
-			}
-			if (commandType.equalsIgnoreCase("delete")) {
+			} else if (commandType.equalsIgnoreCase("delete")) {
 				addTask(prevCommand, db);
-			}
-			if (commandType.equalsIgnoreCase("edit")) {
+			} else if (commandType.equalsIgnoreCase("edit")) {
 				// todo stub
+			} else {
+				Bundle acks = ackFromLogic(failure, "fatal error: invalid undo", null);
+				return acks;
 			}
 			Bundle acks = ackFromLogic(success, "Undone", null);
 			return acks;
@@ -133,13 +134,31 @@ public class CommandParser {
 		}
 	}
 
-	void redo() throws ParseException {
-		Bundle prevCommand = redoStack.pop();
-		undoStack.push(prevCommand);
-		parseUserInputs(prevCommand);
+	Bundle redo() throws ParseException {
+		if (!redoStack.isEmpty()) {
+			Bundle prevCommand = redoStack.pop();
+			undoStack.push(prevCommand);
+			parseUserInputs(prevCommand);
+			String commandType = (String) prevCommand.getItem(user_command);
+			if (commandType.equalsIgnoreCase("add")) {
+				parseUserInputs(prevCommand);
+			} else if (commandType.equalsIgnoreCase("delete")){
+				parseUserInputs(prevCommand);
+			} else if (commandType.equalsIgnoreCase("edit")){
+				//todo edit stub
+			} else {
+				Bundle acks = ackFromLogic(failure, "fatal error: invalid redo", null);
+				return acks;
+			}
+			Bundle acks = ackFromLogic(success, "Redid", null);
+			return acks;
+		} else {
+			Bundle acks = ackFromLogic(failure, "Redo stack empty", null);
+			return acks;
+		}
 	}
 
-	public Bundle ackFromLogic(String statusIn, String messageIn, Task taskToAck) {
+	Bundle ackFromLogic(String statusIn, String messageIn, Task taskToAck) {
 		Bundle ackBundle = new Bundle();
 		ackBundle.putString(status, statusIn);
 		ackBundle.putString(message, messageIn);
@@ -147,7 +166,7 @@ public class CommandParser {
 		return ackBundle;
 	}
 
-	public Bundle parseUserInputs(Bundle userIn) throws ParseException{
+	public Bundle parseUserInputs(Bundle userIn) throws ParseException {
 		try {
 			database = new Database();
 		} catch (IOException e) {
