@@ -173,10 +173,7 @@ public class Database {
                 this.taskLogger.writeToLogFile(tasks);
                 // TODO Call and handle GoogleCalendarManager's delete task
                 // Comment following line if running DatabaseTest
-                
-                
-                GoogleCalendarManager.delete("2qv2klhdcalpdk39k71gqr2g24");
-                //GoogleCalendarManager.delete(task.getGID());
+                GoogleCalendarManager.delete(task.getGID());
             }
         }
         return ack;

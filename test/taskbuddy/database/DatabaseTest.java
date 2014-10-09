@@ -229,16 +229,6 @@ public class DatabaseTest {
         String actual;
         setup();
         createTask();
-<<<<<<< HEAD
-        
-        deleteTask = database.delete(title);
-        isDeleted = deleteTask.bundle.containsKey(SUCCESS);
-        assertFalse("Success status for deletion even though "
-                + "list of tasks is empty", isDeleted);
-        isNotDeleted = deleteTask.bundle.containsKey(FAIL);
-        assertTrue("Fail status not returned for deletion in empty "
-                + "list of tasks.", isNotDeleted);
-=======
 
         ack = database.delete(title);
         assertTrue("Failure status for deletion not returned even though "
@@ -247,7 +237,6 @@ public class DatabaseTest {
         assertTrue("Failure message for deletion not returned even though "
                 + "there are no tasks to delete.",
                 ack.getItem(MESSAGE).equals(FAIL_DELETE_NO_TASKS));
->>>>>>> 55cd6b452757b6ec9ff90f05d11e3e75fb9e84f3
 
         // Number of tasks is now one.
         database.addTask(task);
