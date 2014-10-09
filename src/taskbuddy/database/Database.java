@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import taskbuddy.googlecal.GoogleCalendarManager;
+import taskbuddy.logic.Bundle;
 import taskbuddy.logic.Task;
 
 /**
@@ -16,10 +18,20 @@ import taskbuddy.logic.Task;
  *
  */
 public class Database {
+    private static final String SUCCESS_GOOGLE_CAL = "Success";
 
+    private static final String SUCCESS_ADD_TASK = "Task added successfully.";
+
+    private static final String SUCCESS = "Successful";
+
+    static final String LOG_NAME = "log";
+    
     ArrayList<Task> tasks;
     LinkedList<DbCommand> commands;
     TaskLogger taskLogger;
+    GoogleCalendarManager googleCal;
+    Bundle status;
+    String logName;
 
     /**
      * Constructor for this class. Initialises temporary and logged memory for
@@ -31,14 +43,15 @@ public class Database {
      *             when tasks cannot be parsed from existing log file
      */
     public Database() throws IOException, ParseException {
-        tasks = new ArrayList<Task>();
-        commands = new LinkedList<DbCommand>();
-
         // Future versions of software may allow for user to specify name of log
         // file
-        String logName = "log";
+        logName = LOG_NAME;
         taskLogger = new TaskLogger();
-        tasks = taskLogger.prepareLog(logName);
+        tasks = taskLogger.prepareLog(logName);    
+        
+        commands = new LinkedList<DbCommand>();
+        googleCal = new GoogleCalendarManager();
+        status = new Bundle();
     }
 
     /**
@@ -56,9 +69,15 @@ public class Database {
      * @param task
      *            to be added
      * @return true if task is added successfully, false otherwise
+     * @throws IOException user is offline
      */
-    public boolean addTask(Task task) {
-        return this.tasks.add(task);
+    public Bundle addTask(Task task) throws IOException {
+        // TODO
+        if (GoogleCalendarManager.add(task).bundle.containsKey(SUCCESS_GOOGLE_CAL));
+        if (this.tasks.add(task)) {
+            this.status.putString(SUCCESS, SUCCESS_ADD_TASK);
+        }
+        return status;
     }
 
     /**

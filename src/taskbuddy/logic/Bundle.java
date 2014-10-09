@@ -6,7 +6,7 @@ import java.util.HashMap;
 //Author: andrew
 
 public class Bundle {
-    HashMap<String, Object> bundle = new HashMap<String, Object>();
+    public HashMap<String, Object> bundle = new HashMap<String, Object>();
 
     // e.g bundle.putString("Failure", "Failed to load etc");
     // note that keys are unique for each bundle

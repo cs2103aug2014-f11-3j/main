@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -97,7 +96,8 @@ public class TaskLoggerTest {
     }
 
     /**
-     * Create a log file with two tasks added by <code>addTasks</code> method
+     * Create a dummy log file with two tasks added by <code>addTasks</code>
+     * method
      * 
      * @throws IOException
      */
@@ -113,16 +113,8 @@ public class TaskLoggerTest {
         splitFields = taskLogger.splitToFields(task.displayTask());
     }
 
-    /**
-     * Physically check if log file is created; may have to delete existing log
-     * file to test if new log file is created.
-     * 
-     * @throws IOException
-     * @throws ParseException
-     */
     @Test
     public void testPrepareLog() throws Exception {
-        // TODO Test read behaviour when log file exists
         String expected;
         String actual;
         setup();
@@ -135,8 +127,8 @@ public class TaskLoggerTest {
         taskLogger.prepareLog(logName);
         createDummyLog();
         readTasks = taskLogger.prepareLog(logName);
-        
-        assertEquals("No tasks read in from log file", 2, readTasks.size());        
+
+        assertEquals("No tasks read in from log file", 2, readTasks.size());
         expected = readTasks.get(0).displayTask();
         actual = tasks.get(0).displayTask();
         assertTrue("First task not read properly when preparing from "
@@ -145,9 +137,9 @@ public class TaskLoggerTest {
         actual = tasks.get(1).displayTask();
         assertTrue("Second task not read properly when preparing from "
                 + "existing log file.", expected.equals(actual));
-
         // Remove dummy log
         taskLogger.getLog().delete();
+
         // Test for non-existing log file
         taskLogger.prepareLog(logName);
         assertTrue("Log file object not initialised with prepareLog method.",
