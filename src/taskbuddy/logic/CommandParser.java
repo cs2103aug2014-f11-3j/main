@@ -14,12 +14,19 @@ public class CommandParser {
 	private Stack<Bundle> redoStack = new Stack<Bundle>();
 	private Stack<Bundle> editStack = new Stack<Bundle>();
 	// if new command is parsed, clear redo stack;
+	//user bundle strings
 	private String user_command = "command";
 	private String user_description = "description";
 	private String user_endDate = "endDate";
 	private String user_start = "startTime";
 	private String user_endTime = "endTime";
 	private String user_title = "title";
+	// acknowledge bundle strings
+	private String status = "Status";
+	private String success = "Success";
+	private String failure = "Failure";
+	private String message = "Message";
+	private String task = "Task";
 
 	Bundle addTask(Bundle extras, Database db) {
 		String desc = (String)extras.getItem(user_description);
@@ -32,9 +39,9 @@ public class CommandParser {
 		boolean result = db.addTask(newTask);
 		Bundle acknowledgement = new Bundle();
 		if (result) {
-			acknowledgement = ackFromLogic("Success", null, newTask);
+			acknowledgement = ackFromLogic(success, null, newTask);
 		} else {
-			acknowledgement = ackFromLogic("Failure", "Add failure", newTask);
+			acknowledgement = ackFromLogic(failure, "Add failure", newTask);
 		}
 		return acknowledgement;
 	}
@@ -43,9 +50,9 @@ public class CommandParser {
 		Bundle ack = new Bundle();
 		boolean result = db.delete(title);
 		if (result) {
-			ack = ackFromLogic("Success", null, null);
+			ack = ackFromLogic(success, null, null);
 		} else {
-			ack = ackFromLogic("Failure", "Nonexistent task", null);
+			ack = ackFromLogic(failure, "Nonexistent task", null);
 		}
 		return ack;
 	}
@@ -54,10 +61,10 @@ public class CommandParser {
 		String title = (String)extras.getItem(user_title);
 		Bundle ack = new Bundle();
 		Bundle foundTask = deleteTask(title, db);
-		if (foundTask.getItem("status").equals("Success")) {
+		if (foundTask.getItem(status).equals(success)) {
 			ack = addTask(extras, db);
 		} else {
-			ack = ackFromLogic("Failed", "Nonexistent task", null);
+			ack = ackFromLogic(failure, "Nonexistent task", null);
 		}
 		return ack;
 	}
@@ -97,11 +104,11 @@ public class CommandParser {
 		parseUserInputs(prevCommand);
 	}
 
-	public Bundle ackFromLogic(String status, String message, Task taskToAck) {
+	public Bundle ackFromLogic(String statusIn, String messageIn, Task taskToAck) {
 		Bundle ackBundle = new Bundle();
-		ackBundle.putString("status", status);
-		ackBundle.putString("message", message);
-		ackBundle.putObject("task", taskToAck);
+		ackBundle.putString(status, statusIn);
+		ackBundle.putString(message, messageIn);
+		ackBundle.putObject(task, taskToAck);
 		return ackBundle;
 	}
 
@@ -110,9 +117,9 @@ public class CommandParser {
 			database = new Database();
 		} catch (IOException e) {
 			Bundle b = new Bundle();
-			b.putString("status", "failure");
-			b.putString("message", "DB IO exception");
-			b.putObject("task", null);
+			b.putString(status, failure);
+			b.putString(message, "DB IO exception");
+			b.putObject(task, null);
 			return b;
 		}
 		String commandType = (String)userIn.getItem(user_command);

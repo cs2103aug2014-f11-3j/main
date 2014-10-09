@@ -16,6 +16,11 @@ public class CommandParserTest {
 	private String user_endTime = "endTime";
 	private String user_title = "title";
 	private Database db;
+	private String status = "Status";
+	private String success = "Success";
+	private String failure = "Failure";
+	private String message = "Message";
+	private String task = "Task";
 	
 	@Test
 	public void testAdd() {
@@ -35,7 +40,10 @@ public class CommandParserTest {
 		addUserInputs.putString(user_start, "padding value");
 		addUserInputs.putString(user_endTime, "2359");
 		addUserInputs.putString(user_title, "test title");
-		Bundle d = cp.addTask(addUserInputs, db);
+		Bundle returnValue = cp.addTask(addUserInputs, db);
+		
+		Bundle expected = new Bundle();
+		expected.putString("status", "success");
 		//assertEquals(expected, d);
 	}
 
