@@ -3,6 +3,7 @@ package taskbuddy.parser;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import taskbuddy.logic.Bundle;
 import taskbuddy.logic.CommandParser;
 
 /*
@@ -29,6 +30,14 @@ public class Parser {
 	private static final int TITLE_INDEX = 5;
 	private static final String NULL_VALUE = "padding value";
 	
+	// use bundle instead of arraylist
+	private Bundle userInputs = new Bundle();
+	private String user_command = "command";
+	private String user_description = "description";
+	private String user_date = "date";
+	private String user_start = "starttime";
+	private String user_end = "endtime";
+	private String user_title = "title";
 	
 	public static void main(String[] args) {
 		while (true) {
@@ -63,6 +72,7 @@ public class Parser {
 					if(hasDateSpecifier(contentToAdd)){
 						date = findDate(contentToAdd);
 						contentToAdd = removeDate(contentToAdd);
+						
 					}else{
 						date = NULL_VALUE;
 					}
@@ -70,6 +80,7 @@ public class Parser {
 					if(hasStartTimeSpecifier(contentToAdd)){
 						startTime = findStartTime(contentToAdd);
 						contentToAdd = removeStartTime(contentToAdd);
+						
 					}else{
 						startTime = NULL_VALUE;
 					}
