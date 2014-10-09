@@ -38,7 +38,7 @@ public class DatabaseTest {
     public void createTask() {
         title = "Title";
         description = "Description";
-        startTime = "PADDING_VALUE";
+        startTime = "padding value";
         endDate = "01000001";
         endTime = "0101";
         priority = 1;
@@ -59,7 +59,7 @@ public class DatabaseTest {
     public void createAnotherTask() {
         title = "Another title";
         description = "Another description";
-        startTime = "PADDING_VALUE";
+        startTime = "padding value";
         endDate = "02010002";
         endTime = "0202";
         priority = 2;
@@ -81,7 +81,7 @@ public class DatabaseTest {
         database = new Database();
     }
 
-    public void addTasks() {
+    public void addTasks() throws IOException {
         createTask();
         database.addTask(task);
         createAnotherTask();
@@ -149,67 +149,67 @@ public class DatabaseTest {
         database.taskLogger.getLog().delete();
     }
 
-    /*
-    @Test
-    public void testAddTask() throws Exception {
-        setup();
-        createTask();
-
-        assertTrue(database.addTask(task));
-        assertEquals("Number of tasks did not increase from 0 to 1 after task "
-                + "addition", 1, database.getTasks().size());
-        assertTrue("Task not added properly", database.getTasks().get(0)
-                .equals(task));
-    }
-
-    @Test
-    public void testRead() throws Exception {
-        setup();
-        createTask();
-
-        assertNull(database.read(title));
-
-        // Test for normal task retrieval
-        database.addTask(task);
-        Task readTask = database.read(title);
-        assertTrue("Task titled 'Title' not retrieved.", readTask.equals(task));
-
-        // Confirm that task is passed by reference
-        String description = "description";
-        readTask.setDescription(description);
-        assertTrue(database.read(title).getDescription().equals(description));
-
-        // Test for retrieval of task with invalid title
-        title = "Untitled";
-        assertNull(database.read(title));
-
-        task.setTitle(title);
-        database.addTask(task);
-        assertTrue("Task titled 'Untitled' not retrieved.", database
-                .read(title).equals(task));
-    }
-
-    @Test
-    public void testDelete() throws Exception {
-        setup();
-        createTask();
-
-        assertFalse("Task is deleted even though list of tasks is empty",
-                database.delete(title));
-
-        // Number of tasks is now 1
-        database.addTask(task);
-
-        assertFalse("Delete method returns true even when there's no task "
-                + "titled 'Untitled'.", database.delete("Untitled"));
-        assertEquals("Number of tasks is not 1 even no task was deleted.", 1,
-                database.getTasks().size());
-
-        assertTrue("Delete method does not return true after deletion.",
-                database.delete(title));
-        assertTrue("List of tasks is not empty after deletion.", database
-                .getTasks().isEmpty());
-
-    }
-    */
+//    
+//    @Test
+//    public void testAddTask() throws Exception {
+//        setup();
+//        createTask();
+//
+//        assertTrue(database.addTask(task));
+//        assertEquals("Number of tasks did not increase from 0 to 1 after task "
+//                + "addition", 1, database.getTasks().size());
+//        assertTrue("Task not added properly", database.getTasks().get(0)
+//                .equals(task));
+//    }
+//
+//    @Test
+//    public void testRead() throws Exception {
+//        setup();
+//        createTask();
+//
+//        assertNull(database.read(title));
+//
+//        // Test for normal task retrieval
+//        database.addTask(task);
+//        Task readTask = database.read(title);
+//        assertTrue("Task titled 'Title' not retrieved.", readTask.equals(task));
+//
+//        // Confirm that task is passed by reference
+//        String description = "description";
+//        readTask.setDescription(description);
+//        assertTrue(database.read(title).getDescription().equals(description));
+//
+//        // Test for retrieval of task with invalid title
+//        title = "Untitled";
+//        assertNull(database.read(title));
+//
+//        task.setTitle(title);
+//        database.addTask(task);
+//        assertTrue("Task titled 'Untitled' not retrieved.", database
+//                .read(title).equals(task));
+//    }
+//
+//    @Test
+//    public void testDelete() throws Exception {
+//        setup();
+//        createTask();
+//
+//        assertFalse("Task is deleted even though list of tasks is empty",
+//                database.delete(title));
+//
+//        // Number of tasks is now 1
+//        database.addTask(task);
+//
+//        assertFalse("Delete method returns true even when there's no task "
+//                + "titled 'Untitled'.", database.delete("Untitled"));
+//        assertEquals("Number of tasks is not 1 even no task was deleted.", 1,
+//                database.getTasks().size());
+//
+//        assertTrue("Delete method does not return true after deletion.",
+//                database.delete(title));
+//        assertTrue("List of tasks is not empty after deletion.", database
+//                .getTasks().isEmpty());
+//
+//    }
+    
 }

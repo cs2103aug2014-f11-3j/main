@@ -43,7 +43,7 @@ public class TaskLoggerTest {
     public void createTask() {
         title = "Title";
         description = "Description";
-        startTime = "PADDING_VALUE";
+        startTime = "padding value";
         endDate = "01000001";
         endTime = "0101";
         priority = 1;
@@ -64,7 +64,7 @@ public class TaskLoggerTest {
     public void createAnotherTask() {
         title = "Another title";
         description = "Another description";
-        startTime = "PADDING_VALUE";
+        startTime = "padding value";
         endDate = "02010002";
         endTime = "0202";
         priority = 2;

@@ -18,6 +18,12 @@ import taskbuddy.logic.Task;
  *
  */
 public class Database {
+    private static final String FAIL_ADD_TASK = "Unable to add task.";
+
+    private static final String FAIL = "Fail";
+
+    private static final String FAILURE_GOOGLE_CAL = "Failure";
+
     private static final String SUCCESS_GOOGLE_CAL = "Success";
 
     private static final String SUCCESS_ADD_TASK = "Task added successfully.";
@@ -25,7 +31,7 @@ public class Database {
     private static final String SUCCESS = "Successful";
 
     static final String LOG_NAME = "log";
-    
+
     ArrayList<Task> tasks;
     LinkedList<DbCommand> commands;
     TaskLogger taskLogger;
@@ -47,11 +53,10 @@ public class Database {
         // file
         logName = LOG_NAME;
         taskLogger = new TaskLogger();
-        tasks = taskLogger.prepareLog(logName);    
-        
+        tasks = taskLogger.prepareLog(logName);
+
         commands = new LinkedList<DbCommand>();
         googleCal = new GoogleCalendarManager();
-        status = new Bundle();
     }
 
     /**
@@ -60,7 +65,7 @@ public class Database {
      * @return entire all stored tasks.
      */
     public ArrayList<Task> getTasks() {
-        return tasks;
+        return this.tasks;
     }
 
     /**
@@ -69,13 +74,19 @@ public class Database {
      * @param task
      *            to be added
      * @return true if task is added successfully, false otherwise
-     * @throws IOException user is offline
+     * @throws IOException
+     *             user is offline
      */
     public Bundle addTask(Task task) throws IOException {
-        // TODO
-        if (GoogleCalendarManager.add(task).bundle.containsKey(SUCCESS_GOOGLE_CAL));
-        if (this.tasks.add(task)) {
-            this.status.putString(SUCCESS, SUCCESS_ADD_TASK);
+        
+        status = new Bundle();
+        if (!this.tasks.add(task)
+                || GoogleCalendarManager.add(task).bundle
+                        .containsKey(FAILURE_GOOGLE_CAL)) {
+            status.putString(FAIL, FAIL_ADD_TASK);
+        } else {
+            this.taskLogger.writeToLogFile(tasks);
+            status.putString(SUCCESS, SUCCESS_ADD_TASK);
         }
         return status;
     }
@@ -125,16 +136,22 @@ public class Database {
      *            title of task to be deleted
      * @return true if task is deleted, false if list of tasks is empty or if no
      *         title match found
+     * @throws IOException 
      */
-    public boolean delete(String title) {
+    public Bundle delete(String title) throws IOException {
+        status = new Bundle();
         if (!this.getTasks().isEmpty()) {
             Task task = new Task();
             if ((task = search(title)) != null) {
                 this.tasks.remove(task);
-                return true;
+                if (GoogleCalendarManager.delete(task.getGID()).bundle.containsKey(SUCCESS_GOOGLE_CAL)) {
+                    status.putString(SUCCESS, "Task deleted successfully.");
+                    return status;
+                }
             }
         }
-        return false;
+        status.putString(FAIL, "Task deletion unsuccessful.");
+        return status;
     }
 
 }
