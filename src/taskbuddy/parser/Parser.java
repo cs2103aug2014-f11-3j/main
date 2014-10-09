@@ -1,5 +1,6 @@
 package taskbuddy.parser;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -20,246 +21,290 @@ import taskbuddy.logic.CommandParser;
 
 public class Parser {
 
+	
 	private static Scanner scanner = new Scanner(System.in);
-	private static ArrayList<String> commandSplit = new ArrayList<String>();
-	private static final int COMMAND_TYPE_INDEX = 0;
-	private static final int DESCRIPTION_INDEX = 1;
-	private static final int DATE_INDEX = 2;
-	private static final int START_TIME_INDEX = 3; 
-	private static final int END_TIME_INDEX = 4;
-	private static final int TITLE_INDEX = 5;
 	private static final String NULL_VALUE = "padding value";
 	
-	// use bundle instead of arraylist
-	private Bundle userInputs = new Bundle();
-	private String user_command = "command";
-	private String user_description = "description";
-	private String user_endDate = "endDate";
-	private String user_start = "startTime";
-	private String user_endTime = "endTime";
-	private String user_title = "title";
+	private static Bundle userInputs = new Bundle();
+	private static String user_command = "command";
+	private static String user_description = "description";
+	private static String user_endDate = "endDate";
+	private static String user_start = "startTime";
+	private static String user_endTime = "endTime";
+	private static String user_title = "title";
 	
-	public static void main(String[] args) {
+	
+	public static void main(String[] args) throws ParseException {
+		
+		CommandParser commandParser = new CommandParser();
+		
+		
 		while (true) {
 			System.out.print("command:");
 			String userCommand = scanner.nextLine();
 			String commandType = getFirstWord(userCommand);
-			commandSplit.add(COMMAND_TYPE_INDEX, commandType);
-			if(commandType.equalsIgnoreCase("undo")||commandType.equalsIgnoreCase("redo")){
-				
-				commandSplit.add(DESCRIPTION_INDEX, NULL_VALUE);
-				commandSplit.add(DATE_INDEX, NULL_VALUE);
-				commandSplit.add(START_TIME_INDEX, NULL_VALUE);
-				commandSplit.add(END_TIME_INDEX, NULL_VALUE);
-				commandSplit.add(TITLE_INDEX, NULL_VALUE);
-				
-				//pass the arraylist to Logic
-//				arrayOutput(commandSplit);   //for testing
-				CommandParser commandParser = new CommandParser();
-				commandParser.parseUserInputs(commandSplit);
-				
-			}else if(commandType.equalsIgnoreCase("add")){
-				
-				String contentToAdd = removeFirstWord(userCommand);
-				if(hasTitleSpecifier(contentToAdd)){
-					String title = findTitle(contentToAdd);
-					contentToAdd = removeTitle(contentToAdd);
-					String date = "";
-					String startTime = "";
-					String endTime = "";
-					String description = "";
-					
-					if(hasDateSpecifier(contentToAdd)){
-						date = findDate(contentToAdd);
-						contentToAdd = removeDate(contentToAdd);
-						
-					}else{
-						date = NULL_VALUE;
-					}
-					
-					if(hasStartTimeSpecifier(contentToAdd)){
-						startTime = findStartTime(contentToAdd);
-						contentToAdd = removeStartTime(contentToAdd);
-						
-					}else{
-						startTime = NULL_VALUE;
-					}
-					
-					if(hasEndTimeSpecifier(contentToAdd)){
-						endTime = findEndTime(contentToAdd);
-						contentToAdd = removeEndTime(contentToAdd);
-					}else{
-						endTime = NULL_VALUE;
-					}
-					
-					if(contentToAdd.isEmpty() == false){
-						description = contentToAdd.trim();
-					}else{
-						description = NULL_VALUE;
-					}
-					
-					commandSplit.add(DESCRIPTION_INDEX, description);
-					commandSplit.add(DATE_INDEX, date);
-					commandSplit.add(START_TIME_INDEX, startTime);
-					commandSplit.add(END_TIME_INDEX, endTime);
-					commandSplit.add(TITLE_INDEX, title);
-					
-					//pass the arraylist to Logic
-//					arrayOutput(commandSplit);   //for testing
-					CommandParser commandParser = new CommandParser();
-					commandParser.parseUserInputs(commandSplit);
-													
-				}else{
-					showInvalidMessage();
-				}
-				
-				
-							
-				
-			}else if(commandType.equalsIgnoreCase("edit")){
-				
-				String contentToEdit = removeFirstWord(userCommand);
-				if(hasTitleSpecifier(contentToEdit)){
-					String title = findTitle(contentToEdit);
-					contentToEdit = removeTitle(contentToEdit);
-					String date = "";
-					String startTime = "";
-					String endTime = "";
-					String description = "";
-//					commandSplit.add(TITLE_INDEX, title);
-					
-					if(hasDateSpecifier(contentToEdit)){
-						date = findDate(contentToEdit);
-						contentToEdit = removeDate(contentToEdit);
-					}else{
-						date = NULL_VALUE;
-					}
-					
-					if(hasStartTimeSpecifier(contentToEdit)){
-						startTime = findStartTime(contentToEdit);
-						contentToEdit = removeStartTime(contentToEdit);
-					}else{
-						startTime = NULL_VALUE;
-					}
-					
-					if(hasEndTimeSpecifier(contentToEdit)){
-						endTime = findEndTime(contentToEdit);
-						contentToEdit = removeEndTime(contentToEdit);
-					}else{
-						endTime = NULL_VALUE;
-					}
-					
-					if(contentToEdit.isEmpty() == false){
-						description = contentToEdit.trim();
-					}else{
-						description = NULL_VALUE;
-					}			
-					
-					commandSplit.add(DESCRIPTION_INDEX, description);
-					commandSplit.add(DATE_INDEX, date);
-					commandSplit.add(START_TIME_INDEX, startTime);
-					commandSplit.add(END_TIME_INDEX, endTime);
-					commandSplit.add(TITLE_INDEX, title);
-					
-					//pass the arraylist to Logic
-//					arrayOutput(commandSplit);   //for testing
-					CommandParser commandParser = new CommandParser();
-					commandParser.parseUserInputs(commandSplit);
-									
-				}else{
-					showInvalidMessage();
-				}
-				
-				
-				
-				
-			}else if(commandType.equalsIgnoreCase("display")){
-				
-				String contentToDisplay = removeFirstWord(userCommand);
-				if(contentToDisplay.isEmpty()){
-					commandSplit.add(DESCRIPTION_INDEX, NULL_VALUE);
-					commandSplit.add(DATE_INDEX, NULL_VALUE);
-					commandSplit.add(START_TIME_INDEX, NULL_VALUE);
-					commandSplit.add(END_TIME_INDEX, NULL_VALUE);
-					commandSplit.add(TITLE_INDEX, NULL_VALUE);
-					
-					//pass the arraylist to Logic
-//					arrayOutput(commandSplit);   //for testing
-					CommandParser commandParser = new CommandParser();
-					commandParser.parseUserInputs(commandSplit);
-					
-				}else if(contentToDisplay.equalsIgnoreCase("all")){
-					commandSplit.add(DESCRIPTION_INDEX, "all");
-					commandSplit.add(DATE_INDEX, NULL_VALUE);
-					commandSplit.add(START_TIME_INDEX, NULL_VALUE);
-					commandSplit.add(END_TIME_INDEX, NULL_VALUE);
-					commandSplit.add(TITLE_INDEX, NULL_VALUE);
-					
-					//pass the arraylist to Logic
-//					arrayOutput(commandSplit);   //for testing
-					CommandParser commandParser = new CommandParser();
-					commandParser.parseUserInputs(commandSplit);
-					
-				}else if(hasDateSpecifier(contentToDisplay)){
-					commandSplit.add(DESCRIPTION_INDEX, NULL_VALUE);
-					commandSplit.add(DATE_INDEX, removeFirstWord(contentToDisplay));	
-					commandSplit.add(START_TIME_INDEX, NULL_VALUE);
-					commandSplit.add(END_TIME_INDEX,NULL_VALUE);
-					commandSplit.add(TITLE_INDEX, NULL_VALUE);
-					
-					//pass the arraylist to Logic
-//					arrayOutput(commandSplit);   //for testing
-					CommandParser commandParser = new CommandParser();
-					commandParser.parseUserInputs(commandSplit);
-					
-				}else{
-					showInvalidMessage();
-				}
-				
-				
-							
-			}else if(commandType.equalsIgnoreCase("delete")){
-				
-				String contentToDelete = removeFirstWord(userCommand);
-				if(hasTitleSpecifier(contentToDelete)){			
-					commandSplit.add(DESCRIPTION_INDEX, NULL_VALUE);
-					commandSplit.add(DATE_INDEX, NULL_VALUE);
-					commandSplit.add(START_TIME_INDEX, NULL_VALUE);
-					commandSplit.add(END_TIME_INDEX, NULL_VALUE);
-					commandSplit.add(TITLE_INDEX, removeFirstWord(contentToDelete));
-					
-					//pass the arraylist to Logic
-//					arrayOutput(commandSplit);   //for testing
-					CommandParser commandParser = new CommandParser();
-					commandParser.parseUserInputs(commandSplit);
-					
-				}else{
-					showInvalidMessage();
-				}			
-				
-				
+			
+			userInputs.putString(user_command, commandType);
+			
+			if(isUndoType(commandType)){
+				undoDataPadding(userInputs);
+				commandParser.parseUserInputs(userInputs);
+			
+			}else if(isRedoType(commandType)){
+				redoDataPadding(userInputs);
+				commandParser.parseUserInputs(userInputs);
+			
+			}else if(isAddType(commandType)){
+				addDataPadding(userInputs, userCommand);
+				commandParser.parseUserInputs(userInputs);
+			
+			}else if(isEditType(commandType)){
+				editDataPadding(userInputs, userCommand);
+				commandParser.parseUserInputs(userInputs);
+			
+			}else if(isDisplayType(commandType)){
+				displayDataPadding(userInputs, userCommand);
+				commandParser.parseUserInputs(userInputs);
+			
+			}else if(isDeleteType(commandType)){
+				deleteDataPadding(userInputs, userCommand);
+				commandParser.parseUserInputs(userInputs);
+			
 			}else{
 				showInvalidMessage();
-			}			
+			}		
 			
 		}
+		
+		
+		
 	}
+	
 	
 	private static String getFirstWord(String userCommand) {
 		String commandTypeString = userCommand.trim().split("\\s+")[0];
 		return commandTypeString;
 	}
-	
-	
+
 	private static String removeFirstWord(String userCommand) {
 		String result = userCommand.replace(getFirstWord(userCommand), "").trim();	
 		return result;
 	}
 	
-	
 	private static void showInvalidMessage(){
 		System.out.println("Invalid Command Format");
 	}
+	
+	
+	private static boolean isUndoType(String commandType){
+		if(commandType.equalsIgnoreCase("undo")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private static boolean isRedoType(String commandType){
+		if(commandType.equalsIgnoreCase("redo")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private static boolean isAddType(String commandType){
+		if(commandType.equalsIgnoreCase("add")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private static boolean isEditType(String commandType){
+		if(commandType.equalsIgnoreCase("edit")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	
+	private static boolean isDisplayType(String commandType){
+		if(commandType.equalsIgnoreCase("display")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private static boolean isDeleteType(String commandType){
+		if(commandType.equalsIgnoreCase("delete")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private static void undoDataPadding(Bundle b){
+		b.putString(user_description, NULL_VALUE);
+		b.putString(user_endDate, NULL_VALUE);
+		b.putString(user_start, NULL_VALUE);
+		b.putString(user_endTime, NULL_VALUE);
+		b.putString(user_title, NULL_VALUE);
+	}
+	
+	private static void redoDataPadding(Bundle b){
+		b.putString(user_description, NULL_VALUE);
+		b.putString(user_endDate, NULL_VALUE);
+		b.putString(user_start, NULL_VALUE);
+		b.putString(user_endTime, NULL_VALUE);
+		b.putString(user_title, NULL_VALUE);
+	}
+	
+	private static void addDataPadding(Bundle b, String userCommand){
+		String contentToAdd = removeFirstWord(userCommand);
+		if(hasTitleSpecifier(contentToAdd)){
+			String title = findTitle(contentToAdd);
+			contentToAdd = removeTitle(contentToAdd);
+			String date = "";
+			String startTime = "";
+			String endTime = "";
+			String description = "";
+			
+			if(hasDateSpecifier(contentToAdd)){
+				date = findDate(contentToAdd);
+				contentToAdd = removeDate(contentToAdd);
+				
+			}else{
+				date = NULL_VALUE;
+			}
+			
+			if(hasStartTimeSpecifier(contentToAdd)){
+				startTime = findStartTime(contentToAdd);
+				contentToAdd = removeStartTime(contentToAdd);
+				
+			}else{
+				startTime = NULL_VALUE;
+			}
+			
+			if(hasEndTimeSpecifier(contentToAdd)){
+				endTime = findEndTime(contentToAdd);
+				contentToAdd = removeEndTime(contentToAdd);
+			}else{
+				endTime = NULL_VALUE;
+			}
+			
+			if(contentToAdd.isEmpty() == false){
+				description = contentToAdd.trim();
+			}else{
+				description = NULL_VALUE;
+			}
+			
+			b.putString(user_description, description);
+			b.putString(user_endDate, date);
+			b.putString(user_start, startTime);
+			b.putString(user_endTime, endTime);
+			b.putString(user_title, title);
+											
+		}else{
+			showInvalidMessage();
+		}
+	}
+	
+	
+	private static void editDataPadding(Bundle b, String userCommand){
+		String contentToEdit = removeFirstWord(userCommand);
+		if(hasTitleSpecifier(contentToEdit)){
+			String title = findTitle(contentToEdit);
+			contentToEdit = removeTitle(contentToEdit);
+			String date = "";
+			String startTime = "";
+			String endTime = "";
+			String description = "";
+			
+			if(hasDateSpecifier(contentToEdit)){
+				date = findDate(contentToEdit);
+				contentToEdit = removeDate(contentToEdit);
+			}else{
+				date = NULL_VALUE;
+			}
+			
+			if(hasStartTimeSpecifier(contentToEdit)){
+				startTime = findStartTime(contentToEdit);
+				contentToEdit = removeStartTime(contentToEdit);
+			}else{
+				startTime = NULL_VALUE;
+			}
+			
+			if(hasEndTimeSpecifier(contentToEdit)){
+				endTime = findEndTime(contentToEdit);
+				contentToEdit = removeEndTime(contentToEdit);
+			}else{
+				endTime = NULL_VALUE;
+			}
+			
+			if(contentToEdit.isEmpty() == false){
+				description = contentToEdit.trim();
+			}else{
+				description = NULL_VALUE;
+			}			
+			
+			b.putString(user_description, description);
+			b.putString(user_endDate, date);
+			b.putString(user_start, startTime);
+			b.putString(user_endTime, endTime);
+			b.putString(user_title, title);
+									
+		}else{
+			showInvalidMessage();
+		}
+				
+	}
+	
+	private static void displayDataPadding(Bundle b, String userCommand){
+		String contentToDisplay = removeFirstWord(userCommand);
+		if(contentToDisplay.isEmpty()){
+			b.putString(user_description, NULL_VALUE);
+			b.putString(user_endDate, NULL_VALUE);
+			b.putString(user_start, NULL_VALUE);
+			b.putString(user_endTime, NULL_VALUE);
+			b.putString(user_title, NULL_VALUE);
+			
+		}else if(contentToDisplay.equalsIgnoreCase("all")){
+			b.putString(user_description, "all");
+			b.putString(user_endDate, NULL_VALUE);
+			b.putString(user_start, NULL_VALUE);
+			b.putString(user_endTime, NULL_VALUE);
+			b.putString(user_title, NULL_VALUE);
+					
+		}else if(hasDateSpecifier(contentToDisplay)){
+			b.putString(user_description, NULL_VALUE);
+			b.putString(user_endDate, removeFirstWord(contentToDisplay));
+			b.putString(user_start, NULL_VALUE);
+			b.putString(user_endTime, NULL_VALUE);
+			b.putString(user_title, NULL_VALUE);
+			
+		}else{
+			showInvalidMessage();
+		}
+		
+	}
+	
+	private static void deleteDataPadding(Bundle b, String userCommand){
+		String contentToDelete = removeFirstWord(userCommand);
+		if(hasTitleSpecifier(contentToDelete)){			
+			b.putString(user_description, NULL_VALUE);
+			b.putString(user_endDate, NULL_VALUE);
+			b.putString(user_start, NULL_VALUE);
+			b.putString(user_endTime, NULL_VALUE);
+			b.putString(user_title, removeFirstWord(contentToDelete));
+			
+		}else{
+			showInvalidMessage();
+		}			
+			
+	}
+	
 	
 	
 	private static boolean hasTitleSpecifier(String content){
@@ -296,7 +341,6 @@ public class Parser {
 			return false;
 		}			
 	}
-	
 	
 	private static String findDate(String content){
 		String[] contentSplit = content.trim().split("\\s+");
@@ -361,7 +405,6 @@ public class Parser {
 		return title;			
 	}
 	
-	
 	private static String removeDate(String content){
 		String date = findDate(content);
 		content = content.replace("-d", "");
@@ -421,15 +464,15 @@ public class Parser {
 		return content;
 	}
 	
-	// print out for testing
-	private static void arrayOutput(ArrayList<String> splitString){
-		System.out.println("Command type is "+splitString.get(0));
-		System.out.println("Description is "+splitString.get(1));
-		System.out.println("Date is "+splitString.get(2));
-		System.out.println("Start time is "+splitString.get(3));
-		System.out.println("End time is "+splitString.get(4));
-		System.out.println("Title is "+splitString.get(5));
-	}
+//	private static void bundleOutput(Bundle b){
+//		System.out.println("Command type is "+ (String)b.getItem(user_command));
+//		System.out.println("Description is "+ (String)b.getItem(user_description));
+//		System.out.println("Date is "+ (String)b.getItem(user_endDate));
+//		System.out.println("Start time is "+ (String)b.getItem(user_start));
+//		System.out.println("End time is "+ (String)b.getItem(user_endTime));
+//		System.out.println("Title is "+ (String)b.getItem(user_title));
+//	}
+	
 	
 	
 }

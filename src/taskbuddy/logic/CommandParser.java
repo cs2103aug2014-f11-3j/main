@@ -33,7 +33,7 @@ public class CommandParser {
 	private String message = "Message";
 	private String task = "Task";
 
-	Bundle addTask(Bundle extras, Database db) {
+	Bundle addTask(Bundle extras, Database db) throws IOException {
 		String desc = (String) extras.getItem(user_description);
 		String endDate = (String) extras.getItem(user_endDate);
 		String endTime = (String) extras.getItem(user_endTime);
@@ -41,9 +41,10 @@ public class CommandParser {
 		Task newTask = new Task(title);
 		newTask.setDescription(desc);
 		newTask.setEndTime(endDate, endTime);
-		boolean result = db.addTask(newTask);
+		Bundle response = db.addTask(newTask);
 		Bundle acknowledgement = new Bundle();
-		if (result) {
+		String result = (String) response.getItem(status);
+		if (result.equals(success)) {
 			acknowledgement = ackFromLogic(success, null, newTask);
 		} else {
 			acknowledgement = ackFromLogic(failure, "Add failure", newTask);
@@ -51,10 +52,11 @@ public class CommandParser {
 		return acknowledgement;
 	}
 
-	Bundle deleteTask(String title, Database db) {
+	Bundle deleteTask(String title, Database db) throws IOException {
 		Bundle ack = new Bundle();
-		boolean result = db.delete(title);
-		if (result) {
+		Bundle response = db.delete(title);
+		String result = (String) response.getItem(status);
+		if (result.equals(success)) {
 			ack = ackFromLogic(success, null, null);
 		} else {
 			ack = ackFromLogic(failure, "Nonexistent task", null);
@@ -62,7 +64,7 @@ public class CommandParser {
 		return ack;
 	}
 
-	Bundle editTask(Bundle extras, Database db) {
+	Bundle editTask(Bundle extras, Database db) throws IOException {
 		String title = (String) extras.getItem(user_title);
 		Bundle ack = new Bundle();
 		Task toEdit = db.search(title);
@@ -109,7 +111,7 @@ public class CommandParser {
 		return taskInfo;
 	}
 
-	Bundle undo(Database db) {
+	Bundle undo(Database db) throws IOException {
 		if (!undoStack.isEmpty()) {
 			Bundle prevCommand = undoStack.pop();
 			redoStack.push(prevCommand);
@@ -134,7 +136,7 @@ public class CommandParser {
 		}
 	}
 
-	Bundle redo() throws ParseException {
+	Bundle redo() throws ParseException, IOException {
 		if (!redoStack.isEmpty()) {
 			Bundle prevCommand = redoStack.pop();
 			undoStack.push(prevCommand);
@@ -166,7 +168,7 @@ public class CommandParser {
 		return ackBundle;
 	}
 
-	public Bundle parseUserInputs(Bundle userIn) throws ParseException {
+	public Bundle parseUserInputs(Bundle userIn) throws ParseException, IOException {
 		try {
 			database = new Database();
 		} catch (IOException e) {

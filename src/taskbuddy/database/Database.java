@@ -21,23 +21,23 @@ public class Database {
 
     static final String LOG_NAME = "log";
 
-    private static final String SUCCESS = "Successful";
+    private static final String STATUS = "Status";
+    private static final String MESSAGE = "Message";
+
+    private static final String SUCCESS = "Success";
     private static final String SUCCESS_ADD = "Task added successfully.";
     private static final String SUCCESS_DELETE = "Task removed successfully.";
 
-    private static final String FAIL = "Fail";
+    private static final String FAILURE = "Failure";
     private static final String FAIL_ADD = "Unable to add task.";
     private static final String FAIL_DELETE_NO_TASKS = "No tasks to delete.";
     private static final String FAIL_DELETE_TITLE_NOT_FOUND = "No such title.";
-
-    private static final String FAILURE_GOOGLE_CAL = "Failure";
-    private static final String SUCCESS_GOOGLE_CAL = "Success";
 
     ArrayList<Task> tasks;
     LinkedList<DbCommand> commands;
     TaskLogger taskLogger;
     GoogleCalendarManager googleCal;
-    Bundle status;
+    Bundle ack;
     String logName;
 
     /**
@@ -70,6 +70,22 @@ public class Database {
     }
 
     /**
+     * Returns a message indicating success/failure of a method.
+     * 
+     * @param statusIn
+     *            success/failure
+     * @param messageIn
+     *            success/failure message
+     * @return
+     */
+    public Bundle ackFromDatabase(String statusIn, String messageIn) {
+        Bundle ackBundle = new Bundle();
+        ackBundle.putString(STATUS, statusIn);
+        ackBundle.putString(MESSAGE, messageIn);
+        return ackBundle;
+    }
+
+    /**
      * Adds task to temporary and logged list of tasks, as well as syncing to
      * Google Calendar.
      * 
@@ -81,18 +97,18 @@ public class Database {
      *             when user is offline
      */
     public Bundle addTask(Task task) throws IOException {
-        status = new Bundle();
+        ack = new Bundle();
 
         if (this.tasks.add(task)) {
             this.taskLogger.writeToLogFile(tasks);
-            status.putString(SUCCESS, SUCCESS_ADD);
+            ack = this.ackFromDatabase(SUCCESS, SUCCESS_ADD);
             // TODO Call and handle GoogleCalendarManager's add method
             // Comment following line if running DatabaseTest
             GoogleCalendarManager.add(task);
         } else {
-            status.putString(FAIL, FAIL_ADD);
+            ack = this.ackFromDatabase(FAILURE, FAIL_ADD);
         }
-        return status;
+        return ack;
     }
 
     /**
@@ -145,17 +161,15 @@ public class Database {
      *             when user is offline
      */
     public Bundle delete(String title) throws IOException {
-        status = new Bundle();
-
         if (this.getTasks().isEmpty()) {
-            status.putString(FAIL, FAIL_DELETE_NO_TASKS);
+            ack = this.ackFromDatabase(FAILURE, FAIL_DELETE_NO_TASKS);
         } else {
             Task task = new Task();
             if ((task = search(title)) == null) {
-                status.putString(FAIL, FAIL_DELETE_TITLE_NOT_FOUND);
+                ack = this.ackFromDatabase(FAILURE, FAIL_DELETE_TITLE_NOT_FOUND);
             } else {
                 this.tasks.remove(task);
-                status.putString(SUCCESS, SUCCESS_DELETE);
+                ack = this.ackFromDatabase(SUCCESS, SUCCESS_DELETE);
                 this.taskLogger.writeToLogFile(tasks);
                 // TODO Call and handle GoogleCalendarManager's delete task
                 // Comment following line if running DatabaseTest
@@ -165,7 +179,7 @@ public class Database {
                 //GoogleCalendarManager.delete(task.getGID());
             }
         }
-        return status;
+        return ack;
     }
 
 }
