@@ -18,19 +18,20 @@ import taskbuddy.logic.Task;
  *
  */
 public class Database {
-    private static final String FAIL_ADD_TASK = "Unable to add task.";
-
-    private static final String FAIL = "Fail";
-
-    private static final String FAILURE_GOOGLE_CAL = "Failure";
-
-    private static final String SUCCESS_GOOGLE_CAL = "Success";
-
-    private static final String SUCCESS_ADD_TASK = "Task added successfully.";
-
-    private static final String SUCCESS = "Successful";
 
     static final String LOG_NAME = "log";
+
+    private static final String SUCCESS = "Successful";
+    private static final String SUCCESS_ADD = "Task added successfully.";
+    private static final String SUCCESS_DELETE = "Task removed successfully.";
+
+    private static final String FAIL = "Fail";
+    private static final String FAIL_ADD = "Unable to add task.";
+    private static final String FAIL_DELETE_NO_TASKS = "No tasks to delete.";
+    private static final String FAIL_DELETE_TITLE_NOT_FOUND = "No such title.";
+
+    private static final String FAILURE_GOOGLE_CAL = "Failure";
+    private static final String SUCCESS_GOOGLE_CAL = "Success";
 
     ArrayList<Task> tasks;
     LinkedList<DbCommand> commands;
@@ -69,24 +70,27 @@ public class Database {
     }
 
     /**
-     * Adds task to the current storage of tasks.
+     * Adds task to temporary and logged list of tasks, as well as syncing to
+     * Google Calendar.
      * 
      * @param task
-     *            to be added
-     * @return true if task is added successfully, false otherwise
+     *            task to be added
+     * @return Bundle containing "Successful" key if task is added successfully,
+     *         "Fail" key otherwise
      * @throws IOException
-     *             user is offline
+     *             when user is offline
      */
     public Bundle addTask(Task task) throws IOException {
-        
         status = new Bundle();
-        if (!this.tasks.add(task)
-                || GoogleCalendarManager.add(task).bundle
-                        .containsKey(FAILURE_GOOGLE_CAL)) {
-            status.putString(FAIL, FAIL_ADD_TASK);
-        } else {
+
+        if (this.tasks.add(task)) {
             this.taskLogger.writeToLogFile(tasks);
-            status.putString(SUCCESS, SUCCESS_ADD_TASK);
+            status.putString(SUCCESS, SUCCESS_ADD);
+            // TODO Call and handle GoogleCalendarManager's add method
+            // Comment following line if running DatabaseTest
+            GoogleCalendarManager.add(task);
+        } else {
+            status.putString(FAIL, FAIL_ADD);
         }
         return status;
     }
@@ -131,26 +135,32 @@ public class Database {
      * Searches for and deletes a task based on its title from an empty or
      * non-empty stored list of tasks. It is assumed that all task titles are
      * unique ignoring case.
-     * 
+     *
      * @param title
      *            title of task to be deleted
      * @return true if task is deleted, false if list of tasks is empty or if no
      *         title match found
-     * @throws IOException 
+     * @throws IOException
+     *             when user is offline
      */
     public Bundle delete(String title) throws IOException {
         status = new Bundle();
-        if (!this.getTasks().isEmpty()) {
+
+        if (this.getTasks().isEmpty()) {
+            status.putString(FAIL, FAIL_DELETE_NO_TASKS);
+        } else {
             Task task = new Task();
-            if ((task = search(title)) != null) {
+            if ((task = search(title)) == null) {
+                status.putString(FAIL, FAIL_DELETE_TITLE_NOT_FOUND);
+            } else {
                 this.tasks.remove(task);
-                if (GoogleCalendarManager.delete(task.getGID()).bundle.containsKey(SUCCESS_GOOGLE_CAL)) {
-                    status.putString(SUCCESS, "Task deleted successfully.");
-                    return status;
-                }
+                status.putString(SUCCESS, SUCCESS_DELETE);
+                this.taskLogger.writeToLogFile(tasks);
+                // TODO Call and handle GoogleCalendarManager's delete task
+                // Comment following line if running DatabaseTest
+                GoogleCalendarManager.delete(task.getGID());
             }
         }
-        status.putString(FAIL, "Task deletion unsuccessful.");
         return status;
     }
 
