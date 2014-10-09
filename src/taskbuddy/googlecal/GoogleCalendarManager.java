@@ -73,23 +73,23 @@ public class GoogleCalendarManager {
 		Task task5 = new Task ("Task number 5");
 		Task task6 = new Task ("Task number 6");
 		
-		task1.setStartTime("PADDING_VALUE");
-		task1.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		task1.setStartTime("padding value");
+		task1.setEndTime("padding value", "padding value");
 		
-		task2.setStartTime("PADDING_VALUE");
-		task2.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		task2.setStartTime("padding value");
+		task2.setEndTime("padding value", "padding value");
 		
-		task3.setStartTime("PADDING_VALUE");
-		task3.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		task3.setStartTime("padding value");
+		task3.setEndTime("padding value", "padding value");
 	
-		task4.setStartTime("PADDING_VALUE");
-		task4.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		task4.setStartTime("padding value");
+		task4.setEndTime("padding value", "padding value");
 		
-		task5.setStartTime("PADDING_VALUE");
-		task5.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		task5.setStartTime("padding value");
+		task5.setEndTime("padding value", "padding value");
 		
-		task6.setStartTime("PADDING_VALUE");
-		task6.setEndTime("PADDING_VALUE", "PADDING_VALUE");
+		task6.setStartTime("padding value");
+		task6.setEndTime("padding value", "padding value");
 		
 		
 		
