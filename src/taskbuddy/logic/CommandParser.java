@@ -8,19 +8,24 @@ import taskbuddy.database.Database;
 
 //Author: andrew
 public class CommandParser {
-	
+
 	private Database database;
-	private Stack<ArrayList<String>> undoStack = new Stack<ArrayList<String>>();
-	private Stack<ArrayList<String>> redoStack = new Stack<ArrayList<String>>();
-	private Stack<ArrayList<String>> editStack = new Stack<ArrayList<String>>();
-
+	private Stack<Bundle> undoStack = new Stack<Bundle>();
+	private Stack<Bundle> redoStack = new Stack<Bundle>();
+	private Stack<Bundle> editStack = new Stack<Bundle>();
 	// if new command is parsed, clear redo stack;
+	private String user_command = "command";
+	private String user_description = "description";
+	private String user_endDate = "endDate";
+	private String user_start = "startTime";
+	private String user_endTime = "endTime";
+	private String user_title = "title";
 
-	Bundle addTask(ArrayList<String> extras, Database db) {
-		String desc = extras.get(1);
-		String endDate = extras.get(2);
-		String endTime = extras.get(3);
-		String title = extras.get(4);
+	Bundle addTask(Bundle extras, Database db) {
+		String desc = (String)extras.getItem(user_description);
+		String endDate = (String)extras.getItem(user_endDate);
+		String endTime = (String)extras.getItem(user_endTime);
+		String title = (String)extras.getItem(user_title);
 		Task newTask = new Task(title);
 		newTask.setDescription(desc);
 		newTask.setEndTime(endDate, endTime);
@@ -32,6 +37,29 @@ public class CommandParser {
 			acknowledgement = ackFromLogic("Failure", "Add failure", newTask);
 		}
 		return acknowledgement;
+	}
+
+	Bundle deleteTask(String title, Database db) {
+		Bundle ack = new Bundle();
+		boolean result = db.delete(title);
+		if (result) {
+			ack = ackFromLogic("Success", null, null);
+		} else {
+			ack = ackFromLogic("Failure", "Nonexistent task", null);
+		}
+		return ack;
+	}
+
+	Bundle editTask(Bundle extras, Database db) {
+		String title = (String)extras.getItem(user_title);
+		Bundle ack = new Bundle();
+		Bundle foundTask = deleteTask(title, db);
+		if (foundTask.getItem("status").equals("Success")) {
+			ack = addTask(extras, db);
+		} else {
+			ack = ackFromLogic("Failed", "Nonexistent task", null);
+		}
+		return ack;
 	}
 
 	void displayTasks(Database db) {
@@ -47,35 +75,13 @@ public class CommandParser {
 		return taskInfo;
 	}
 
-	Bundle editTask(ArrayList<String> extras, Database db) {
-		String title = extras.get(4);
-		Bundle ack = new Bundle();
-		Bundle foundTask = deleteTask(title, db);
-		if (foundTask.getItem("status").equals("Success")) {
-			ack = addTask(extras, db);
-		} else {
-			ack = ackFromLogic("Failed", "Nonexistent task", null);
-		}
-		return ack;
-	}
-
-	Bundle deleteTask(String title, Database db) {
-		Bundle ack = new Bundle();
-		boolean result = db.delete(title);
-		if (result) {
-			ack = ackFromLogic("Success", null, null);
-		} else {
-			ack = ackFromLogic("Failure", "Nonexistent task", null);
-		}
-		return ack;
-	}
-
 	void undo(Database db) {
-		ArrayList<String> prevCommand = undoStack.pop();
+		Bundle prevCommand = undoStack.pop();
 		redoStack.push(prevCommand);
-		String commandType = prevCommand.get(0);
+		String commandType = (String) prevCommand.getItem(user_command);
 		if (commandType.equalsIgnoreCase("add")) {
-			deleteTask(prevCommand.get(1), db);
+			String delete_description = (String)prevCommand.getItem(user_description);
+			deleteTask(delete_description, db);
 		}
 		if (commandType.equalsIgnoreCase("delete")) {
 			addTask(prevCommand, db);
@@ -86,9 +92,9 @@ public class CommandParser {
 	}
 
 	void redo() {
-		ArrayList<String> prevCommand = redoStack.pop();
+		Bundle prevCommand = redoStack.pop();
 		undoStack.push(prevCommand);
-		userInputs(prevCommand);
+		parseUserInputs(prevCommand);
 	}
 
 	public Bundle ackFromLogic(String status, String message, Task taskToAck) {
@@ -99,20 +105,20 @@ public class CommandParser {
 		return ackBundle;
 	}
 
-	public Bundle userInputs(ArrayList<String> userIn) {
-		try{
+	public Bundle parseUserInputs(Bundle userIn) {
+		try {
 			database = new Database();
-		} catch (IOException e){
+		} catch (IOException e) {
 			Bundle b = new Bundle();
 			b.putString("status", "failure");
 			b.putString("message", "DB IO exception");
 			b.putObject("task", null);
 			return b;
 		}
-		String commandType = userIn.get(0);
+		String commandType = (String)userIn.getItem(user_command);
 		Bundle status = new Bundle();
 		if (commandType.equalsIgnoreCase("add")) {
-			redoStack = new Stack<ArrayList<String>>();
+			redoStack = new Stack<Bundle>();
 			undoStack.push(userIn);
 			status = addTask(userIn, database);
 			return status;
@@ -121,14 +127,14 @@ public class CommandParser {
 			status = ackFromLogic(null, null, null);
 			return status;
 		} else if (commandType.equalsIgnoreCase("edit")) {
-			redoStack = new Stack<ArrayList<String>>();
+			redoStack = new Stack<Bundle>();
 			undoStack.push(userIn);
 			editTask(userIn, database);
 			return status;
 		} else if (commandType.equalsIgnoreCase("delete")) {
-			redoStack = new Stack<ArrayList<String>>();
+			redoStack = new Stack<Bundle>();
 			undoStack.push(userIn);
-			String taskToDelete = userIn.get(4);
+			String taskToDelete = (String)userIn.getItem(user_title);
 			status = deleteTask(taskToDelete, database);
 			return status;
 		} else if (commandType.equalsIgnoreCase("undo")) {
