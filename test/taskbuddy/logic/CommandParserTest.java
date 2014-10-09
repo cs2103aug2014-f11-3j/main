@@ -1,5 +1,7 @@
 package taskbuddy.logic;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -44,8 +46,11 @@ public class CommandParserTest {
 		Bundle returnValue = cp.addTask(addUserInputs, db);
 		
 		Bundle expected = new Bundle();
-		expected.putString("status", "success");
-		//assertEquals(expected, d);
+		expected.putString(status, success);
+		String expectedString = (String) expected.getItem(status);
+		String returnedString = (String) returnValue.getItem(status);
+		//assertEquals(expectedString, returnedString);
+		assertEquals(expected, returnValue);
 	}
 
 	public void testDelete() throws ParseException{
