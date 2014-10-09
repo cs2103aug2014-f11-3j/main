@@ -26,7 +26,7 @@ public class CommandParserTest {
 	private String task = "Task";
 	
 	@Test
-	public void testAdd() throws ParseException {
+	public void testAdd() throws ParseException, IOException {
 		try {
 			db = new Database();
 		} catch (IOException e) {
@@ -52,8 +52,8 @@ public class CommandParserTest {
 		//assertEquals(expectedString, returnedString);
 		assertEquals(expected, returnValue);
 	}
-
-	public void testDelete() throws ParseException{
+	/*
+	public void testDelete() throws ParseException, IOException{
 		try {
 			db = new Database();
 		} catch (IOException e) {
@@ -73,5 +73,5 @@ public class CommandParserTest {
 		String title = (String) addUserInputs.getItem(user_title);
 		Bundle d = cp.deleteTask(title, db);
 		//cant test because db is empty
-	}
+	}*/
 }
