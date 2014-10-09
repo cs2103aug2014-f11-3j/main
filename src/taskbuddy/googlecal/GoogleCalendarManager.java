@@ -94,16 +94,24 @@ public class GoogleCalendarManager {
 		
 		
 		add(task1);
+		System.out.println("Executing add:"); // For debugging
 		add(task2);
+		System.out.println("Executing add:"); // For debugging
 		
 		add(task3);
+		System.out.println("Executing add:"); // For debugging
 		add(task4);
+		System.out.println("Executing add:"); // For debugging
 		
 		add(task5);
+		System.out.println("Executing add:"); // For debugging
 		add(task6);
+		System.out.println("Executing add:"); // For debugging
 		
 		delete(task1.getGID());
+		System.out.println("Executing delete:"); // For debugging
 		delete(task5.getGID());
+		System.out.println("Executing delete:"); // For debugging
 		
 		System.out.println("Completed");
 	}
@@ -111,8 +119,6 @@ public class GoogleCalendarManager {
 	
 	
 	public static Bundle add(Task task) throws IOException {
-		System.out.println("Executing add:"); // For debugging
-		
 		// Adds task to Google Calendar
 		// Returns true if task has successfully been added to Google Calendar
 		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
@@ -151,11 +157,14 @@ public class GoogleCalendarManager {
 			String eventEndTime = getEndTime(task);
 			
 			gooCalEventID = addEventToCalendar(service, eventSummary, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
-			
+			System.out.println(gooCalEventID);
+			task.setGID(gooCalEventID);
 			if (gooCalEventID.equals("")) {
 				return failureEventFailedToCreate;
 			}
-			task.setGID(gooCalEventID);		
+			
+			
+			System.out.println("Event added!");
 			return success;
 		}
 	}
@@ -167,9 +176,6 @@ public class GoogleCalendarManager {
 	
 	
 	public static Bundle delete(String eventId) throws IOException {
-		System.out.println("Executing delete:"); // For debugging
-		
-		
 		// Deletes task from Google Calendar
 		// Returns true if task has successfully been deleted from Google Calendar
 		// Returns false if task has not been successfully deleted from Google Calendar (Eg: When user is offline)
@@ -199,7 +205,8 @@ public class GoogleCalendarManager {
 				//System.out.println("Unable to connect to Google");
 				return failureUnableToConnectToGoogle;
 			}
-			//System.out.println(service.events().delete(calendarId,eventId).execute());
+			service.events().delete(calendarId,eventId).execute();
+			System.out.println("Event deleted!");
 			return success;
 		}
 	}
@@ -207,7 +214,7 @@ public class GoogleCalendarManager {
 	
 	
 	public static boolean isUserOnline() throws UnknownHostException, IOException {
-		System.out.println("Executing isUserOnline:"); // For debugging
+		//System.out.println("Executing isUserOnline:"); // For debugging
 		
 		
 		Socket socket = null;
@@ -230,7 +237,7 @@ public class GoogleCalendarManager {
 	}
 	
 	public static Calendar initializeCalendar() throws IOException {
-		System.out.println("Executing initializeCalendar:"); // For debugging
+		//System.out.println("Executing initializeCalendar:"); // For debugging
 		
 		
 		Calendar service;
@@ -267,35 +274,35 @@ public class GoogleCalendarManager {
 	
 	
 	public static String getSummary(Task task) {
-		System.out.println("Executing getSummary:"); // For debugging
+		//System.out.println("Executing getSummary:"); // For debugging
 		return task.getTitle();
 	}
 	
 	
 	public static String getStartDate(Task task) throws NullPointerException {
-		System.out.println("Executing getStartDate:"); // For debugging
+		//System.out.println("Executing getStartDate:"); // For debugging
 		return task.displayStartDate();
 	}
 	
 	public static String getStartTime(Task task) throws NullPointerException {
-		System.out.println("Executing getStartTime:"); // For debugging
+		//System.out.println("Executing getStartTime:"); // For debugging
 		return task.displayStartTime();
 	}
 	
 	
 	public static String getEndDate(Task task) {
-		System.out.println("Executing getEndDate:"); // For debugging
+		//System.out.println("Executing getEndDate:"); // For debugging
 		return task.displayEndDate();
 	}
 	
 	
 	public static String getEndTime(Task task) {
-		System.out.println("Executing getEndTime:"); // For debugging
+		//System.out.println("Executing getEndTime:"); // For debugging
 		return task.displayEndTime();
 	}
 	
 	public static String addEventToCalendar(Calendar service, String eventSummary, String calendarID, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime) throws IOException {
-		System.out.println("Executing addEventToCalendar:"); // For debugging
+		//System.out.println("Executing addEventToCalendar:"); // For debugging
 		
 		Event event = new Event();
 
@@ -366,7 +373,7 @@ public class GoogleCalendarManager {
 	
 	
 	public static Calendar createCalendar(String token) throws IOException {
-		System.out.println("Executing createCalendar:"); // For debugging
+		//System.out.println("Executing createCalendar:"); // For debugging
 	
 		
 		// Two globals that will be used in each step.
@@ -407,7 +414,7 @@ public class GoogleCalendarManager {
 	
 	
 	public static String generateNewToken() throws IOException {
-		System.out.println("Executing generateNewToken:"); // For debugging
+		//System.out.println("Executing generateNewToken:"); // For debugging
 		
 		// Two globals that will be used in each step.
 		HttpTransport httpTransport = new NetHttpTransport();
@@ -432,7 +439,9 @@ public class GoogleCalendarManager {
 		AuthorizationCodeRequestUrl authorizationUrl = codeFlow
 				.newAuthorizationUrl();
 		authorizationUrl.setRedirectUri(redirectUri);
-		// System.out.println("Go to the following address:");
+		System.out.println("Error: Google Calendar Authorization Token has expired.");
+		System.out.println("Generating new token.");
+		System.out.println("Go to the following address, copy and paste the code into this program, and enter:");
 		System.out.println(authorizationUrl);
 
 		// use the code that is returned as a url parameter
@@ -454,7 +463,7 @@ public class GoogleCalendarManager {
 	
 
 	public static boolean isTokenDbEmpty() {
-		System.out.println("Executing isTokenDbEmpty:"); // For debugging
+		//System.out.println("Executing isTokenDbEmpty:"); // For debugging
 		
 		
 		// System.out.println("Inside the db: " + readDb());
@@ -467,7 +476,7 @@ public class GoogleCalendarManager {
 	}
 
 	public static void addToDb(String accessToken) {
-		System.out.println("Executing addToDb:"); // For debugging
+		//System.out.println("Executing addToDb:"); // For debugging
 		
 		
 		try {
@@ -481,7 +490,7 @@ public class GoogleCalendarManager {
 	}
 
 	public static void clearDb() {
-		System.out.println("Executing clearDb:"); // For debugging
+		//System.out.println("Executing clearDb:"); // For debugging
 		
 		
 		try {
@@ -495,7 +504,7 @@ public class GoogleCalendarManager {
 	}
 
 	private static String readDb() {
-		System.out.println("Executing readDb:"); // For debugging
+		//System.out.println("Executing readDb:"); // For debugging
 		
 		
 		String accessToken;
@@ -514,7 +523,7 @@ public class GoogleCalendarManager {
 
 	
 	public static void checkCalendar(Calendar calendar) throws IOException {
-		System.out.println("Executing checkCalendar:"); // For debugging
+		//System.out.println("Executing checkCalendar:"); // For debugging
 		
 		
 		Calendar.CalendarList.List listRequest = calendar.calendarList().list();

@@ -227,7 +227,7 @@ public class DatabaseTest {
         String actual;
         setup();
         createTask();
-
+        
         deleteTask = database.delete(title);
         isDeleted = deleteTask.bundle.containsKey(SUCCESS);
         assertFalse("Success status for deletion even though "
