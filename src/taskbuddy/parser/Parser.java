@@ -202,6 +202,7 @@ public class Parser {
 			}
 			
 			b.putString(user_description, description);
+			//b.putString(user_description, "abc");
 			b.putString(user_endDate, date);
 			b.putString(user_start, startTime);
 			b.putString(user_endTime, endTime);

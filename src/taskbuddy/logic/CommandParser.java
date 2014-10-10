@@ -39,8 +39,9 @@ public class CommandParser {
 		String endTime = (String) extras.getItem(user_endTime);
 		String title = (String) extras.getItem(user_title);
 		Task newTask = new Task(title);
+		String startTime = (String) extras.getItem(user_start);
 		newTask.setDescription(desc);
-		newTask.setStartTime(nullValue);
+		newTask.setStartTime(endDate, startTime);
 		newTask.setEndTime(endDate, endTime);
 		newTask.setGID(nullValue);
 		Bundle response = db.addTask(newTask);
