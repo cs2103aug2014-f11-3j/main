@@ -17,6 +17,10 @@ import taskbuddy.logic.Task;
  * @author Soh Yong Sheng
  *
  */
+/**
+ * @author Soh Yong Sheng
+ *
+ */
 public class Database {
 
     static final String LOG_NAME = "log";
@@ -59,7 +63,6 @@ public class Database {
         commands = new LinkedList<DbCommand>();
         googleCal = new GoogleCalendarManager();
     }
-    
 
     /**
      * Retrieves all stored tasks.
@@ -68,6 +71,15 @@ public class Database {
      */
     public ArrayList<Task> getTasks() {
         return this.tasks;
+    }
+
+    /**
+     * For debugging.
+     */
+    public void printTasks() {
+        for (Task aTask : this.getTasks()) {
+            System.out.println(aTask.displayTask());
+        }
     }
 
     /**
@@ -104,7 +116,7 @@ public class Database {
             ack = this.ackFromDatabase(SUCCESS, SUCCESS_ADD);
             // TODO Call and handle GoogleCalendarManager's add method
             // Comment following line if running DatabaseTest
-            GoogleCalendarManager.add(task);
+            // GoogleCalendarManager.add(task);
             this.taskLogger.writeToLogFile(tasks);
         } else {
             ack = this.ackFromDatabase(FAILURE, FAIL_ADD);
@@ -167,14 +179,15 @@ public class Database {
         } else {
             Task task = new Task();
             if ((task = search(title)) == null) {
-                ack = this.ackFromDatabase(FAILURE, FAIL_DELETE_TITLE_NOT_FOUND);
+                ack = this
+                        .ackFromDatabase(FAILURE, FAIL_DELETE_TITLE_NOT_FOUND);
             } else {
                 this.tasks.remove(task);
                 ack = this.ackFromDatabase(SUCCESS, SUCCESS_DELETE);
                 this.taskLogger.writeToLogFile(tasks);
                 // TODO Call and handle GoogleCalendarManager's delete task
                 // Comment following line if running DatabaseTest
-                GoogleCalendarManager.delete(task.getGID());
+                // GoogleCalendarManager.delete(task.getGID());
             }
         }
         return ack;
