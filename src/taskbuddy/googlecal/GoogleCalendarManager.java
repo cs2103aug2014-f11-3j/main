@@ -335,8 +335,6 @@ public class GoogleCalendarManager {
 				// (setDateTime() is used for timed events)
 				EventDateTime startEventDateTime = new EventDateTime().setDate(startDateTime);
 				EventDateTime endEventDateTime = new EventDateTime().setDate(endDateTime);
-				
-				//System.out.println(endDateTime);
 
 				// Set event parameters
 				event.setStart(startEventDateTime);
@@ -361,11 +359,6 @@ public class GoogleCalendarManager {
 				event.setStart(new EventDateTime().setDateTime(dateTime1));
 				DateTime dateTime2 = new DateTime(dateSecond,TimeZone.getTimeZone("UTC"));
 				event.setEnd(new EventDateTime().setDateTime(dateTime2));
-				
-				//System.out.println(dateTime1);
-				//System.out.println(dateTime2);
-				
-				
 			} catch (ParseException ex) {
 				System.out.println("Exception " + ex);
 			}

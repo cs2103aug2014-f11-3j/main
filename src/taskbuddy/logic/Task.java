@@ -124,19 +124,7 @@ public class Task {
             int year = Integer.parseInt(startDate.substring(6));
             Calendar start = Calendar.getInstance();
             start.set(year, month, date);
-            this.__startTime = start;
-        
-        } else if (!startTime.equals(nullValue)){
-            Calendar start = Calendar.getInstance();
-            int year = start.get(Calendar.YEAR);
-            int month = start.get(Calendar.MONTH);
-            int date = start.get(Calendar.DATE);
-            int hour = Integer.parseInt(startTime.substring(0, 2));
-               int minute = Integer.parseInt(startTime.substring(2));
-               start.set(year, month, date, hour, minute);
-               this.__endTime = start;
-            
-            
+            this.__startTime = start; 
         } else {
             Calendar now = Calendar.getInstance();
             this.__startTime = now;
@@ -169,17 +157,6 @@ public class Task {
             Calendar ending = Calendar.getInstance();
             ending.set(year, month, date, hour, minute);
             this.__endTime = ending;
-            
-        } else if (!endTime.equals(nullValue)){
-            Calendar ending = Calendar.getInstance();
-            int year = ending.get(Calendar.YEAR);
-            int month = ending.get(Calendar.MONTH);
-            int date = ending.get(Calendar.DATE);
-            int hour = Integer.parseInt(endTime.substring(0, 2));
-               int minute = Integer.parseInt(endTime.substring(2));
-               ending.set(year, month, date, hour, minute);
-               this.__endTime = ending;
-            
         } else {
             Calendar ending = Calendar.getInstance();
             // todo stub
@@ -188,6 +165,15 @@ public class Task {
         }
     }
 
+    public void setEndTime(String endDate) {
+        int date = Integer.parseInt(endDate.substring(0, 2));
+        int month = Integer.parseInt(endDate.substring(2, 4));
+        month--;
+        int year = Integer.parseInt(endDate.substring(4));
+        Calendar ending = Calendar.getInstance();
+        ending.set(year, month, date);
+        this.__endTime = ending;
+    }
 
     public void setPriority(int nextPriority) {
         this.__priorityFlag = nextPriority;

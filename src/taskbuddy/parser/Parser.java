@@ -400,8 +400,6 @@ public class Parser {
 				title += contentSplitCopy.get(nextIndex);
 				title += " ";
 				contentSplitCopy.remove(nextIndex);
-			}else{
-				break;
 			}
 		}
 		
@@ -452,8 +450,6 @@ public class Parser {
 						(contentSplitCopy.get(nextIndex).equals("-e")==false)&&
 						(contentSplitCopy.get(nextIndex).equals("-d")==false)){
 					contentSplitCopy.remove(nextIndex);
-				}else{
-					break;
 				}
 			}
 		}
