@@ -106,29 +106,31 @@ public class Task {
     }
 
     public void setStartTime(String startDate, String startTime) {
-        if (!startDate.equals(nullValue) && !startTime.equals(nullValue)) {
-               int date = Integer.parseInt(startDate.substring(0, 2));
-               int month = Integer.parseInt(startDate.substring(3, 5));
-               month--;
-               int year = Integer.parseInt(startDate.substring( 6 ));
-               int hour = Integer.parseInt(startTime.substring(0, 2));
-               int minute = Integer.parseInt(startTime.substring(2));
-               Calendar start = Calendar.getInstance();
-               start.set(year, month, date, hour, minute);
-               this.__startTime = start;
-           } else if (!startDate.equals(nullValue)) {
-               int date = Integer.parseInt(startDate.substring(0, 2));
-               int month = Integer.parseInt(startDate.substring(3, 5));
-               month--;
-               int year = Integer.parseInt(startDate.substring(6 ));
-               Calendar start = Calendar.getInstance();
-               start.set(year, month, date);
-               this.__startTime = start; 
-           } else {
-               Calendar now = Calendar.getInstance();
-               this.__startTime = now;
-           }
-       }
+
+    	if (!startDate.equals(nullValue) && !startTime.equals(nullValue)) {
+            int date = Integer.parseInt(startDate.substring(0, 2));
+            int month = Integer.parseInt(startDate.substring(3, 5));
+            month--;
+            int year = Integer.parseInt(startDate.substring(6));
+            int hour = Integer.parseInt(startTime.substring(0, 2));
+            int minute = Integer.parseInt(startTime.substring(2));
+            Calendar start = Calendar.getInstance();
+            start.set(year, month, date, hour, minute);
+            this.__startTime = start;
+        } else if (!startDate.equals(nullValue)) {
+            int date = Integer.parseInt(startDate.substring(0, 2));
+            int month = Integer.parseInt(startDate.substring(3, 5));
+            month--;
+            int year = Integer.parseInt(startDate.substring(6));
+            Calendar start = Calendar.getInstance();
+            start.set(year, month, date);
+            this.__startTime = start; 
+        } else {
+            Calendar now = Calendar.getInstance();
+            this.__startTime = now;
+        }
+    }
+
 
     public void setEndTime(Calendar nextEnd) {
         this.__endTime = nextEnd;
