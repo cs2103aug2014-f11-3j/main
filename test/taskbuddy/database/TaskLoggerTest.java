@@ -32,8 +32,9 @@ public class TaskLoggerTest {
 
     String title;
     String description;
-    Calendar start;
-    Calendar end;
+    String startTime;
+    String endDate;
+    String endTime;
     int priority;
     boolean isComplete;
     boolean isFloating;
@@ -42,8 +43,9 @@ public class TaskLoggerTest {
     public void createTask() {
         title = "Title";
         description = "Description";
-        start = Calendar.getInstance();
-        end = Calendar.getInstance();
+        startTime = "padding value";
+        endDate = "01000001";
+        endTime = "0101";
         priority = 1;
         isComplete = true;
         isFloating = false;
@@ -51,8 +53,8 @@ public class TaskLoggerTest {
 
         task = new Task(title);
         task.setDescription(description);
-        task.setStartTime(start);
-        task.setEndTime(end);
+        task.setStartTime(startTime);
+        task.setEndTime(endDate, endTime);
         task.setPriority(priority);
         task.setCompletion(isComplete);
         task.setFloating(isFloating);
@@ -62,8 +64,9 @@ public class TaskLoggerTest {
     public void createAnotherTask() {
         title = "Another title";
         description = "Another description";
-        start = Calendar.getInstance();
-        end = Calendar.getInstance();
+        startTime = "padding value";
+        endDate = "02010002";
+        endTime = "0202";
         priority = 2;
         isComplete = false;
         isFloating = true;
@@ -71,8 +74,8 @@ public class TaskLoggerTest {
 
         task = new Task(title);
         task.setDescription(description);
-        task.setStartTime(start);
-        task.setEndTime(end);
+        task.setStartTime(startTime);
+        task.setEndTime(endDate, endTime);
         task.setPriority(priority);
         task.setCompletion(isComplete);
         task.setFloating(isFloating);
