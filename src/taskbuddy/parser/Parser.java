@@ -1,5 +1,6 @@
 package taskbuddy.parser;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -34,7 +35,7 @@ public class Parser {
 	private static String user_title = "title";
 	
 	
-	public static void main(String[] args) throws ParseException {
+	public static void main(String[] args) throws ParseException, IOException {
 		
 		CommandParser commandParser = new CommandParser();
 		
