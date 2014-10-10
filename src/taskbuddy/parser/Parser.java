@@ -10,7 +10,7 @@ import taskbuddy.logic.CommandParser;
 
 /*
  *  User Manual:
- *  1.Specifier must be lower case -d, -s, -e, -t
+ *  1.Specifier must be lower case -d, -s, -e, -tde
  *  	-d: date
  *  	-s: start time
  *  	-e: end time 

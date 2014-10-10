@@ -65,56 +65,56 @@ public class GoogleCalendarManager {
     
     
     
-	public static void main(String[] args) throws IOException {
-		Task task1 = new Task ("Task number 1");
-		Task task2 = new Task ("Task number 2");
-		Task task3 = new Task ("Task number 3");
-		Task task4 = new Task ("Task number 4");
-		Task task5 = new Task ("Task number 5");
-		Task task6 = new Task ("Task number 6");
-		
-		task1.setStartTime("padding value");
-		task1.setEndTime("padding value", "padding value");
-		
-		task2.setStartTime("padding value");
-		task2.setEndTime("padding value", "padding value");
-		
-		task3.setStartTime("padding value");
-		task3.setEndTime("padding value", "padding value");
-	
-		task4.setStartTime("padding value");
-		task4.setEndTime("padding value", "padding value");
-		
-		task5.setStartTime("padding value");
-		task5.setEndTime("padding value", "padding value");
-		
-		task6.setStartTime("padding value");
-		task6.setEndTime("padding value", "padding value");
-		
-		
-		
-		add(task1);
-		System.out.println("Executing add:"); // For debugging
-		add(task2);
-		System.out.println("Executing add:"); // For debugging
-		
-		add(task3);
-		System.out.println("Executing add:"); // For debugging
-		add(task4);
-		System.out.println("Executing add:"); // For debugging
-		
-		add(task5);
-		System.out.println("Executing add:"); // For debugging
-		add(task6);
-		System.out.println("Executing add:"); // For debugging
-		
-		delete(task1.getGID());
-		System.out.println("Executing delete:"); // For debugging
-		delete(task5.getGID());
-		System.out.println("Executing delete:"); // For debugging
-		
-		System.out.println("Completed");
-	}
+//	public static void main(String[] args) throws IOException {
+//		Task task1 = new Task ("Task number 1");
+//		Task task2 = new Task ("Task number 2");
+//		Task task3 = new Task ("Task number 3");
+//		Task task4 = new Task ("Task number 4");
+//		Task task5 = new Task ("Task number 5");
+//		Task task6 = new Task ("Task number 6");
+//		
+//		task1.setStartTime("padding value");
+//		task1.setEndTime("padding value", "padding value");
+//		
+//		task2.setStartTime("padding value");
+//		task2.setEndTime("padding value", "padding value");
+//		
+//		task3.setStartTime("padding value");
+//		task3.setEndTime("padding value", "padding value");
+//	
+//		task4.setStartTime("padding value");
+//		task4.setEndTime("padding value", "padding value");
+//		
+//		task5.setStartTime("padding value");
+//		task5.setEndTime("padding value", "padding value");
+//		
+//		task6.setStartTime("padding value");
+//		task6.setEndTime("padding value", "padding value");
+//		
+//		
+//		
+//		add(task1);
+//		System.out.println("Executing add:"); // For debugging
+//		add(task2);
+//		System.out.println("Executing add:"); // For debugging
+//		
+//		add(task3);
+//		System.out.println("Executing add:"); // For debugging
+//		add(task4);
+//		System.out.println("Executing add:"); // For debugging
+//		
+//		add(task5);
+//		System.out.println("Executing add:"); // For debugging
+//		add(task6);
+//		System.out.println("Executing add:"); // For debugging
+//		
+//		delete(task1.getGID());
+//		System.out.println("Executing delete:"); // For debugging
+//		delete(task5.getGID());
+//		System.out.println("Executing delete:"); // For debugging
+//		
+//		System.out.println("Completed");
+//	}
 	
 	
 	

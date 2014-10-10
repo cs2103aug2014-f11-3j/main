@@ -54,6 +54,7 @@ public class CommandParserTest {
 		// Remove log file after test
         db.taskLogger.getLog().delete();
 	}
+	
 	/*
 	public void testDelete() throws ParseException, IOException{
 		try {
