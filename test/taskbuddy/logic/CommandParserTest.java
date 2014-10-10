@@ -7,7 +7,7 @@ import java.text.ParseException;
 
 import org.junit.Test;
 
-import taskbuddy.database.Database;
+import taskbuddy.database.*;
 
 public class CommandParserTest {
 	CommandParser cp = new CommandParser();
@@ -39,7 +39,7 @@ public class CommandParserTest {
 		Bundle addUserInputs = new Bundle();
 		addUserInputs.putString(user_command, "add");
 		addUserInputs.putString(user_description, "test description");
-		addUserInputs.putString(user_endDate, "10 10 14");
+		addUserInputs.putString(user_endDate, "10-10-2014");
 		addUserInputs.putString(user_start, "padding value");
 		addUserInputs.putString(user_endTime, "2359");
 		addUserInputs.putString(user_title, "test title");

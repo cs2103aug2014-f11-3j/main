@@ -123,8 +123,8 @@ public class Task {
     public void setEndTime(String endDate, String endTime) {
         if (!endDate.equals(nullValue) && !endTime.equals(nullValue)) {
             int date = Integer.parseInt(endDate.substring(0, 2));
-            int month = Integer.parseInt(endDate.substring(2, 4));
-            int year = Integer.parseInt(endDate.substring(4));
+            int month = Integer.parseInt(endDate.substring(3, 5));
+            int year = Integer.parseInt(endDate.substring(6));
             int hour = Integer.parseInt(endTime.substring(0, 2));
             int minute = Integer.parseInt(endTime.substring(2));
             Calendar ending = Calendar.getInstance();
