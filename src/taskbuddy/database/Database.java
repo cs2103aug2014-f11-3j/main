@@ -35,7 +35,7 @@ public class Database {
 
     ArrayList<Task> tasks;
     LinkedList<DbCommand> commands;
-    TaskLogger taskLogger;
+    public TaskLogger taskLogger;
     GoogleCalendarManager googleCal;
     Bundle ack;
     String logName;
@@ -59,6 +59,7 @@ public class Database {
         commands = new LinkedList<DbCommand>();
         googleCal = new GoogleCalendarManager();
     }
+    
 
     /**
      * Retrieves all stored tasks.

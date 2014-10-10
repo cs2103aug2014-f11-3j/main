@@ -39,7 +39,7 @@ public class CommandParserTest {
 		Bundle addUserInputs = new Bundle();
 		addUserInputs.putString(user_command, "add");
 		addUserInputs.putString(user_description, "test description");
-		addUserInputs.putString(user_endDate, "10 10 14");
+		addUserInputs.putString(user_endDate, "10-10-2014");
 		addUserInputs.putString(user_start, "padding value");
 		addUserInputs.putString(user_endTime, "2359");
 		addUserInputs.putString(user_title, "test title");
@@ -49,8 +49,10 @@ public class CommandParserTest {
 		expected.putString(status, success);
 		String expectedString = (String) expected.getItem(status);
 		String returnedString = (String) returnValue.getItem(status);
-		//assertEquals(expectedString, returnedString);
-		assertEquals(expected, returnValue);
+		assertEquals(expectedString, returnedString);
+		//assertEquals(expected, returnValue);
+		// Remove log file after test
+        db.taskLogger.getLog().delete();
 	}
 	/*
 	public void testDelete() throws ParseException, IOException{

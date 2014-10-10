@@ -40,7 +40,9 @@ public class CommandParser {
 		String title = (String) extras.getItem(user_title);
 		Task newTask = new Task(title);
 		newTask.setDescription(desc);
+		newTask.setStartTime(nullValue);
 		newTask.setEndTime(endDate, endTime);
+		newTask.setGID(nullValue);
 		Bundle response = db.addTask(newTask);
 		Bundle acknowledgement = new Bundle();
 		String result = (String) response.getItem(status);
