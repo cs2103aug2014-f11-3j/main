@@ -15,7 +15,7 @@ import taskbuddy.logic.CommandParser;
  *  	-s: start time
  *  	-e: end time 
  *  	-t: title
- *   
+ *   dd/mm/yyyy
  *  2.Time must be this format: 0930, 1700, 2359
  * 	
  */

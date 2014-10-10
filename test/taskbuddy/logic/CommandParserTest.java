@@ -7,7 +7,7 @@ import java.text.ParseException;
 
 import org.junit.Test;
 
-import taskbuddy.database.Database;
+import taskbuddy.database.*;
 
 public class CommandParserTest {
 	CommandParser cp = new CommandParser();
