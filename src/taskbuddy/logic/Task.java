@@ -105,11 +105,23 @@ public class Task {
         this.__startTime = nextStart;
     }
 
-    public void setStartTime(String nextStart) {
-        if (!nextStart.equals(nullValue)) {
-            // this.__startTime = nextStart;
-            // todo stub
-            // parse String into Calendar
+    public void setStartTime(String startDate, String startTime) {
+    	if (!startDate.equals(nullValue) && !startTime.equals(nullValue)) {
+            int date = Integer.parseInt(startDate.substring(0, 2));
+            int month = Integer.parseInt(startDate.substring(3, 5));
+            int year = Integer.parseInt(startDate.substring(6));
+            int hour = Integer.parseInt(startTime.substring(0, 2));
+            int minute = Integer.parseInt(startTime.substring(2));
+            Calendar start = Calendar.getInstance();
+            start.set(year, month, date, hour, minute);
+            this.__startTime = start;
+        } else if (!startDate.equals(nullValue)) {
+            int date = Integer.parseInt(startDate.substring(0, 2));
+            int month = Integer.parseInt(startDate.substring(3, 5));
+            int year = Integer.parseInt(startDate.substring(6));
+            Calendar start = Calendar.getInstance();
+            start.set(year, month, date);
+            this.__startTime = start; 
         } else {
             Calendar now = Calendar.getInstance();
             this.__startTime = now;
@@ -132,8 +144,8 @@ public class Task {
             this.__endTime = ending;
         } else if (!endDate.equals(nullValue)) {
             int date = Integer.parseInt(endDate.substring(0, 2));
-            int month = Integer.parseInt(endDate.substring(2, 4));
-            int year = Integer.parseInt(endDate.substring(4));
+            int month = Integer.parseInt(endDate.substring(3, 5));
+            int year = Integer.parseInt(endDate.substring(6));
             int hour = 23;
             int minute = 59;
             Calendar ending = Calendar.getInstance();
