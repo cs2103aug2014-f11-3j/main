@@ -1,4 +1,5 @@
 package taskbuddy.googlecal;
+
 import taskbuddy.logic.Task;
 import taskbuddy.logic.Bundle;
 
@@ -15,7 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
+//import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TimeZone;
@@ -34,13 +35,14 @@ import com.google.api.client.json.JsonFactory;
 //import com.google.api.client.json.JsonGenerator;
 import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.client.util.DateTime;
+
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarList;
-import com.google.api.services.calendar.model.CalendarListEntry;
+//import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
-import com.google.api.services.calendar.model.Events;
+//import com.google.api.services.calendar.model.Events;
 
 
 
@@ -211,6 +213,57 @@ public class GoogleCalendarManager {
 		}
 	}
 
+	
+	
+	public static String retrieve(String eventId) throws IOException {
+		// This is a stub
+		
+		// Retrieves events from Google Calendar
+		// Returns a task object corresponding to the retrieval of the event from Google Calendar
+		
+		
+		
+		// Bundle Objects
+		Bundle success = new Bundle();
+		Bundle failureNoInternet = new Bundle();
+		Bundle failureUnableToConnectToGoogle = new Bundle();
+		success.putString("Success", "Event has been successfully deleted from Google Calendar.");
+		failureNoInternet.putString("Failure", "User is offline.");
+		failureUnableToConnectToGoogle.putString("Failure", "Unable to connect to Google.");
+
+		
+		Calendar service = null;
+		String calendarId = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
+		//System.out.println(eventId);
+		// First, check user online status.
+		
+		if (!isUserOnline()) {
+			return "failureNoInternet";
+		}
+		else {
+			// This try catch blocks checks if Google's servers can be read
+			try {
+				service = initializeCalendar();
+			} catch (UnknownHostException connectionProblem) {
+				//System.out.println("Unable to connect to Google");
+				return "failureUnableToConnectToGoogle";
+			}
+			
+			
+			Event event = service.events().get(calendarId, eventId).execute();
+			System.out.println(event.getSummary());
+			return event.getSummary();
+		}
+	}
+
+	public static Bundle update(String eventId, Task task) {
+		// This is a stub
+		Bundle success = new Bundle();
+		Bundle failureNoInternet = new Bundle();
+		Bundle failureUnableToConnectToGoogle = new Bundle();
+		
+		return failureUnableToConnectToGoogle;
+	}
 	
 	
 	private static boolean isUserOnline() throws UnknownHostException, IOException {
