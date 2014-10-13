@@ -215,15 +215,11 @@ public class GoogleCalendarManager {
 	
 	private static boolean isUserOnline() throws UnknownHostException, IOException {
 		//System.out.println("Executing isUserOnline:"); // For debugging
-		
-		
 		Socket socket = null;
-		boolean reachable = false;
 		try {
 		    socket = new Socket("www.google.com", 80);
-		    reachable = true;
 		} catch (UnknownHostException e) {
-			//System.out.println("User is offline");
+			System.out.println("User is offline");
 			return false;
 		}
 		finally { 
