@@ -297,4 +297,20 @@ public class DatabaseTest {
         // Remove log file after test
         database.taskLogger.getLog().delete();
     }
+
+    @Test
+    public void testSetTaskIds() throws Exception {
+        setup();
+        addTasks();
+        
+        database.setTaskIds();
+        ArrayList<Task> tasks = database.getTasks();
+        for (Task aTask : tasks) {
+            assertEquals(tasks.indexOf(aTask), aTask.getTaskId());
+        }
+
+        // Remove log file after test
+        database.taskLogger.getLog().delete();
+    }
+
 }

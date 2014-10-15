@@ -9,6 +9,7 @@ import java.util.Calendar;
 public class Task {
 
     // @formatter:off
+    private static final String EMPTY_STRING = "";
     private static final String DELIMITER           = " | ";
     private static final String TITLE               = "Title: ";
     private static final String DESCRIPTION         = "Description: ";
@@ -94,8 +95,11 @@ public class Task {
      * specified, valid task ID.
      * 
      * @return the task ID
+     * 
+     * @author Soh Yong Sheng
+     * 
      */
-    public int get__taskId() {
+    public int getTaskId() {
         return __taskId;
     }
 
@@ -213,6 +217,19 @@ public class Task {
         this.__floatingTask = nextFloatStat;
     }
 
+    /**
+     * Sets a unique task ID for every task. Unique task ID is used for task
+     * manipulation.
+     * 
+     * @param __taskId task ID
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public void setTaskId(int __taskId) {
+        this.__taskId = __taskId;
+    }
+
     public void checkFloating(Task task) {
         if (task.getEndTime() == null) {
             task.setFloating(true);
@@ -324,7 +341,7 @@ public class Task {
         toDisplay.add(this.displayIsFloating());
         toDisplay.add(this.displayGoogleId());
 
-        String result = "";
+        String result = EMPTY_STRING;
         for (String aField : toDisplay) {
             if (toDisplay.indexOf(aField) == toDisplay.size() - 1) {
                 result = result + aField;

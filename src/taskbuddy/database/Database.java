@@ -43,7 +43,7 @@ public class Database {
 
     ArrayList<Task> tasks;
     LinkedList<DbCommand> commands;
-    public TaskLogger taskLogger;
+    TaskLogger taskLogger;
     GoogleCalendarManager googleCal;
     Bundle ack;
     String logName;
@@ -200,5 +200,14 @@ public class Database {
         }
         return ack;
     }
+
+    public void setTaskIds() {
+        // TODO Auto-generated method stub
+        for (Task aTask : this.getTasks()) {
+            aTask.setTaskId(this.getTasks().indexOf(aTask));
+        }
+    }
+    
+    
 
 }
