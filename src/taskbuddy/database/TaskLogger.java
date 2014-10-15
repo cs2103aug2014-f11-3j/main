@@ -9,12 +9,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 import taskbuddy.logic.Task;
 
 public class TaskLogger {
+    SimpleDateFormat formatter = new SimpleDateFormat(
+            Task.DATABASE_DATE_TIME_FORMATTER);
+    
     // @formatter:off
     private static final String TITLE               = "Title: ";
     private static final String DESCRIPTION         = "Description: ";
@@ -180,7 +184,7 @@ public class TaskLogger {
         String startString = displayStart.replace(START, EMPTY_STRING);
 
         Calendar cal = Calendar.getInstance();
-        cal.setTime(Task.formatter.parse(startString));
+        cal.setTime(formatter.parse(startString));
         return cal;
     }
 
@@ -196,7 +200,7 @@ public class TaskLogger {
         String endString = displayEnd.replace(END, EMPTY_STRING);
 
         Calendar cal = Calendar.getInstance();
-        cal.setTime(Task.formatter.parse(endString));
+        cal.setTime(formatter.parse(endString));
         return cal;
     }
 

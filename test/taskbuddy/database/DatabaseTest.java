@@ -23,6 +23,10 @@ import taskbuddy.logic.Task;
  */
 public class DatabaseTest {
 
+    private static final String EMPTY_STRING = "";
+
+    private static final String ERR_MSG_SEARCH_STRING_EMPTY = "Search string cannot be empty.";
+
     private static final String STATUS = "Status";
     private static final String MESSAGE = "Message";
 
@@ -135,7 +139,11 @@ public class DatabaseTest {
         ArrayList<Task> readTasks;
         database.taskLogger.prepareLog(logName);
         createDummyLog();
-        readTasks = database.taskLogger.prepareLog(logName);
+
+        // Construct database again and see if it reads in from log file.
+        // Log file is read when database is constructed.
+        setup();
+        readTasks = database.getTasks();
 
         assertEquals("No tasks read in from log file", 2, readTasks.size());
         expected = readTasks.get(0).displayTask();
@@ -183,6 +191,25 @@ public class DatabaseTest {
         expected = database.getTasks().get(0).displayTask();
         assertTrue("Task not logged correctly in log file.",
                 actual.equals(expected));
+
+        // Remove log file after test
+        database.taskLogger.getLog().delete();
+    }
+
+    // TODO Complete and pass this test
+    @Test
+    public void testSearch() throws Exception {
+        setup();
+        addTasks();
+        try {
+            database.search(EMPTY_STRING);
+            fail("Should have thrown exception when search string is empty.");
+        } catch (IllegalArgumentException e) {
+            assertEquals(
+                    "Wrong error message shown when search string is empty "
+                            + "string.", e.getMessage(),
+                    ERR_MSG_SEARCH_STRING_EMPTY);
+        }
 
         // Remove log file after test
         database.taskLogger.getLog().delete();

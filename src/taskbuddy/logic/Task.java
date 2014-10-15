@@ -19,7 +19,7 @@ public class Task {
     private static final String IS_FLOATING         = "Floating task: ";
     private static final String GOOGLE_CALENDAR_ID  = "Google Calendar ID: ";
     // @formatter:on
-    
+
     private static String nullValue = "padding value";
     private String __title;
     private String __description;
@@ -29,19 +29,22 @@ public class Task {
     private boolean __completionFlag;
     private boolean __floatingTask;
     private String __googleID;
+    private int __taskId;
 
-    //bundle strings
+    // bundle strings
     private String user_description = "description";
-	private String user_endDate = "endDate";
-	private String user_start = "startTime";
-	private String user_endTime = "endTime";
-	private String user_title = "title";
+    private String user_endDate = "endDate";
+    private String user_start = "startTime";
+    private String user_endTime = "endTime";
+    private String user_title = "title";
     private String user_flag = "flag";
     private String user_priority = "priority";
     private String user_googleID = "GoogleID";
-	
-    public static SimpleDateFormat formatter;
-    
+
+    public SimpleDateFormat formatter;
+    public static final String DATABASE_DATE_TIME_FORMATTER = "d-M-yyyy 'at' "
+            + "HH:mm";
+
     // basic constructors
     public Task() {
     }
@@ -84,6 +87,18 @@ public class Task {
         return this.__googleID;
     }
 
+    /**
+     * Gets the task ID, which is the unique identifier of a task. The task ID
+     * is used for task manipulation such as task addition and deletion. For
+     * example <code>delete(int taskId):void</code> deletes a task given a
+     * specified, valid task ID.
+     * 
+     * @return the task ID
+     */
+    public int get__taskId() {
+        return __taskId;
+    }
+
     // basic mutators
     public void setTitle(String nextTitle) {
         this.__title = nextTitle;
@@ -100,14 +115,14 @@ public class Task {
             this.__description = "nil";
         }
     }
-    
+
     public void setStartTime(Calendar nextStart) {
         this.__startTime = nextStart;
     }
 
     public void setStartTime(String startDate, String startTime) {
 
-    	if (!startDate.equals(nullValue) && !startTime.equals(nullValue)) {
+        if (!startDate.equals(nullValue) && !startTime.equals(nullValue)) {
             int date = Integer.parseInt(startDate.substring(0, 2));
             int month = Integer.parseInt(startDate.substring(3, 5));
             month--;
@@ -125,24 +140,22 @@ public class Task {
             Calendar start = Calendar.getInstance();
             start.set(year, month, date);
             this.__startTime = start;
-        
-        } else if (!startTime.equals(nullValue)){
+
+        } else if (!startTime.equals(nullValue)) {
             Calendar start = Calendar.getInstance();
             int year = start.get(Calendar.YEAR);
             int month = start.get(Calendar.MONTH);
             int date = start.get(Calendar.DATE);
             int hour = Integer.parseInt(startTime.substring(0, 2));
-               int minute = Integer.parseInt(startTime.substring(2));
-               start.set(year, month, date, hour, minute);
-               this.__endTime = start;
-            
-            
+            int minute = Integer.parseInt(startTime.substring(2));
+            start.set(year, month, date, hour, minute);
+            this.__endTime = start;
+
         } else {
             Calendar now = Calendar.getInstance();
             this.__startTime = now;
         }
     }
-
 
     public void setEndTime(Calendar nextEnd) {
         this.__endTime = nextEnd;
@@ -169,17 +182,17 @@ public class Task {
             Calendar ending = Calendar.getInstance();
             ending.set(year, month, date, hour, minute);
             this.__endTime = ending;
-            
-        } else if (!endTime.equals(nullValue)){
+
+        } else if (!endTime.equals(nullValue)) {
             Calendar ending = Calendar.getInstance();
             int year = ending.get(Calendar.YEAR);
             int month = ending.get(Calendar.MONTH);
             int date = ending.get(Calendar.DATE);
             int hour = Integer.parseInt(endTime.substring(0, 2));
-               int minute = Integer.parseInt(endTime.substring(2));
-               ending.set(year, month, date, hour, minute);
-               this.__endTime = ending;
-            
+            int minute = Integer.parseInt(endTime.substring(2));
+            ending.set(year, month, date, hour, minute);
+            this.__endTime = ending;
+
         } else {
             Calendar ending = Calendar.getInstance();
             // todo stub
@@ -187,7 +200,6 @@ public class Task {
             this.__endTime = ending;
         }
     }
-
 
     public void setPriority(int nextPriority) {
         this.__priorityFlag = nextPriority;
@@ -217,7 +229,8 @@ public class Task {
         toDisplay.putString(user_endTime, this.__endTime.toString());
         toDisplay.putString(user_description, this.__description);
         toDisplay.putString(user_start, this.__startTime.toString());
-        toDisplay.putString(user_priority, Integer.toString(this.__priorityFlag));
+        toDisplay.putString(user_priority,
+                Integer.toString(this.__priorityFlag));
         toDisplay.putString(user_googleID, this.__googleID);
         return toDisplay;
     }
@@ -238,18 +251,15 @@ public class Task {
 
         // Do not change this formatter - this is for Database's log file. You
         // need to at least tell me how you've changed it if you want to change
-        // it, or write your method for your own formatter.        
-        formatter = new SimpleDateFormat("d-M-yyyy 'at' HH:mm");
+        // it, or write your method for your own formatter.
+        formatter = new SimpleDateFormat(DATABASE_DATE_TIME_FORMATTER);
         return formatter.format(date);
     }
-    
-    
-    
+
     /**
-     * Returns a string showing the date of the argument
-     * <code>Calendar</code> object. For example, the date returned may be
-     * "1-1-1", as opposed to having leading zeroes like 01-01-0001 at
-     * 01:01.
+     * Returns a string showing the date of the argument <code>Calendar</code>
+     * object. For example, the date returned may be "1-1-1", as opposed to
+     * having leading zeroes like 01-01-0001 at 01:01.
      * 
      * @param cal
      *            the <code>Calendar</code> object to be converted into a string
@@ -263,15 +273,14 @@ public class Task {
 
         // Do not change this formatter - this is for GoogleCalendarManager. You
         // need to at least tell me how you've changed it if you want to change
-        // it, or write your method for your own formatter.        
+        // it, or write your method for your own formatter.
         formatter = new SimpleDateFormat("d/M/yyyy");
         return formatter.format(date);
     }
-    
-    
+
     /**
-     * Returns a string showing the time of the argument
-     * <code>Calendar</code> object.
+     * Returns a string showing the time of the argument <code>Calendar</code>
+     * object.
      * 
      * @param cal
      *            the <code>Calendar</code> object to be converted into a string
@@ -285,15 +294,10 @@ public class Task {
 
         // Do not change this formatter - this is for GoogleCalendarManager. You
         // need to at least tell me how you've changed it if you want to change
-        // it, or write your method for your own formatter.        
+        // it, or write your method for your own formatter.
         formatter = new SimpleDateFormat("HH:mm");
         return formatter.format(date);
     }
-    
-    
-    
-    
-    
 
     /**
      * Converts a <code>Task</code> object and its attributes to a string for
@@ -362,7 +366,7 @@ public class Task {
     }
 
     /**
-     * @return a number ranking the priority of this task
+     * @return a non-zero integer ranking the priority of this task
      * 
      * @author Soh Yong Sheng
      * 
@@ -383,27 +387,27 @@ public class Task {
     }
 
     /**
-     * @return the end date of this task. This method is used by GooglCalendarManager, please do not change. 
+     * @return the end date of this task. This method is used by
+     *         GooglCalendarManager, please do not change.
      * 
      * @author Pee Choon Hian
      * 
      */
     public String displayEndDate() {
-    	return this.displayDate(this.getStartTime());
+        return this.displayDate(this.getStartTime());
     }
-    
+
     /**
-     * @return the end time of this task. This method is used by GooglCalendarManager, please do not change. 
+     * @return the end time of this task. This method is used by
+     *         GooglCalendarManager, please do not change.
      * 
      * @author Pee Choon Hian
      * 
      */
     public String displayEndTime() {
-    	return this.displayTime(this.getStartTime());
+        return this.displayTime(this.getStartTime());
     }
-    
-    
-    
+
     /**
      * @return the start date and time of this task
      * 
@@ -415,29 +419,27 @@ public class Task {
     }
 
     /**
-     * @return the start date of this task. This method is used by GooglCalendarManager, please do not change. 
+     * @return the start date of this task. This method is used by
+     *         GooglCalendarManager, please do not change.
      * 
      * @author Pee Choon Hian
      * 
      */
     public String displayStartDate() {
-    	return this.displayDate(this.getStartTime());
+        return this.displayDate(this.getStartTime());
     }
-    
+
     /**
-     * @return the start time of this task. This method is used by GooglCalendarManager, please do not change. 
+     * @return the start time of this task. This method is used by
+     *         GooglCalendarManager, please do not change.
      * 
      * @author Pee Choon Hian
      * 
      */
     public String displayStartTime() {
-    	return this.displayTime(this.getStartTime());
+        return this.displayTime(this.getStartTime());
     }
-    
-    
-    
-    
-    
+
     /**
      * @return the description of this task
      * 
