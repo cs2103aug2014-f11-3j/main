@@ -287,7 +287,7 @@ public class GooCalBackend {
 		
 		
 		try {
-			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken.txt");
+			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(accessToken);
 			oos.close();
@@ -301,7 +301,7 @@ public class GooCalBackend {
 		
 		
 		try {
-			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken.txt");
+			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject("");
 			oos.close();
@@ -316,7 +316,7 @@ public class GooCalBackend {
 		
 		String accessToken;
 		try {
-			FileInputStream fin = new FileInputStream("GoogleCalAuthenticationToken.txt");
+			FileInputStream fin = new FileInputStream("GoogleCalAuthenticationToken");
 			ObjectInputStream ois = new ObjectInputStream(fin);
 			accessToken = (String) ois.readObject();
 			ois.close();
