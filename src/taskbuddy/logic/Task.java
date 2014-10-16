@@ -9,8 +9,9 @@ import java.util.Calendar;
 public class Task {
 
     // @formatter:off
-    private static final String EMPTY_STRING = "";
+    private static final String EMPTY_STRING        = "";
     private static final String DELIMITER           = " | ";
+    private static final String TASK_ID             = "Task ID: ";
     private static final String TITLE               = "Title: ";
     private static final String DESCRIPTION         = "Description: ";
     private static final String START               = "Start: ";
@@ -221,7 +222,8 @@ public class Task {
      * Sets a unique task ID for every task. Unique task ID is used for task
      * manipulation.
      * 
-     * @param __taskId task ID
+     * @param __taskId
+     *            task ID
      * 
      * @author Soh Yong Sheng
      * 
@@ -317,6 +319,31 @@ public class Task {
     }
 
     /**
+     * @return a list of all string-ified fields of this task
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public ArrayList<String> taskFields() {
+        ArrayList<String> taskFields = new ArrayList<String>();
+
+        // Do not change this string conversion format - this is for Database's
+        // log file. You need to at least tell me how you've changed it if you
+        // want to change it, or write your method for your own formatter.
+        taskFields.add(this.displayTaskId());
+        taskFields.add(this.displayTitle());
+        taskFields.add(this.displayDescription());
+        taskFields.add(this.displayStart());
+        taskFields.add(this.displayEnd());
+        taskFields.add(this.displayPriority());
+        taskFields.add(this.displayIsComplete());
+        taskFields.add(this.displayIsFloating());
+        taskFields.add(this.displayGoogleId());
+
+        return taskFields;
+    }
+
+    /**
      * Converts a <code>Task</code> object and its attributes to a string for
      * logging into a text file.
      * 
@@ -328,22 +355,10 @@ public class Task {
      */
     public String displayTask() {
 
-        // Do not change this string conversion format - this is for Database's
-        // log file. You need to at least tell me how you've changed it if you
-        // want to change it, or write your method for your own formatter.
-        ArrayList<String> toDisplay = new ArrayList<String>();
-        toDisplay.add(this.displayTitle());
-        toDisplay.add(this.displayDescription());
-        toDisplay.add(this.displayStart());
-        toDisplay.add(this.displayEnd());
-        toDisplay.add(this.displayPriority());
-        toDisplay.add(this.displayIsComplete());
-        toDisplay.add(this.displayIsFloating());
-        toDisplay.add(this.displayGoogleId());
-
         String result = EMPTY_STRING;
-        for (String aField : toDisplay) {
-            if (toDisplay.indexOf(aField) == toDisplay.size() - 1) {
+        for (String aField : this.taskFields()) {
+            int lastFieldIndex = this.taskFields().size() - 1;
+            if (this.taskFields().indexOf(aField) == lastFieldIndex) {
                 result = result + aField;
             } else {
                 result = result + aField + DELIMITER;
@@ -475,5 +490,15 @@ public class Task {
      */
     public String displayTitle() {
         return TITLE + this.__title;
+    }
+
+    /**
+     * @return the task ID
+     * 
+     * @author Soh Yong Sheng
+     * 
+     */
+    public String displayTaskId() {
+        return TASK_ID + this.__taskId;
     }
 }

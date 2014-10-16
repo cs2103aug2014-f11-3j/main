@@ -9,6 +9,7 @@ import org.junit.Test;
 
 public class TaskTest {
     private static final String DELIMITER = " | ";
+    private static final String TASK_ID = "Task ID: ";
     private static final String TITLE = "Title: ";
     private static final String DESCRIPTION = "Description: ";
     private static final String START = "Start: ";
@@ -29,11 +30,9 @@ public class TaskTest {
 
     Task task;
 
+    int taskId;
     String title;
     String description;
-    String startTime;
-    String endDate;
-    String endTime;
     int priority;
     boolean isComplete;
     boolean isFloating;
@@ -48,22 +47,23 @@ public class TaskTest {
         second = 1;
 
         // Month argument is an int from 0-11, not 1-12
+        start = new GregorianCalendar(year, month - 1, date, hour, minute,
+                second);
         end = new GregorianCalendar(year, month - 1, date, hour, minute, second);
 
+        taskId = 1;
         title = "Title";
         description = "Description";
-        startTime = "PADDING_VALUE";
-        endDate = "01000001";
-        endTime = "0101";
         priority = 1;
         isComplete = true;
         isFloating = false;
         googleCalendarId = "11111";
 
         task = new Task("Title");
+        task.setTaskId(taskId);
         task.setDescription(description);
-        task.setStartTime(startTime);
-        task.setEndTime(endDate, endTime);
+        task.setStartTime(start);
+        task.setEndTime(end);
         task.setPriority(priority);
         task.setCompletion(true);
         task.setFloating(isFloating);
@@ -76,15 +76,23 @@ public class TaskTest {
         String expected;
         String actual;
 
+        // Test for conversion of start/end dates/times from string to Calendar
+        // type.
         expected = date + "-" + month + "-" + String.format("%04d", year)
                 + " at " + String.format("%02d", hour) + ":"
                 + String.format("%02d", minute);
+        // Test for start
+        actual = task.displayDateTime(start);
+        assertTrue("Calendar not converted to string properly.",
+                actual.equals(expected));
+        // Test for end
         actual = task.displayDateTime(end);
         assertTrue("Calendar not converted to string properly.",
                 actual.equals(expected));
 
         // @formatter:off
-        expected = TITLE + title + DELIMITER + 
+        expected = TASK_ID + taskId + DELIMITER +
+               TITLE + title + DELIMITER + 
                DESCRIPTION + description + DELIMITER + 
                START + task.displayDateTime(task.getStartTime()) + DELIMITER +
                END + task.displayDateTime(end) + DELIMITER +

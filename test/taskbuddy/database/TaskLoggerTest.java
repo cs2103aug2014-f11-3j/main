@@ -14,14 +14,15 @@ import taskbuddy.logic.Task;
 public class TaskLoggerTest {
 
     // @formatter:off
-    private static final int POSITION_TITLE         = 0;
-    private static final int POSITION_DESCRIPTION   = 1;
-    private static final int POSITION_START         = 2;
-    private static final int POSITION_END           = 3;
-    private static final int POSITION_PRIORITY      = 4;
-    private static final int POSITION_IS_COMPLETE   = 5;
-    private static final int POSITION_IS_FLOATING   = 6;
-    private static final int POSITION_GOOGLE_ID     = 7;
+    private static final int POSITION_TASK_ID       = 0;
+    private static final int POSITION_TITLE         = 1;
+    private static final int POSITION_DESCRIPTION   = 2;
+    private static final int POSITION_START         = 3;
+    private static final int POSITION_END           = 4;
+    private static final int POSITION_PRIORITY      = 5;
+    private static final int POSITION_IS_COMPLETE   = 6;
+    private static final int POSITION_IS_FLOATING   = 7;
+    private static final int POSITION_GOOGLE_ID     = 8;
     // @formatter:on
 
     Task task;
@@ -110,6 +111,11 @@ public class TaskLoggerTest {
         splitFields = taskLogger.splitToFields(task.displayTask());
     }
 
+    public void deleteLog() {
+        // Remove log file after test
+        taskLogger.getLog().delete();
+    }
+
     @Test
     public void testPrepareLog() throws Exception {
         String expected;
@@ -134,8 +140,7 @@ public class TaskLoggerTest {
         actual = tasks.get(1).displayTask();
         assertTrue("Second task not read properly when preparing from "
                 + "existing log file.", expected.equals(actual));
-        // Remove dummy log
-        taskLogger.getLog().delete();
+        deleteLog();
 
         // Test for non-existing log file
         taskLogger.prepareLog(logName);
@@ -144,8 +149,7 @@ public class TaskLoggerTest {
         assertTrue("Log file doesn't exist even when it's supposed to have "
                 + "been created.", taskLogger.getLog().exists());
 
-        // Remove log file after test
-        taskLogger.getLog().delete();
+        deleteLog();
     }
 
     @Test
@@ -169,6 +173,8 @@ public class TaskLoggerTest {
         createTask();
         String fields[] = taskLogger.splitToFields(task.displayTask());
 
+        assertTrue("Task ID field not extracted properly.",
+                fields[POSITION_TASK_ID].equals(task.displayTaskId()));
         assertTrue("Title field not extracted properly.",
                 fields[POSITION_TITLE].equals(task.displayTitle()));
         assertTrue("Description field not extracted properly.",
@@ -185,6 +191,18 @@ public class TaskLoggerTest {
                 fields[POSITION_IS_FLOATING].equals(task.displayIsFloating()));
         assertTrue("End field not extracted properly.",
                 fields[POSITION_GOOGLE_ID].equals(task.displayGoogleId()));
+    }
+
+    @Test
+    public void testExtractTaskId() throws Exception {
+        setup();
+        createTask();
+        splitFields();
+        String displayTaskId = splitFields[POSITION_TASK_ID];
+        int extractedTaskId = taskLogger.extractTaskId(displayTaskId);
+
+        assertEquals("Title not extracted properly.", extractedTaskId,
+                task.getTaskId());
     }
 
     @Test
@@ -340,8 +358,7 @@ public class TaskLoggerTest {
         assertTrue("Second task read from log file not the same "
                 + "as actual second task.", actual.equals(expected));
 
-        // Remove log file after testing
-        taskLogger.getLog().delete();
+        deleteLog();
 
     }
 

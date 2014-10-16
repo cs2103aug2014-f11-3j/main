@@ -18,8 +18,9 @@ import taskbuddy.logic.Task;
 public class TaskLogger {
     SimpleDateFormat formatter = new SimpleDateFormat(
             Task.DATABASE_DATE_TIME_FORMATTER);
-    
+
     // @formatter:off
+    private static final String TASK_ID             = "Task ID: ";
     private static final String TITLE               = "Title: ";
     private static final String DESCRIPTION         = "Description: ";
     private static final String START               = "Start: ";
@@ -31,16 +32,18 @@ public class TaskLogger {
 
     private static final String EMPTY_STRING        = "";
     private static final String DELIMITER_SPLIT     = "\\|";
-    private static final int NUMBER_OF_FIELDS       = 8;
+    private static final int NUMBER_OF_FIELDS       = 9;
     
-    private static final int POSITION_TITLE         = 0;
-    private static final int POSITION_DESCRIPTION   = 1;
-    private static final int POSITION_START         = 2;
-    private static final int POSITION_END           = 3;
-    private static final int POSITION_PRIORITY      = 4;
-    private static final int POSITION_IS_COMPLETE   = 5;
-    private static final int POSITION_IS_FLOATING   = 6;
-    private static final int POSITION_GOOGLE_ID     = 7;
+    
+    private static final int POSITION_TASK_ID    = 0;
+    private static final int POSITION_TITLE         = 1;
+    private static final int POSITION_DESCRIPTION   = 2;
+    private static final int POSITION_START         = 3;
+    private static final int POSITION_END           = 4;
+    private static final int POSITION_PRIORITY      = 5;
+    private static final int POSITION_IS_COMPLETE   = 6;
+    private static final int POSITION_IS_FLOATING   = 7;
+    private static final int POSITION_GOOGLE_ID     = 8;
     // @formatter:on
 
     private static final String TASKS = " tasks:";
@@ -147,13 +150,26 @@ public class TaskLogger {
     }
 
     /**
-     * Extracts the title out of the title field split by
+     * Extracts the task ID out of the task ID field split by
      * <code>splitToField</code> method.
      * 
-     * @param displayTitle
-     *            title field split by <code>splitToField</code> method, which
+     * @param displayTaskId
+     *            task ID field split by <code>splitToField</code> method, which
      *            is also equivalent to the <code>Task</code> class'
-     *            <code>displayTitle</code> method
+     *            <code>displayTaskId</code> method
+     * @return task ID
+     */
+    public int extractTaskId(String displayTaskId) {
+        String taskIdString = displayTaskId.replace(TASK_ID, EMPTY_STRING);
+        return Integer.parseInt(taskIdString);
+    }
+
+    /**
+     * Similar to <code>extractTaskId</code> method, except that task title is
+     * extracted here.
+     * 
+     * @param displayTitle
+     *            description field split by <code>splitToField</code> method
      * @return title of this task
      */
     public String extractTitle(String displayTitle) {
@@ -271,6 +287,7 @@ public class TaskLogger {
         Task result = new Task();
         String[] splitFields = this.splitToFields(taskString);
 
+        result.setTitle(this.extractTitle(splitFields[POSITION_TASK_ID]));
         result.setTitle(this.extractTitle(splitFields[POSITION_TITLE]));
         result.setDescription(this
                 .extractDescription(splitFields[POSITION_DESCRIPTION]));
@@ -317,4 +334,5 @@ public class TaskLogger {
         }
         return result;
     }
+
 }
