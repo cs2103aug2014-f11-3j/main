@@ -23,7 +23,7 @@ public class GoogleCalendarManagerTest {
 
 	GoogleCalendarManager gooCal = new GoogleCalendarManager();
 	Task task = new Task ("Event Summary");
-
+	
 	
 	
 	

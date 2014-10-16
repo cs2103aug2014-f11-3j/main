@@ -121,7 +121,7 @@ public class GoogleCalendarManager {
 	
 	
 	
-	public Bundle add(Task task) throws IOException {
+	public void add(Task task) throws UnknownHostException  {
 		// Adds task to Google Calendar
 		// Returns true if task has successfully been added to Google Calendar
 		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
@@ -143,15 +143,16 @@ public class GoogleCalendarManager {
 		
 		// First, check user online status.
 		if (!gooCalBackend.isUserOnline()) {
-			return failureNoInternet;
+			throw new UnknownHostException("User is offline"); 
 		}
 		else {
 			// This try catch blocks checks if Google's servers can be read
 			try {
 				service = gooCalBackend.initializeCalendar();
-			} catch (UnknownHostException connectionProblem) {
-				//System.out.println("Unable to connect to Google");
-				return failureUnableToConnectToGoogle;
+			} catch (IOException connectionProblem) {
+				// This catach statement cataches a connetion problem
+				// Exception is only caught when authentication code is valid, yet tbere is a failure in initializing the Google Calendar
+				//return failureUnableToConnectToGoogle;
 			}
 
 			String eventSummary = getSummary(task);
@@ -164,12 +165,12 @@ public class GoogleCalendarManager {
 			System.out.println(gooCalEventID);
 			task.setGID(gooCalEventID);
 			if (gooCalEventID.equals("")) {
-				return failureEventFailedToCreate;
+				//return failureEventFailedToCreate;
 			}
 			
 			
 			System.out.println("Event added!");
-			return success;
+			//return success;
 		}
 	}
 	
@@ -179,7 +180,7 @@ public class GoogleCalendarManager {
 	
 	
 	
-	public Bundle delete(String eventId) throws IOException {
+	public void delete(String eventId) throws UnknownHostException  {
 		// Deletes task from Google Calendar
 		// Returns true if task has successfully been deleted from Google Calendar
 		// Returns false if task has not been successfully deleted from Google Calendar (Eg: When user is offline)
@@ -199,25 +200,29 @@ public class GoogleCalendarManager {
 		//System.out.println(eventId);
 		// First, check user online status.
 		if (!gooCalBackend.isUserOnline()) {
-			return failureNoInternet;
+			throw new UnknownHostException("User is offline"); 
 		}
 		else {
 			// This try catch blocks checks if Google's servers can be read
 			try {
 				service = gooCalBackend.initializeCalendar();
-			} catch (UnknownHostException connectionProblem) {
-				//System.out.println("Unable to connect to Google");
-				return failureUnableToConnectToGoogle;
+			} catch (IOException connectionProblem) {
+				// This catach statement cataches a connetion problem
+				// Exception is only caught when authentication code is valid, yet tbere is a failure in initializing the Google Calendar
+				//return failureUnableToConnectToGoogle;
 			}
-			service.events().delete(calendarId,eventId).execute();
+			
+			gooCalBackend.deleteEventFromCalendar(service, calendarId, eventId);
+			
+			//service.events().delete(calendarId,eventId).execute();
 			System.out.println("Event deleted!");
-			return success;
+			//return success;
 		}
 	}
 
 	
 	
-	public String retrieve(String eventId) throws IOException {
+	public String retrieve(String eventId) {
 		// This is a stub
 		
 		// Retrieves events from Google Calendar
@@ -246,13 +251,18 @@ public class GoogleCalendarManager {
 			// This try catch blocks checks if Google's servers can be read
 			try {
 				service = gooCalBackend.initializeCalendar();
-			} catch (UnknownHostException connectionProblem) {
-				//System.out.println("Unable to connect to Google");
-				return "failureUnableToConnectToGoogle";
+			} catch (IOException connectionProblem) {
+				// This catach statement cataches a connetion problem
+				// Exception is only caught when authentication code is valid, yet tbere is a failure in initializing the Google Calendar
 			}
 			
 			
-			Event event = service.events().get(calendarId, eventId).execute();
+			Event event = null;
+			try {
+				event = service.events().get(calendarId, eventId).execute();
+			} catch (IOException unableToRetrieve) {
+				System.err.println("Unable to retrieve event");
+			}
 			System.out.println(event.getSummary());
 			return event.getSummary();
 		}
