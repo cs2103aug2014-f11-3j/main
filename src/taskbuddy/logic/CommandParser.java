@@ -44,13 +44,16 @@ public class CommandParser {
 		newTask.setStartTime(endDate, startTime);
 		newTask.setEndTime(endDate, endTime);
 		newTask.setGID(nullValue);
-		Bundle response = db.addTask(newTask);
 		Bundle acknowledgement = new Bundle();
-		String result = (String) response.getItem(status);
-		if (result.equals(success)) {
-			acknowledgement = ackFromLogic(success, null, newTask);
-		} else {
-			acknowledgement = ackFromLogic(failure, "Add failure", newTask);
+		try {
+			db.addTask(newTask);
+			acknowledgement.putString(status, success);
+			acknowledgement.putString(message, "added successfully");
+			acknowledgement.putObject(task, newTask);
+		} catch (IOException e){
+			acknowledgement.putString(status, failure);
+			acknowledgement.putString(message, "add command failure");
+			acknowledgement.putObject(task, newTask);
 		}
 		return acknowledgement;
 	}
