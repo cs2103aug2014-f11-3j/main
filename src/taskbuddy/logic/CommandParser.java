@@ -45,17 +45,15 @@ public class CommandParser {
 		newTask.setStartTime(endDate, startTime);
 		newTask.setEndTime(endDate, endTime);
 		newTask.setGID(nullValue);
+		assert newTask != null;
 		Bundle acknowledgement = new Bundle();
 		try {
 			db.addTask(newTask);
-			acknowledgement.putString(status, success);
-			acknowledgement.putString(message, "added successfully");
-			acknowledgement.putObject(task, newTask);
+			acknowledgement = ackFromLogic(success, "added successfully to database", newTask);
 		} catch (IOException e){
-			acknowledgement.putString(status, failure);
-			acknowledgement.putString(message, "add command failure");
-			acknowledgement.putObject(task, newTask);
+			acknowledgement = ackFromLogic(success, "failed to add task to database", newTask);
 		}
+		assert acknowledgement != null;
 		return acknowledgement;
 	}
 
@@ -82,13 +80,15 @@ public class CommandParser {
 		} catch (NoSuchElementException e){
 			ack = ackFromLogic(failure, "no such task", null);
 		}
+		assert ack != null;
 		return ack;
 	}
 
 	Bundle editTask(Bundle extras, Database db) throws IOException {
 		String title = (String) extras.getItem(user_title);
+		//TODO get ID out of bundle
 		Bundle ack = new Bundle();
-		Task toEdit = db.search(title);
+		Task toEdit = db.read(ID);
 		if (toEdit != null) {
 			Bundle editInfo = toEdit.getTaskInfo();
 			editStack.push(editInfo);
