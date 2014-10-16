@@ -85,10 +85,8 @@ public class CommandParser {
 				String oldDesc = (String) editInfo.getItem(user_description);
 				toAdd.setDescription(oldDesc);
 			}
-			if (!newEndTime.equals(nullValue) && !newEndDate.equals(nullValue)) {
+			if (!newEndDate.equals(nullValue)) {
 				toAdd.setEndTime(newEndDate, newEndTime);
-			} else if (!newEndTime.equals(nullValue)) {
-				toAdd.setEndTime(newEndDate);
 			} else {
 				String oldDate = (String) editInfo.getItem(user_endDate);
 				String oldTime = (String) editInfo.getItem(user_endTime);
