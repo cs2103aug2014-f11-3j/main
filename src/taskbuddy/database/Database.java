@@ -90,6 +90,7 @@ public class Database {
      *             when user is offline and task cannot be synced to Google
      *             Calendar
      */
+
     public void addTask(Task task) throws IOException {
         // Always add to database first so that adding to database will execute
         // even if adding to Google Calendar fails.
@@ -104,6 +105,7 @@ public class Database {
                     "Task added to database and log but not Google Calendar. "
                             + e.getMessage(), e);
             // TODO Add add command to command queue
+
         }
     }
 
@@ -152,7 +154,7 @@ public class Database {
                 this.taskLogger.writeToLogFile(tasks);
                 // TODO Call and handle GoogleCalendarManager's delete task
                 // Comment following line if running DatabaseTest
-                // GoogleCalendarManager.delete(task.getGID());
+                googleCal.delete(task.getGID());
             }
         }
         return ack;
