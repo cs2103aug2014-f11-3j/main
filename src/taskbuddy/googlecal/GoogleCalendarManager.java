@@ -4,7 +4,6 @@ import taskbuddy.logic.Task;
 import taskbuddy.logic.Bundle;
 
 import java.io.IOException;
-
 import java.net.UnknownHostException;
 
 import com.google.api.services.calendar.Calendar;
@@ -87,6 +86,12 @@ public class GoogleCalendarManager {
 	
 	
 	public void add(Task task) throws UnknownHostException  {
+		// Assertion Tests
+		assert (task.getGID() != null): "Google ID is missing from this task object";
+		assert (task.getTitle() != null): "Title is missing from this task object";
+		// assert (task.getTaskId() != 0): "Task ID is missing (equals to zero)";  // To be uncommented once database is correctly implemented
+		
+		
 		// Adds task to Google Calendar
 		// Returns true if task has successfully been added to Google Calendar
 		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
@@ -122,6 +127,9 @@ public class GoogleCalendarManager {
 			System.out.println(gooCalEventID);
 			task.setGID(gooCalEventID);			
 			System.out.println("Event added!");
+			
+			Object haha = "hello";
+			assert haha != null;
 		}
 	}
 	
@@ -132,6 +140,10 @@ public class GoogleCalendarManager {
 	
 	
 	public void delete(String eventId) throws UnknownHostException  {
+		// Assert Tests
+		assert (!eventId.equals("Google Calendar ID:")): "Event ID is missing from this task object";
+				
+		
 		// Deletes task from Google Calendar
 		// Returns true if task has successfully been deleted from Google Calendar
 		// Returns false if task has not been successfully deleted from Google Calendar (Eg: When user is offline)
