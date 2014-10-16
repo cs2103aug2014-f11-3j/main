@@ -3,6 +3,7 @@ package taskbuddy.logic;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Stack;
 
 import taskbuddy.database.Database;
@@ -58,14 +59,28 @@ public class CommandParser {
 		return acknowledgement;
 	}
 
-	Bundle deleteTask(String title, Database db) throws IOException {
+	/*Bundle deleteTask(String title, Database db) throws IOException {
 		Bundle ack = new Bundle();
-		Bundle response = db.delete(title);
-		String result = (String) response.getItem(status);
-		if (result.equals(success)) {
-			ack = ackFromLogic(success, null, null);
-		} else {
-			ack = ackFromLogic(failure, "Nonexistent task", null);
+		try {
+			db.delete(title);
+			ack = ackFromLogic(success, "delete successful", null);
+		} catch (IOException e){
+			if (e.equals("multiple titles")){
+				//TODO user prompt to UI
+			} else {
+				ack = ackFromLogic(failure, "no such task", null);
+			}
+		}
+		return ack;
+	}*/
+	
+	Bundle deleteTask(int ID, Database db) throws IOException, IllegalAccessException, NoSuchElementException {
+		Bundle ack = new Bundle();
+		try {
+			db.delete(ID);
+			ack = ackFromLogic(success, "delete successful", null);
+		} catch (NoSuchElementException e){
+			ack = ackFromLogic(failure, "no such task", null);
 		}
 		return ack;
 	}
