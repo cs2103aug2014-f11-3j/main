@@ -28,68 +28,16 @@ public class GoogleCalendarManager {
 	// Strings which are currently hardcoded
     private static final String CALENDAR_ID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
     private static final String USER_OFFLINE_ERROR = "User is offline";
+    private static final String MISSING_TITLE_ERROR = "Title is missing from this task object";
+    private static final String MISSING_GOOGLE_ID_ERROR = "Google ID is missing from this task object";
+    private static final String MISSING_TASK_ID_ERROR = "Task ID is missing (equals to zero)";
     
-    
-    
-    
-//	public static void main(String[] args) throws IOException {
-//		Task task1 = new Task ("Task number 1");
-//		Task task2 = new Task ("Task number 2");
-//		Task task3 = new Task ("Task number 3");
-//		Task task4 = new Task ("Task number 4");
-//		Task task5 = new Task ("Task number 5");
-//		Task task6 = new Task ("Task number 6");
-//		
-//		task1.setStartTime("padding value");
-//		task1.setEndTime("padding value", "padding value");
-//		
-//		task2.setStartTime("padding value");
-//		task2.setEndTime("padding value", "padding value");
-//		
-//		task3.setStartTime("padding value");
-//		task3.setEndTime("padding value", "padding value");
-//	
-//		task4.setStartTime("padding value");
-//		task4.setEndTime("padding value", "padding value");
-//		
-//		task5.setStartTime("padding value");
-//		task5.setEndTime("padding value", "padding value");
-//		
-//		task6.setStartTime("padding value");
-//		task6.setEndTime("padding value", "padding value");
-//		
-//		
-//		
-//		add(task1);
-//		System.out.println("Executing add:"); // For debugging
-//		add(task2);
-//		System.out.println("Executing add:"); // For debugging
-//		
-//		add(task3);
-//		System.out.println("Executing add:"); // For debugging
-//		add(task4);
-//		System.out.println("Executing add:"); // For debugging
-//		
-//		add(task5);
-//		System.out.println("Executing add:"); // For debugging
-//		add(task6);
-//		System.out.println("Executing add:"); // For debugging
-//		
-//		delete(task1.getGID());
-//		System.out.println("Executing delete:"); // For debugging
-//		delete(task5.getGID());
-//		System.out.println("Executing delete:"); // For debugging
-//		
-//		System.out.println("Completed");
-//	}
-	
-	
-	
+   
 	public void add(Task task) throws UnknownHostException  {
 		// Assertion Tests
-		assert (task.getGID() != null): "Google ID is missing from this task object";
-		assert (task.getTitle() != null): "Title is missing from this task object";
-		// assert (task.getTaskId() != 0): "Task ID is missing (equals to zero)";  // To be uncommented once database is correctly implemented
+		//assert (task.getGID() != null): MISSING_GOOGLE_ID_ERROR;
+		assert (task.getTitle() != null): MISSING_TITLE_ERROR;
+		// assert (task.getTaskId() != 0): MISSING_TASK_ID_ERROR;  // To be uncommented once database is correctly implemented
 		
 		
 		// Adds task to Google Calendar
@@ -141,7 +89,7 @@ public class GoogleCalendarManager {
 	
 	public void delete(String eventId) throws UnknownHostException  {
 		// Assert Tests
-		assert (!eventId.equals("Google Calendar ID:")): "Event ID is missing from this task object";
+		assert (!eventId.equals("Google Calendar ID:")): MISSING_GOOGLE_ID_ERROR;
 				
 		
 		// Deletes task from Google Calendar
@@ -227,40 +175,95 @@ public class GoogleCalendarManager {
 	
 
 	
-	private String getSummary(Task task) {
+	public String getSummary(Task task) {
 		//System.out.println("Executing getSummary:"); // For debugging
 		return task.getTitle();
 	}
 	
 	
-	private String getStartDate(Task task) throws NullPointerException {
+	public String getStartDate(Task task) throws NullPointerException {
 		//System.out.println("Executing getStartDate:"); // For debugging
 		//System.out.println(task.displayStartDate());
 		return task.displayStartDate();
 	}
 	
-	private String getStartTime(Task task) throws NullPointerException {
+	public String getStartTime(Task task) throws NullPointerException {
 		//System.out.println("Executing getStartTime:"); // For debugging
 		//System.out.println(task.displayStartTime());
 		return task.displayStartTime();
 	}
 	
 	
-	private String getEndDate(Task task) {
+	public String getEndDate(Task task) {
 		//System.out.println("Executing getEndDate:"); // For debugging
 		//System.out.println(task.displayEndDate());
 		return task.displayEndDate();
 	}
 	
 	
-	private String getEndTime(Task task) {
+	public String getEndTime(Task task) {
 		//System.out.println("Executing getEndTime:"); // For debugging
 		//System.out.println(task.displayEndTime());
 		return task.displayEndTime();
 		
 	}
 	
-
+	
+	/*
+	public static void main(String[] args) throws IOException {
+		java.util.Calendar calendarInstance = java.util.Calendar.getInstance();
+		GoogleCalendarManager goocal = new GoogleCalendarManager ();
+		
+		Task task1 = new Task ("Task number 1");
+		Task task2 = new Task ("Task number 2");
+		Task task3 = new Task ("Task number 3");
+		Task task4 = new Task ("Task number 4");
+		Task task5 = new Task ("Task number 5");
+		Task task6 = new Task ("Task number 6");
+		
+		task1.setStartTime(calendarInstance);
+		task1.setEndTime("padding value", "padding value");
+		
+		task2.setStartTime(calendarInstance);
+		task2.setEndTime("padding value", "padding value");
+		
+		task3.setStartTime(calendarInstance);
+		task3.setEndTime("padding value", "padding value");
+	
+		task4.setStartTime(calendarInstance);
+		task4.setEndTime("padding value", "padding value");
+		
+		task5.setStartTime(calendarInstance);
+		task5.setEndTime("padding value", "padding value");
+		
+		task6.setStartTime(calendarInstance);
+		task6.setEndTime("padding value", "padding value");
+		
+		
+		
+		goocal.add(task1);
+		System.out.println("Executing add:"); // For debugging
+		goocal.add(task2);
+		System.out.println("Executing add:"); // For debugging
+		
+		goocal.add(task3);
+		System.out.println("Executing add:"); // For debugging
+		goocal.add(task4);
+		System.out.println("Executing add:"); // For debugging
+		
+		goocal.add(task5);
+		System.out.println("Executing add:"); // For debugging
+		goocal.add(task6);
+		System.out.println("Executing add:"); // For debugging
+		
+		goocal.delete(task1.getGID());
+		System.out.println("Executing delete:"); // For debugging
+		goocal.delete(task5.getGID());
+		System.out.println("Executing delete:"); // For debugging
+		
+		System.out.println("Completed");
+	}
+	*/
 }
 
 // https://developers.google.com/resources/api-libraries/documentation/calendar/v3/java/latest/com/google/api/services/calendar/model/EventDateTime.html
