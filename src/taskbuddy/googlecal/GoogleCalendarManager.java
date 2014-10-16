@@ -277,24 +277,29 @@ public class GoogleCalendarManager {
 	
 	private String getStartDate(Task task) throws NullPointerException {
 		//System.out.println("Executing getStartDate:"); // For debugging
+		//System.out.println(task.displayStartDate());
 		return task.displayStartDate();
 	}
 	
 	private String getStartTime(Task task) throws NullPointerException {
 		//System.out.println("Executing getStartTime:"); // For debugging
+		//System.out.println(task.displayStartTime());
 		return task.displayStartTime();
 	}
 	
 	
 	private String getEndDate(Task task) {
 		//System.out.println("Executing getEndDate:"); // For debugging
+		//System.out.println(task.displayEndDate());
 		return task.displayEndDate();
 	}
 	
 	
 	private String getEndTime(Task task) {
 		//System.out.println("Executing getEndTime:"); // For debugging
+		//System.out.println(task.displayEndTime());
 		return task.displayEndTime();
+		
 	}
 	
 

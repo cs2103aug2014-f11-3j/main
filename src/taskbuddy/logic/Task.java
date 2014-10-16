@@ -426,7 +426,7 @@ public class Task {
      * 
      */
     public String displayEndDate() {
-        return this.displayDate(this.getStartTime());
+        return this.displayDate(this.getEndTime());
     }
 
     /**
@@ -437,7 +437,7 @@ public class Task {
      * 
      */
     public String displayEndTime() {
-        return this.displayTime(this.getStartTime());
+        return this.displayTime(this.getEndTime());
     }
 
     /**
