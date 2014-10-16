@@ -120,7 +120,7 @@ public class Database {
             ack = this.ackFromDatabase(SUCCESS, SUCCESS_ADD);
             // TODO Call and handle GoogleCalendarManager's add method
             // Comment following line if running DatabaseTest
-            GoogleCalendarManager.add(task);
+            googleCal.add(task);
             this.taskLogger.writeToLogFile(tasks);
         } else {
             ack = this.ackFromDatabase(FAILURE, FAIL_ADD);
@@ -195,7 +195,7 @@ public class Database {
                 this.taskLogger.writeToLogFile(tasks);
                 // TODO Call and handle GoogleCalendarManager's delete task
                 // Comment following line if running DatabaseTest
-                GoogleCalendarManager.delete(task.getGID());
+                googleCal.delete(task.getGID());
             }
         }
         return ack;
