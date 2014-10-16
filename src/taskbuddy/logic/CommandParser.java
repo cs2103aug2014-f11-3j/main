@@ -3,6 +3,7 @@ package taskbuddy.logic;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Stack;
 
 import taskbuddy.database.Database;
@@ -44,33 +45,50 @@ public class CommandParser {
 		newTask.setStartTime(endDate, startTime);
 		newTask.setEndTime(endDate, endTime);
 		newTask.setGID(nullValue);
-		Bundle response = db.addTask(newTask);
+		assert newTask != null;
 		Bundle acknowledgement = new Bundle();
-		String result = (String) response.getItem(status);
-		if (result.equals(success)) {
-			acknowledgement = ackFromLogic(success, null, newTask);
-		} else {
-			acknowledgement = ackFromLogic(failure, "Add failure", newTask);
+		try {
+			db.addTask(newTask);
+			acknowledgement = ackFromLogic(success, "added successfully to database", newTask);
+		} catch (IOException e){
+			acknowledgement = ackFromLogic(success, "failed to add task to database", newTask);
 		}
+		assert acknowledgement != null;
 		return acknowledgement;
 	}
 
-	Bundle deleteTask(String title, Database db) throws IOException {
+	/*Bundle deleteTask(String title, Database db) throws IOException {
 		Bundle ack = new Bundle();
-		Bundle response = db.delete(title);
-		String result = (String) response.getItem(status);
-		if (result.equals(success)) {
-			ack = ackFromLogic(success, null, null);
-		} else {
-			ack = ackFromLogic(failure, "Nonexistent task", null);
+		try {
+			db.delete(title);
+			ack = ackFromLogic(success, "delete successful", null);
+		} catch (IOException e){
+			if (e.equals("multiple titles")){
+				//TODO user prompt to UI
+			} else {
+				ack = ackFromLogic(failure, "no such task", null);
+			}
 		}
+		return ack;
+	}*/
+	
+	Bundle deleteTask(int ID, Database db) throws IOException, IllegalAccessException, NoSuchElementException {
+		Bundle ack = new Bundle();
+		try {
+			db.delete(ID);
+			ack = ackFromLogic(success, "delete successful", null);
+		} catch (NoSuchElementException e){
+			ack = ackFromLogic(failure, "no such task", null);
+		}
+		assert ack != null;
 		return ack;
 	}
 
 	Bundle editTask(Bundle extras, Database db) throws IOException {
 		String title = (String) extras.getItem(user_title);
+		//TODO get ID out of bundle
 		Bundle ack = new Bundle();
-		Task toEdit = db.search(title);
+		Task toEdit = db.read(ID);
 		if (toEdit != null) {
 			Bundle editInfo = toEdit.getTaskInfo();
 			editStack.push(editInfo);
