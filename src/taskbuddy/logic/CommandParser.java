@@ -45,6 +45,7 @@ public class CommandParser {
 		newTask.setEndTime(endDate, endTime);
 		newTask.setGID(nullValue);
 		Bundle response = db.addTask(newTask);
+		db.addTask(newTask);
 		Bundle acknowledgement = new Bundle();
 		String result = (String) response.getItem(status);
 		if (result.equals(success)) {

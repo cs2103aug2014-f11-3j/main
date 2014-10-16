@@ -3,47 +3,12 @@ package taskbuddy.googlecal;
 import taskbuddy.logic.Task;
 import taskbuddy.logic.Bundle;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.UnknownHostException;
-import java.net.Socket;
-//import java.io.StringWriter;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-//import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TimeZone;
 
-import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
-import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
-import com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.TokenResponse;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.http.HttpRequestInitializer;
-//import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-//import com.google.api.client.json.JsonGenerator;
-import com.google.api.client.json.jackson.JacksonFactory;
-import com.google.api.client.util.DateTime;
+import java.net.UnknownHostException;
 
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.CalendarList;
-//import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventDateTime;
-//import com.google.api.services.calendar.model.Events;
-
 
 
 /**
@@ -63,7 +28,7 @@ public class GoogleCalendarManager {
 
 	// Strings which are currently hardcoded
     private static final String CALENDAR_ID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
-    private static final String USER_ID = "ipeech";
+    private static final String USER_OFFLINE_ERROR = "User is offline";
     
     
     
@@ -130,20 +95,12 @@ public class GoogleCalendarManager {
 		String gooCalEventID;
 		GooCalBackend gooCalBackend = new GooCalBackend(); 
 		
-		// Bundle Objects
-		Bundle success = new Bundle();
-		Bundle failureNoInternet = new Bundle();
-		Bundle failureUnableToConnectToGoogle = new Bundle();
-		Bundle failureEventFailedToCreate = new Bundle();
-		success.putString("Success", "Event has been successfully added to Google Calendar.");
-		failureNoInternet.putString("Failure", "User is offline.");
-		failureUnableToConnectToGoogle.putString("Failure", "Unable to connect to Google.");
-		failureEventFailedToCreate.putString("Failure", "Event failed to be created.");
+
 		
 		
 		// First, check user online status.
 		if (!gooCalBackend.isUserOnline()) {
-			throw new UnknownHostException("User is offline"); 
+			throw new UnknownHostException(USER_OFFLINE_ERROR); 
 		}
 		else {
 			// This try catch blocks checks if Google's servers can be read
@@ -163,14 +120,8 @@ public class GoogleCalendarManager {
 			
 			gooCalEventID = gooCalBackend.addEventToCalendar(service, eventSummary, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
 			System.out.println(gooCalEventID);
-			task.setGID(gooCalEventID);
-			if (gooCalEventID.equals("")) {
-				//return failureEventFailedToCreate;
-			}
-			
-			
+			task.setGID(gooCalEventID);			
 			System.out.println("Event added!");
-			//return success;
 		}
 	}
 	
@@ -186,21 +137,13 @@ public class GoogleCalendarManager {
 		// Returns false if task has not been successfully deleted from Google Calendar (Eg: When user is offline)
 		GooCalBackend gooCalBackend = new GooCalBackend(); 
 		
-		// Bundle Objects
-		Bundle success = new Bundle();
-		Bundle failureNoInternet = new Bundle();
-		Bundle failureUnableToConnectToGoogle = new Bundle();
-		success.putString("Success", "Event has been successfully deleted from Google Calendar.");
-		failureNoInternet.putString("Failure", "User is offline.");
-		failureUnableToConnectToGoogle.putString("Failure", "Unable to connect to Google.");
-
 		
 		Calendar service = null;
-		String calendarId = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
+		String calendarId = CALENDAR_ID;
 		//System.out.println(eventId);
 		// First, check user online status.
 		if (!gooCalBackend.isUserOnline()) {
-			throw new UnknownHostException("User is offline"); 
+			throw new UnknownHostException(USER_OFFLINE_ERROR); 
 		}
 		else {
 			// This try catch blocks checks if Google's servers can be read
@@ -230,17 +173,10 @@ public class GoogleCalendarManager {
 		
 		GooCalBackend gooCalBackend = new GooCalBackend(); 
 		
-		// Bundle Objects
-		Bundle success = new Bundle();
-		Bundle failureNoInternet = new Bundle();
-		Bundle failureUnableToConnectToGoogle = new Bundle();
-		success.putString("Success", "Event has been successfully deleted from Google Calendar.");
-		failureNoInternet.putString("Failure", "User is offline.");
-		failureUnableToConnectToGoogle.putString("Failure", "Unable to connect to Google.");
 
 		
 		Calendar service = null;
-		String calendarId = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
+		String calendarId = CALENDAR_ID;
 		//System.out.println(eventId);
 		// First, check user online status.
 		

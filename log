@@ -1,4 +1,4 @@
-19 tasks:
+20 tasks:
 Task ID: 0 | Title: test_task1 | Description: test_task1 | Start: 16-10-2014 at 17:00 | End: 16-10-2014 at 18:00 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: i73qdd9es4k4nl8o7r1b48u7g8
 Task ID: 0 | Title: test_task1 | Description: test_task3 | Start: 16-10-2014 at 17:00 | End: 16-10-2014 at 18:00 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: nb7jgknik1iuj6iqroqolimqog
 Task ID: 0 | Title: deadline_task | Description: deadline_task | Start: 16-10-2014 at 17:22 | End: 16-10-2014 at 19:00 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: lamilp41ul8pna48fekf5ej4s0
@@ -18,3 +18,4 @@ Task ID: 0 | Title: tasktask_1 | Description: nil | Start: 16-10-2014 at 19:00 |
 Task ID: 0 | Title: tasktask_2 | Description: nil | Start: 16-10-2014 at 19:00 | End: 16-10-2014 at 20:00 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: ledot1mvl34e235mbpokko3rbg
 Task ID: 0 | Title: lalalalala1 | Description: nil | Start: 16-10-2014 at 19:00 | End: 16-10-2014 at 20:00 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: 4pitmom54keuvqohjdpo7cpac8
 Task ID: 0 | Title: lalalalala2 | Description: nil | Start: 16-10-2014 at 19:00 | End: 16-10-2014 at 20:00 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: vn6nph2grcmbmpsgkto0agffic
+Task ID: 0 | Title: HAHA1 | Description: nil | Start: 16-10-2014 at 20:00 | End: 16-10-2014 at 21:00 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: l5n2rivph3ib5viiu9vl22r81o

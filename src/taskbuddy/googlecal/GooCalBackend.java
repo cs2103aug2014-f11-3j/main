@@ -16,7 +16,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TimeZone;
 
-import taskbuddy.logic.Task;
+
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
@@ -40,7 +40,7 @@ public class GooCalBackend {
 
 	
 	// Strings which are currently hardcoded
-    private static final String CALENDAR_ID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
+
     private static final String USER_ID = "ipeech";
     
     
