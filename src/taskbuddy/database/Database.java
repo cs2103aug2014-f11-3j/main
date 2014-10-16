@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 import taskbuddy.googlecal.GoogleCalendarManager;
 import taskbuddy.logic.Bundle;
@@ -26,7 +27,10 @@ public class Database {
 
     static final String LOG_NAME = "log";
 
-    private static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = "Task added to database and log but not Google Calendar. ";
+    private static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = "Changes made to database and task log but not Google Calendar. ";
+    private static final String ERR_NO_TASKS = "Cannot read from empty list of tasks.";
+    private static final String ERR_NO_SUCH_TASK_ID = "No such task ID";
+
     private static final String ERR_MSG_SEARCH_STRING_EMPTY = "Search string cannot be empty.";
 
     ArrayList<Task> tasks;
@@ -89,100 +93,125 @@ public class Database {
      * 
      * @param task
      *            task to be added
-     * 
      * @throws IOException
+     *             when there are problems writing to log file
+     * @throws UnknownHostException
      *             when user is offline and task cannot be synced to Google
      *             Calendar
      */
-
-    public void addTask(Task task) throws IOException {
-        // Always add to database first so that adding to database will execute
-        // even if adding to Google Calendar fails.
+    public void addTask(Task task) throws IOException, UnknownHostException {
         this.tasks.add(task);
         this.setTaskIds();
         this.taskLogger.writeToLogFile(this.getTasks());
         try {
             googleCal.add(task);
         } catch (UnknownHostException e) {
-            // TODO Have to wait for GoogleCalendarManager class to be
-            // implemented to see what kind of exceptions are implemented.
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
             // TODO Add add command to command queue
-
         }
     }
 
-//    /**
-//     * Searches for and returns a task based on its task ID from an empty or
-//     * non-empty stored list of tasks.
-//     * 
-//     * @param taskId
-//     *            title of task to retrieve
-//     * @return task whose title matches search string, null if stored list of
-//     *         task is empty or if no title match found.
-//     */
-//    public Task read(int taskId) {
-//        if (this.getTasks().isEmpty()) {
-//            return null;
-//        } else {
-//            return search(taskId);
-//        }
-//    }
-//
-//    /**
-//     * Searches for and deletes a task based on its title from an empty or
-//     * non-empty stored list of tasks. It is assumed that all task titles are
-//     * unique ignoring case. Deletion of tasks from Google Calendar is based on
-//     * Google Calendar ID, not title.
-//     *
-//     * @param title
-//     *            title of task to be deleted
-//     * @return true if task is deleted, false if list of tasks is empty or if no
-//     *         title match found
-//     * @throws IOException
-//     *             when user is offline
-//     */
-//    public Bundle delete(String title) throws IOException {
-//        if (this.getTasks().isEmpty()) {
-//            ack = this.ackFromDatabase(FAILURE, FAIL_DELETE_NO_TASKS);
-//        } else {
-//            Task task = new Task();
-//            if ((task = this.search(title)) == null) {
-//                ack = this
-//                        .ackFromDatabase(FAILURE, FAIL_DELETE_TITLE_NOT_FOUND);
-//            } else {
-//                this.tasks.remove(task);
-//                ack = this.ackFromDatabase(SUCCESS, SUCCESS_DELETE);
-//                this.taskLogger.writeToLogFile(tasks);
-//                // TODO Call and handle GoogleCalendarManager's delete task
-//                // Comment following line if running DatabaseTest
-//                googleCal.delete(task.getGID());
-//            }
-//        }
-//        return ack;
-//    }
-//
-//    // TODO Pass its test
-//    /**
-//     * Searches for and returns a task based on its title from a non-empty
-//     * stored list of tasks. It is assumed that all task titles are unique
-//     * ignoring case.
-//     * 
-//     * @param title
-//     *            of task to be searched
-//     * @return task whose title matches search string, null if no match found
-//     */
-//    public Task search(String title) {
-//        if (title.equals(EMPTY_STRING)) {
-//            throw new IllegalArgumentException(ERR_MSG_SEARCH_STRING_EMPTY);
-//        }
-//        for (Task aTask : this.getTasks()) {
-//            if (aTask.getTitle().equalsIgnoreCase(title)) {
-//                return aTask;
-//            }
-//        }
-//        return null;
-//    }
+    /**
+     * Finds the task whose task ID matches a given task ID
+     * 
+     * @param taskId
+     *            task ID to search
+     * @return task with matching task ID
+     */
+    public Task findMatchingTask(int taskId) {
+        Task result = null;
+        for (Task aTask : this.getTasks()) {
+            if (aTask.getTaskId() == taskId) {
+                result = aTask;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Searches for and returns a task based on its task ID from an empty or
+     * non-empty stored list of tasks.
+     * 
+     * @param taskId
+     *            title of task to retrieve
+     * @return task whose title matches search string, null if stored list of
+     *         task is empty or if no title match found.
+     * @throws IllegalAccessException
+     *             when this method tries to read from an empty list of tasks
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to the given
+     *             task ID.
+     * 
+     */
+    public Task read(int taskId) throws IllegalAccessException,
+            NoSuchElementException {
+        if (this.getTasks().isEmpty()) {
+            throw new IllegalAccessException(ERR_NO_TASKS);
+        }
+
+        assert !this.getTasks().isEmpty();
+        Task result = findMatchingTask(taskId);
+        if (result == null) {
+            throw new NoSuchElementException(ERR_NO_SUCH_TASK_ID);
+        }
+
+        assert result != null;
+        return result;
+    }
+
+    /**
+     * Deletes a task from temporary and logged memory, as well as Google
+     * Calendar, based on its task ID from an empty or non-empty stored list of
+     * tasks.
+     *
+     * @param taskId
+     *            task ID of task to be deleted
+     * @throws IllegalAccessException
+     *             when list of tasks is empty and there is no task for this
+     *             method to delete
+     * @throws NoSuchElementException
+     *             when no matching task to given task ID is found
+     * @throws IOException
+     */
+    public void delete(int taskId) throws IllegalAccessException,
+            NoSuchElementException, IOException {
+        Task taskToDelete = this.read(taskId);
+
+        assert !this.getTasks().isEmpty() && taskToDelete != null;
+        this.tasks.remove(taskToDelete);
+        this.setTaskIds();
+        this.taskLogger.writeToLogFile(this.getTasks());
+        try {
+            googleCal.delete(taskToDelete.getGID());
+        } catch (UnknownHostException e) {
+            throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
+                    + e.getMessage());
+            // TODO Add delete command to command queue
+        }
+
+    }
+    //
+    // // TODO Pass its test
+    // /**
+    // * Searches for and returns a task based on its title from a non-empty
+    // * stored list of tasks. It is assumed that all task titles are unique
+    // * ignoring case.
+    // *
+    // * @param title
+    // * of task to be searched
+    // * @return task whose title matches search string, null if no match found
+    // */
+    // public Task search(String title) {
+    // if (title.equals(EMPTY_STRING)) {
+    // throw new IllegalArgumentException(ERR_MSG_SEARCH_STRING_EMPTY);
+    // }
+    // for (Task aTask : this.getTasks()) {
+    // if (aTask.getTitle().equalsIgnoreCase(title)) {
+    // return aTask;
+    // }
+    // }
+    // return null;
+    // }
 
 }

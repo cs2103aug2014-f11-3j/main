@@ -9,5 +9,10 @@ import taskbuddy.logic.Task;
 // injection in testing the Database class
 public class GoogleCalendarManagerStub extends GoogleCalendarManager {
     public void add(Task task) throws UnknownHostException {
+        // Stub for adding tasks
+    }
+    
+    public void delete(String eventId) throws UnknownHostException {
+        // Stub for adding tasks
     }
 }

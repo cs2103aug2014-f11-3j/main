@@ -25,6 +25,10 @@ public class DatabaseTest {
 
     private static final String EMPTY_STRING = "";
 
+    private static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = "Changes made to database and task log but not Google Calendar. ";
+    private static final String ERR_NO_TASKS = "Cannot read from empty list of tasks.";
+    private static final String ERR_NO_SUCH_TASK_ID = "No such task ID";
+
     private static final String ERR_MSG_SEARCH_STRING_EMPTY = "Search string cannot be empty.";
 
     Database database;
@@ -125,14 +129,15 @@ public class DatabaseTest {
         setup();
         createTask();
 
-        // Check if task is added to database
+        // Test for task addition to database
         database.addTask(task);
         assertEquals("Number of tasks did not increase from 0 to 1 after task "
                 + "addition", 1, database.getTasks().size());
+        task.setTaskId(0);
         assertTrue("Task not added properly", database.getTasks().get(0)
                 .equals(task));
 
-        // Check if task is added to task log
+        // Test for task addition to task log
         String expected;
         String actual;
         ArrayList<Task> readTasks = database.taskLogger.readTasks();
@@ -142,6 +147,82 @@ public class DatabaseTest {
         expected = database.getTasks().get(0).displayTask();
         assertTrue("Task not logged correctly in log file.",
                 actual.equals(expected));
+
+        deleteLog();
+    }
+
+    @Test
+    public void testRead() throws Exception {
+        setup();
+        
+        // Test for reading from empty task list
+        try {
+            database.read(0);
+        } catch (Exception e) {
+            assertTrue("Empty list exception not thrown.", e.getMessage()
+                    .equals(ERR_NO_TASKS));
+        }
+
+        // Test if task is read correctly
+        createTask();
+        database.addTask(task);
+        assertTrue("First task not read correctly from given task ID.",
+                database.read(0).equals(task));
+        createAnotherTask();
+        database.addTask(task);
+        assertTrue("Second task not read correctly from given task ID.",
+                database.read(1).equals(task));
+
+        // Test for invalid task ID
+        try {
+            database.read(3);
+        } catch (Exception e) {
+            assertTrue("No such task ID exception not thrown.", e.getMessage()
+                    .equals(ERR_NO_SUCH_TASK_ID));
+        }
+
+        deleteLog();
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+        setup();
+
+        // Test for deletion from empty task list
+        try {
+            database.delete(0);
+        } catch (Exception e) {
+            assertTrue("Empty list exception not thrown.", e.getMessage()
+                    .equals(ERR_NO_TASKS));
+        }
+
+        // Test if task is deleted from database
+        addTasks();
+        assertEquals(database.getTasks().size(), 2);
+        database.delete(0);
+        assertEquals(database.getTasks().size(), 1);
+        task.setTaskId(0);
+        assertTrue("Remaining task after deletion is not correct.", database
+                .getTasks().get(0).equals(task));
+
+        // Test if task is deleted from task log
+        String expected;
+        String actual;
+        ArrayList<Task> readTasks = database.taskLogger.readTasks();
+        assertEquals("Number of tasks in log did not decrease to one ", 1,
+                readTasks.size());
+        actual = readTasks.get(0).displayTask();
+        expected = database.getTasks().get(0).displayTask();
+        assertTrue("Task deletion not correctly logged.",
+                actual.equals(expected));
+
+        // Test for invalid task ID
+        try {
+            database.delete(3);
+        } catch (Exception e) {
+            assertTrue("No such task ID exception not thrown.", e.getMessage()
+                    .equals(ERR_NO_SUCH_TASK_ID));
+        }
 
         deleteLog();
     }
@@ -164,86 +245,9 @@ public class DatabaseTest {
     // deleteLog();
     // }
     //
-    // @Test
-    // public void testRead() throws Exception {
-    // setup();
-    // createTask();
+
     //
-    // assertNull(database.read(title));
-    //
-    // // Test for normal task retrieval
-    // database.addTask(task);
-    // Task readTask = database.read(title);
-    // assertTrue("Task titled 'Title' not retrieved.", readTask.equals(task));
-    //
-    // // Confirm that task is passed by reference
-    // String description = "description";
-    // readTask.setDescription(description);
-    // assertTrue(database.read(title).getDescription().equals(description));
-    //
-    // // Test for retrieval of task with invalid title
-    // title = "Untitled";
-    // assertNull(database.read(title));
-    //
-    // task.setTitle(title);
-    // database.addTask(task);
-    // assertTrue("Task titled 'Untitled' not retrieved.", database
-    // .read(title).equals(task));
-    //
-    // deleteLog();
-    // }
-    //
-    // @Test
-    // public void testDelete() throws Exception {
-    // Bundle ack;
-    // ArrayList<Task> readTasks;
-    // String expected;
-    // String actual;
-    // setup();
-    // createTask();
-    //
-    // ack = database.delete(title);
-    // assertTrue("Failure status for deletion not returned even though "
-    // + "there are no tasks to delete.",
-    // ack.getItem(STATUS).equals(FAILURE));
-    // assertTrue("Failure message for deletion not returned even though "
-    // + "there are no tasks to delete.",
-    // ack.getItem(MESSAGE).equals(FAIL_DELETE_NO_TASKS));
-    //
-    // // Number of tasks is now one.
-    // database.addTask(task);
-    //
-    // ack = database.delete("Untitled");
-    // assertTrue(
-    // "Failure status for deletion not returned for no title match.",
-    // ack.getItem(STATUS).equals(FAILURE));
-    // assertTrue(
-    // "Failure message for deletion not returned for no title match.",
-    // ack.getItem(MESSAGE).equals(FAIL_DELETE_TITLE_NOT_FOUND));
-    // assertEquals("Number of tasks is not one even no task was deleted.", 1,
-    // database.getTasks().size());
-    // readTasks = database.taskLogger.readTasks();
-    // assertEquals("Number of tasks in log is not one.", 1, readTasks.size());
-    // actual = readTasks.get(0).displayTask();
-    // expected = database.getTasks().get(0).displayTask();
-    // assertTrue("Task in log is not the same as that of in arraylist.",
-    // actual.equals(expected));
-    //
-    // ack = database.delete(title);
-    // assertTrue(
-    // "Success status for deletion not returned for valid deletion.",
-    // ack.getItem(STATUS).equals(SUCCESS));
-    // assertTrue(
-    // "Success message for deletion not returned for valid deletion.",
-    // ack.getItem(MESSAGE).equals(SUCCESS_DELETE));
-    // assertTrue("List of tasks is not empty after deletion.", database
-    // .getTasks().isEmpty());
-    // readTasks = database.taskLogger.readTasks();
-    // assertEquals("Number of tasks in log is not " + "zero.", 0,
-    // readTasks.size());
-    //
-    // deleteLog();
-    // }
+
     //
 
     // @Test
