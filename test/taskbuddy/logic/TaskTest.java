@@ -8,16 +8,18 @@ import java.util.GregorianCalendar;
 import org.junit.Test;
 
 public class TaskTest {
-    private static final String DELIMITER = " | ";
-    private static final String TASK_ID = "Task ID: ";
-    private static final String TITLE = "Title: ";
-    private static final String DESCRIPTION = "Description: ";
-    private static final String START = "Start: ";
-    private static final String END = "End: ";
-    private static final String PRIORITY = "Priority: ";
-    private static final String IS_COMPLETE = "Completed: ";
-    private static final String IS_FLOATING = "Floating task: ";
-    private static final String GOOGLE_CALENDAR_ID = "Google Calendar ID: ";
+    // @formatter:off
+    private static final String DELIMITER           = " | ";
+    private static final String TASK_ID             = "Task ID: ";
+    private static final String TITLE               = "Title: ";
+    private static final String DESCRIPTION         = "Description: ";
+    private static final String START               = "Start: ";
+    private static final String END                 = "End: ";
+    private static final String PRIORITY            = "Priority: ";
+    private static final String IS_COMPLETE         = "Completed: ";
+    private static final String IS_FLOATING         = "Floating task: ";
+    private static final String GOOGLE_CALENDAR_ID  = "Google Calendar ID: ";
+    // @formatter:on
 
     int year;
     int month;

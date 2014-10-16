@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import org.junit.Test;
 
 import taskbuddy.googlecal.GoogleCalendarManager;
-import taskbuddy.logic.Bundle;
 import taskbuddy.logic.Task;
 
 /**
@@ -25,11 +24,14 @@ public class DatabaseTest {
 
     private static final String EMPTY_STRING = "";
 
-    private static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = "Changes made to database and task log but not Google Calendar. ";
-    private static final String ERR_NO_TASKS = "Cannot read from empty list of tasks.";
-    private static final String ERR_NO_SUCH_TASK_ID = "No such task ID";
-
-    private static final String ERR_MSG_SEARCH_STRING_EMPTY = "Search string cannot be empty.";
+    // @formatter:off
+    private static final String ERR_NO_TASKS = 
+            "Cannot read from empty list of tasks.";
+    private static final String ERR_NO_SUCH_TASK_ID = 
+            "No such task ID";
+    private static final String ERR_MSG_SEARCH_STRING_EMPTY = 
+            "Search string cannot be empty.";
+    // @formatter:on
 
     Database database;
     Task task;
@@ -154,7 +156,7 @@ public class DatabaseTest {
     @Test
     public void testRead() throws Exception {
         setup();
-        
+
         // Test for reading from empty task list
         try {
             database.read(0);
@@ -191,6 +193,7 @@ public class DatabaseTest {
         // Test for deletion from empty task list
         try {
             database.delete(0);
+            fail("Should have thrown empty list exception.");
         } catch (Exception e) {
             assertTrue("Empty list exception not thrown.", e.getMessage()
                     .equals(ERR_NO_TASKS));
@@ -219,6 +222,7 @@ public class DatabaseTest {
         // Test for invalid task ID
         try {
             database.delete(3);
+            fail("Should have thrown no such task ID exception.");
         } catch (Exception e) {
             assertTrue("No such task ID exception not thrown.", e.getMessage()
                     .equals(ERR_NO_SUCH_TASK_ID));
@@ -227,79 +231,107 @@ public class DatabaseTest {
         deleteLog();
     }
 
-    // // TODO Complete and pass this test
-    // @Test
-    // public void testSearch() throws Exception {
-    // setup();
-    // addTasks();
-    // try {
-    // database.search(EMPTY_STRING);
-    // fail("Should have thrown exception when search string is empty.");
-    // } catch (IllegalArgumentException e) {
-    // assertEquals(
-    // "Wrong error message shown when search string is empty "
-    // + "string.", e.getMessage(),
-    // ERR_MSG_SEARCH_STRING_EMPTY);
-    // }
-    //
-    // deleteLog();
-    // }
-    //
+    // TODO Complete and pass this test
+    @Test
+    public void testSearch() throws Exception {
+        String searchString;
+        ArrayList<Task> searchResults;
+        setup();
 
-    //
+        // Test for empty search string
+        try {
+            database.search(EMPTY_STRING);
+            fail("Should have thrown exception when search string is empty.");
+        } catch (IllegalArgumentException e) {
+            assertEquals(
+                    "Wrong error message shown when search string is empty "
+                            + "string.", e.getMessage(),
+                    ERR_MSG_SEARCH_STRING_EMPTY);
+        }
 
-    //
+        // First alphabet 'T'/'t' left out deliberately
+        searchString = "itle";
+        // Test for empty task list
+        try {
+            database.search(searchString);
+            fail("Should have thrown empty list exception.");
+        } catch (Exception e) {
+            assertEquals("Wrong error message for empty list exception.",
+                    ERR_NO_TASKS, e.getMessage());
+        }
 
-    // @Test
-    // public void testDatabase() throws Exception {
-    // File log = new File(logName);
-    // assertFalse("Log file created when it's not supposed to exist.",
-    // log.isFile());
-    //
-    // // Construct database
-    // setup();
-    // assertTrue("Database not constructed with arraylist of Task objects.",
-    // database.tasks instanceof ArrayList);
-    // assertTrue("Database not constructed with linkedlist of DbCommands"
-    // + "objects.", database.commands instanceof LinkedList);
-    // assertTrue("Database not constructed with an instance of TaskLogger.",
-    // database.taskLogger instanceof TaskLogger);
-    // assertTrue("Database not constructed with an instance of "
-    // + "GoogleCalendarManager.",
-    // database.googleCal instanceof GoogleCalendarManager);
-    //
-    // String expected;
-    // String actual;
-    //
-    // // Test for preparing from existing log file
-    // ArrayList<Task> readTasks;
-    // database.taskLogger.prepareLog(logName);
-    // createDummyLog();
-    //
-    // // Construct database again and see if it reads in from log file.
-    // // Log file is read when database is constructed.
-    // setup();
-    // readTasks = database.getTasks();
-    //
-    // assertEquals("No tasks read in from log file", 2, readTasks.size());
-    // expected = readTasks.get(0).displayTask();
-    // actual = database.getTasks().get(0).displayTask();
-    // assertTrue("First task not read properly when preparing from "
-    // + "existing log file.", expected.equals(actual));
-    // expected = readTasks.get(1).displayTask();
-    // actual = database.getTasks().get(1).displayTask();
-    // assertTrue("Second task not read properly when preparing from "
-    // + "existing log file.", expected.equals(actual));
-    // deleteLog();
-    //
-    // // Test for non-existing log file
-    // database.taskLogger.prepareLog(logName);
-    // assertTrue("Log file object not initialised with prepareLog method.",
-    // database.taskLogger.log instanceof File);
-    // assertTrue("Log file doesn't exist even when it's supposed to have "
-    // + "been created.", database.taskLogger.getLog().exists());
-    //
-    // deleteLog();
-    // }
+        // Test for search in title/description fields
+        addTasks();
+        searchResults = database.search(searchString);
+        assertTrue(
+                "Search for 'itle' did not return both currently stored tasks.",
+                database.getTasks().equals(searchResults));
+
+        searchString = "Another";
+        searchResults = database.search(searchString);
+        assertEquals("More than one task is returned.", 1, searchResults.size());
+        assertTrue("Search for 'Another' did not return second task.",
+                searchResults.get(0).equals(database.getTasks().get(1)));
+        
+        searchString = "Another t";
+        searchResults = database.search(searchString);
+        assertEquals("More than one task is returned.", 1, searchResults.size());
+        assertTrue("Search for 'Another' did not return second task.",
+                searchResults.get(0).equals(database.getTasks().get(1)));
+
+        deleteLog();
+    }
+
+    @Test
+    public void testDatabase() throws Exception {
+        File log = new File(logName);
+        assertFalse("Log file created when it's not supposed to exist.",
+                log.isFile());
+
+        // Construct database
+        setup();
+        assertTrue("Database not constructed with arraylist of Task objects.",
+                database.tasks instanceof ArrayList);
+        assertTrue("Database not constructed with linkedlist of DbCommands"
+                + "objects.", database.commands instanceof LinkedList);
+        assertTrue("Database not constructed with an instance of TaskLogger.",
+                database.taskLogger instanceof TaskLogger);
+        assertTrue("Database not constructed with an instance of "
+                + "GoogleCalendarManager.",
+                database.googleCal instanceof GoogleCalendarManager);
+
+        String expected;
+        String actual;
+
+        // Test for preparing from existing log file
+        ArrayList<Task> readTasks;
+        database.taskLogger.prepareLog(logName);
+        createDummyLog();
+
+        // Construct database again and see if it reads in from log file.
+        // Log file is read when database is constructed.
+        setup();
+        readTasks = database.getTasks();
+
+        assertEquals("No tasks read in from log file", 2, readTasks.size());
+        expected = readTasks.get(0).displayTask();
+        actual = database.getTasks().get(0).displayTask();
+        assertTrue("First task not read properly when preparing from "
+                + "existing log file.", expected.equals(actual));
+        expected = readTasks.get(1).displayTask();
+        actual = database.getTasks().get(1).displayTask();
+        assertTrue("Second task not read properly when preparing from "
+                + "existing log file.", expected.equals(actual));
+        deleteLog();
+
+        // Test for non-existing log file
+        database.taskLogger.prepareLog(logName);
+        assertTrue("Log file object not initialised with prepareLog method.",
+                database.taskLogger.log instanceof File);
+        assertTrue("Log file doesn't exist even when it's supposed to have "
+                + "been created.", database.taskLogger.getLog().exists());
+
+        deleteLog();
+    }
 
 }

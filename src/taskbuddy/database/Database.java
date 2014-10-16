@@ -26,12 +26,18 @@ import taskbuddy.logic.Task;
 public class Database {
 
     static final String LOG_NAME = "log";
+    private static final String EMPTY_STRING = "";
 
-    private static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = "Changes made to database and task log but not Google Calendar. ";
-    private static final String ERR_NO_TASKS = "Cannot read from empty list of tasks.";
-    private static final String ERR_NO_SUCH_TASK_ID = "No such task ID";
-
-    private static final String ERR_MSG_SEARCH_STRING_EMPTY = "Search string cannot be empty.";
+    // @formatter:off
+    private static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = 
+            "Changes made to database and task log but not Google Calendar. ";
+    private static final String ERR_NO_TASKS = 
+            "Cannot read from empty list of tasks.";
+    private static final String ERR_NO_SUCH_TASK_ID = 
+            "No such task ID";
+    private static final String ERR_MSG_SEARCH_STRING_EMPTY = 
+            "Search string cannot be empty.";
+    // @formatter:on
 
     ArrayList<Task> tasks;
     LinkedList<DbCommand> commands;
@@ -173,6 +179,7 @@ public class Database {
      * @throws NoSuchElementException
      *             when no matching task to given task ID is found
      * @throws IOException
+     *             when there are problems writing to log file
      */
     public void delete(int taskId) throws IllegalAccessException,
             NoSuchElementException, IOException {
@@ -191,27 +198,77 @@ public class Database {
         }
 
     }
-    //
-    // // TODO Pass its test
-    // /**
-    // * Searches for and returns a task based on its title from a non-empty
-    // * stored list of tasks. It is assumed that all task titles are unique
-    // * ignoring case.
-    // *
-    // * @param title
-    // * of task to be searched
-    // * @return task whose title matches search string, null if no match found
-    // */
-    // public Task search(String title) {
-    // if (title.equals(EMPTY_STRING)) {
-    // throw new IllegalArgumentException(ERR_MSG_SEARCH_STRING_EMPTY);
-    // }
-    // for (Task aTask : this.getTasks()) {
-    // if (aTask.getTitle().equalsIgnoreCase(title)) {
-    // return aTask;
-    // }
-    // }
-    // return null;
-    // }
+
+    /**
+     * Searches for and returns a list of tasks whose descriptions and/or titles
+     * match the search string.
+     *
+     * @param searchString
+     *            search string
+     * @return task whose title and/or description matches search string; empty
+     *         list if no matches found
+     * @throws IllegalArgumentException
+     *             when search string is empty
+     * @throws IllegalAccessException
+     *             when task list is empty and there is nothing to search for
+     */
+    public ArrayList<Task> search(String searchString)
+            throws IllegalArgumentException, IllegalAccessException {
+        if (searchString.equals(EMPTY_STRING)) {
+            throw new IllegalArgumentException(ERR_MSG_SEARCH_STRING_EMPTY);
+        }
+        if (this.getTasks().isEmpty()) {
+            throw new IllegalAccessException(ERR_NO_TASKS);
+        }
+
+        assert !searchString.equals(EMPTY_STRING) && !this.getTasks().isEmpty();
+        ArrayList<Task> results = new ArrayList<Task>();
+        for (Task aTask : this.getTasks()) {
+            if (aTask.getTitle().contains(searchString)
+                    || aTask.getDescription().contains(searchString)) {
+                results.add(aTask);
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Similar to <code>search</code> method but searches only in the title
+     * fields of tasks.
+     *
+     * @param searchString
+     *            search string
+     * @return list of tasks whose titles contain search string; empty list if
+     *         no title matches found
+     */
+    public ArrayList<Task> searchTitle(String searchString) {
+        ArrayList<Task> results = new ArrayList<Task>();
+        for (Task aTask : this.getTasks()) {
+            if (aTask.getTitle().contains(searchString)) {
+                results.add(aTask);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Similar to <code>search</code> method but searches only in the
+     * description fields of tasks.
+     *
+     * @param searchString
+     *            search string
+     * @return list of tasks whose descriptions contain search string; empty
+     *         list if no description matches found
+     */
+    public ArrayList<Task> searchDescription(String searchString) {
+        ArrayList<Task> results = new ArrayList<Task>();
+        for (Task aTask : this.getTasks()) {
+            if (aTask.getDescription().contains(searchString)) {
+                results.add(aTask);
+            }
+        }
+        return results;
+    }
 
 }
