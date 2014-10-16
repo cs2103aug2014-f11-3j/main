@@ -83,11 +83,15 @@ public class TaskLogger {
         ArrayList<Task> tasks = new ArrayList<Task>();
         this.log = new File(logName);
 
-        if (this.getLog().isFile() && this.getLog().canRead()
-                && this.getLog().canWrite()) {
+        if (this.getLog().isFile()) {
             tasks = this.readTasks();
         } else {
-            log.createNewFile();
+            try {
+                log.createNewFile();
+            } catch (Exception e) {
+                // TODO Test this
+                throw new IOException("Cannot create log file.", e);
+            }
         }
         return tasks;
     }
@@ -285,20 +289,25 @@ public class TaskLogger {
      */
     public Task readTask(String taskString) throws ParseException {
         Task result = new Task();
-        String[] splitFields = this.splitToFields(taskString);
+        try {
+            String[] splitFields = this.splitToFields(taskString);
 
-        result.setTitle(this.extractTitle(splitFields[POSITION_TASK_ID]));
-        result.setTitle(this.extractTitle(splitFields[POSITION_TITLE]));
-        result.setDescription(this
-                .extractDescription(splitFields[POSITION_DESCRIPTION]));
-        result.setStartTime(this.extractStart(splitFields[POSITION_START]));
-        result.setEndTime(this.extractEnd(splitFields[POSITION_END]));
-        result.setPriority(this.extractPriority(splitFields[POSITION_PRIORITY]));
-        result.setCompletion(this
-                .extractIsComplete(splitFields[POSITION_IS_COMPLETE]));
-        result.setFloating(this
-                .extractIsFloating(splitFields[POSITION_IS_FLOATING]));
-        result.setGID(this.extractGoogleId(splitFields[POSITION_GOOGLE_ID]));
+            result.setTitle(this.extractTitle(splitFields[POSITION_TASK_ID]));
+            result.setTitle(this.extractTitle(splitFields[POSITION_TITLE]));
+            result.setDescription(this
+                    .extractDescription(splitFields[POSITION_DESCRIPTION]));
+            result.setStartTime(this.extractStart(splitFields[POSITION_START]));
+            result.setEndTime(this.extractEnd(splitFields[POSITION_END]));
+            result.setPriority(this.extractPriority(splitFields[POSITION_PRIORITY]));
+            result.setCompletion(this
+                    .extractIsComplete(splitFields[POSITION_IS_COMPLETE]));
+            result.setFloating(this
+                    .extractIsFloating(splitFields[POSITION_IS_FLOATING]));
+            result.setGID(this.extractGoogleId(splitFields[POSITION_GOOGLE_ID]));
+        } catch (ParseException e) {
+            // TODO Test this
+            throw new ParseException("Cannot parse task", e.getErrorOffset());
+        }
 
         return result;
     }
@@ -329,10 +338,12 @@ public class TaskLogger {
                 Task aTask = this.readTask(aTaskString);
                 result.add(aTask);
             }
+        } catch (IOException e) {
+            // TODO Test this
+            throw new IOException("Cannot open log file.", e);
         } finally {
             reader.close();
         }
         return result;
     }
-
 }

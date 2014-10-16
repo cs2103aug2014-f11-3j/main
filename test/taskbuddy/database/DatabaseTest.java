@@ -113,6 +113,10 @@ public class DatabaseTest {
         addTasks();
         database.taskLogger.writeToLogFile(database.getTasks());
     }
+    
+    public void deleteLog() {
+        database.taskLogger.getLog().delete();
+    }
 
     @Test
     public void testDatabase() throws Exception {
@@ -154,8 +158,7 @@ public class DatabaseTest {
         actual = database.getTasks().get(1).displayTask();
         assertTrue("Second task not read properly when preparing from "
                 + "existing log file.", expected.equals(actual));
-        // Remove dummy log
-        database.taskLogger.getLog().delete();
+        deleteLog();
 
         // Test for non-existing log file
         database.taskLogger.prepareLog(logName);
@@ -164,8 +167,7 @@ public class DatabaseTest {
         assertTrue("Log file doesn't exist even when it's supposed to have "
                 + "been created.", database.taskLogger.getLog().exists());
 
-        // Remove log file after test
-        database.taskLogger.getLog().delete();
+        deleteLog();
     }
 
     @Test
@@ -173,17 +175,14 @@ public class DatabaseTest {
         setup();
         createTask();
 
-        Bundle addTask = database.addTask(task);
-        assertTrue("Success status not returned by addTask method.", addTask
-                .getItem(STATUS).equals(SUCCESS));
-        assertTrue("Success message not returned by addTask method.", addTask
-                .getItem(MESSAGE).equals(SUCCESS_ADD));
-
+        // Check if task is added to database
+        database.addTask(task);
         assertEquals("Number of tasks did not increase from 0 to 1 after task "
                 + "addition", 1, database.getTasks().size());
         assertTrue("Task not added properly", database.getTasks().get(0)
                 .equals(task));
 
+        // Check if task is added to task log
         String expected;
         String actual;
         ArrayList<Task> readTasks = database.taskLogger.readTasks();
@@ -192,9 +191,10 @@ public class DatabaseTest {
         assertTrue("Task not logged correctly in log file.",
                 actual.equals(expected));
 
-        // Remove log file after test
-        database.taskLogger.getLog().delete();
+        deleteLog();
     }
+
+    
 
     // TODO Complete and pass this test
     @Test
@@ -211,8 +211,7 @@ public class DatabaseTest {
                     ERR_MSG_SEARCH_STRING_EMPTY);
         }
 
-        // Remove log file after test
-        database.taskLogger.getLog().delete();
+        deleteLog();
     }
 
     @Test
@@ -241,8 +240,7 @@ public class DatabaseTest {
         assertTrue("Task titled 'Untitled' not retrieved.", database
                 .read(title).equals(task));
 
-        // Remove log file after test
-        database.taskLogger.getLog().delete();
+        deleteLog();
     }
 
     @Test
@@ -294,8 +292,7 @@ public class DatabaseTest {
         assertEquals("Number of tasks in log is not " + "zero.", 0,
                 readTasks.size());
 
-        // Remove log file after test
-        database.taskLogger.getLog().delete();
+        deleteLog();
     }
 
     @Test
@@ -309,8 +306,7 @@ public class DatabaseTest {
             assertEquals(tasks.indexOf(aTask), aTask.getTaskId());
         }
 
-        // Remove log file after test
-        database.taskLogger.getLog().delete();
+        deleteLog();
     }
 
 }

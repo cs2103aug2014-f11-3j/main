@@ -53,7 +53,9 @@ public class Database {
      * tasks and commands.
      * 
      * @throws IOException
-     *             when log file cannot be loaded (if existing) or created.
+     *             when log file cannot be read from, written to or created when
+     *             user is offline and tasks cannot be synced to Google
+     *             Calendar.
      * @throws ParseException
      *             when tasks cannot be parsed from existing log file
      */
@@ -78,76 +80,31 @@ public class Database {
     }
 
     /**
-     * For debugging.
-     */
-    public void printTasks() {
-        for (Task aTask : this.getTasks()) {
-            System.out.println(aTask.displayTask());
-        }
-    }
-
-    /**
-     * Returns a message indicating success/failure of a method.
-     * 
-     * @param statusIn
-     *            success/failure
-     * @param messageIn
-     *            success/failure message
-     * @return
-     */
-    public Bundle ackFromDatabase(String statusIn, String messageIn) {
-        Bundle ackBundle = new Bundle();
-        ackBundle.putString(STATUS, statusIn);
-        ackBundle.putString(MESSAGE, messageIn);
-        return ackBundle;
-    }
-
-    /**
      * Adds task to temporary and logged list of tasks, as well as syncing to
      * Google Calendar.
      * 
      * @param task
      *            task to be added
-     * @return Bundle containing "Successful" key if task is added successfully,
-     *         "Fail" key otherwise
-     * @throws IOException
-     *             when user is offline
-     */
-    public Bundle addTask(Task task) throws IOException {
-        ack = new Bundle();
-
-        if (this.tasks.add(task)) {
-            ack = this.ackFromDatabase(SUCCESS, SUCCESS_ADD);
-            // TODO Call and handle GoogleCalendarManager's add method
-            // Comment following line if running DatabaseTest
-            // GoogleCalendarManager.add(task);
-            this.taskLogger.writeToLogFile(tasks);
-        } else {
-            ack = this.ackFromDatabase(FAILURE, FAIL_ADD);
-        }
-        return ack;
-    }
-
-    // TODO Pass its test
-    /**
-     * Searches for and returns a task based on its title from a non-empty
-     * stored list of tasks. It is assumed that all task titles are unique
-     * ignoring case.
      * 
-     * @param title
-     *            of task to be searched
-     * @return task whose title matches search string, null if no match found
+     * @throws IOException
+     *             when user is offline and task cannot be synced to Google
+     *             Calendar
      */
-    public Task search(String title) {
-        if (title.equals(EMPTY_STRING)) {
-            throw new IllegalArgumentException(ERR_MSG_SEARCH_STRING_EMPTY);
+    public void addTask(Task task) throws IOException {
+        // Always add to database first so that adding to database will execute
+        // even if adding to Google Calendar fails.
+        this.tasks.add(task);
+        this.setTaskIds();
+        try {
+            GoogleCalendarManager.add(task);
+        } catch (IOException e) {
+            // TODO Have to wait for GoogleCalendarManager class to be
+            // implemented to see what kind of exceptions are implemented.
+            throw new IOException(
+                    "Task added to database and log but not Google Calendar. "
+                            + e.getMessage(), e);
+            // TODO Add add command to command queue
         }
-        for (Task aTask : this.getTasks()) {
-            if (aTask.getTitle().equalsIgnoreCase(title)) {
-                return aTask;
-            }
-        }
-        return null;
     }
 
     /**
@@ -207,7 +164,27 @@ public class Database {
             aTask.setTaskId(this.getTasks().indexOf(aTask));
         }
     }
-    
-    
+
+    // TODO Pass its test
+    /**
+     * Searches for and returns a task based on its title from a non-empty
+     * stored list of tasks. It is assumed that all task titles are unique
+     * ignoring case.
+     * 
+     * @param title
+     *            of task to be searched
+     * @return task whose title matches search string, null if no match found
+     */
+    public Task search(String title) {
+        if (title.equals(EMPTY_STRING)) {
+            throw new IllegalArgumentException(ERR_MSG_SEARCH_STRING_EMPTY);
+        }
+        for (Task aTask : this.getTasks()) {
+            if (aTask.getTitle().equalsIgnoreCase(title)) {
+                return aTask;
+            }
+        }
+        return null;
+    }
 
 }
