@@ -28,7 +28,7 @@ public class UserInputBundle extends Bundle {
 		this.putString(user_endDate, endDate);
 	}
 
-	public void putEndT0ime(String endTime) {
+	public void putEndTime(String endTime) {
 		this.putString(user_endTime, endTime);
 	}
 
