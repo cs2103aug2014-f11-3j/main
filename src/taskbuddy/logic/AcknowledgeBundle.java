@@ -8,6 +8,8 @@ public class AcknowledgeBundle extends Bundle{
 	private String message = "Message";
 	private String task = "Task";
 	
+	//setter methods
+	
 	public void putStatus(String stat){
 		this.putString(status, stat);
 	}
@@ -27,6 +29,8 @@ public class AcknowledgeBundle extends Bundle{
 	public void putTask(Task t){
 		this.putObject(task, t);
 	}
+	
+	//access methods
 	
 	public String getStatus(){
 		return (String) this.getItem(status);

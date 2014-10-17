@@ -10,6 +10,8 @@ public class UserInputBundle extends Bundle {
 	private String user_endTime = "endTime";
 	private String user_title = "title";
 
+	//Setter methods
+	
 	public void putTitle(String title) {
 		this.putString(user_title, title);
 	}
@@ -38,6 +40,8 @@ public class UserInputBundle extends Bundle {
 		this.putString(user_startTime, startTime);
 	}
 
+	//Access methods
+	
 	public String getTitle() {
 		return (String) this.getItem(user_title);
 	}
