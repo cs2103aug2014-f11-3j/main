@@ -9,6 +9,7 @@ public class UserInputBundle extends Bundle {
 	private String user_startTime = "startTime";
 	private String user_endTime = "endTime";
 	private String user_title = "title";
+	private String user_id = "task ID";
 
 	//Setter methods
 	
@@ -40,6 +41,10 @@ public class UserInputBundle extends Bundle {
 		this.putString(user_startTime, startTime);
 	}
 
+	public void putID(String ID){
+		this.putString(user_id, ID);
+	}
+	
 	//Access methods
 	
 	public String getTitle() {
@@ -68,5 +73,9 @@ public class UserInputBundle extends Bundle {
 	
 	public String getStartTime(){
 		return (String) this.getItem(user_startTime);
+	}
+	
+	public String getTaskID(){
+		return (String) this.getItem(user_id);
 	}
 }
