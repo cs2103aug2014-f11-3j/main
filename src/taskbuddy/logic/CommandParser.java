@@ -34,7 +34,7 @@ public class CommandParser {
 	private String message = "Message";
 	private String task = "Task";
 
-	Bundle addTask(Bundle extras, Database db) throws IOException {
+	AcknowledgeBundle addTask(Bundle extras, Database db) throws IOException {
 		String desc = (String) extras.getItem(user_description);
 		String endDate = (String) extras.getItem(user_endDate);
 		String endTime = (String) extras.getItem(user_endTime);
@@ -46,50 +46,51 @@ public class CommandParser {
 		newTask.setEndTime(endDate, endTime);
 		newTask.setGID(nullValue);
 		assert newTask != null;
-		Bundle acknowledgement = new Bundle();
+		AcknowledgeBundle ack = new AcknowledgeBundle();
 		try {
 			db.addTask(newTask);
-			acknowledgement = ackFromLogic(success, "added successfully to database", newTask);
-		} catch (IOException e){
-			acknowledgement = ackFromLogic(success, "failed to add task to database", newTask);
-		}
-		assert acknowledgement != null;
-		return acknowledgement;
-	}
-
-	/*Bundle deleteTask(String title, Database db) throws IOException {
-		Bundle ack = new Bundle();
-		try {
-			db.delete(title);
-			ack = ackFromLogic(success, "delete successful", null);
-		} catch (IOException e){
-			if (e.equals("multiple titles")){
-				//TODO user prompt to UI
-			} else {
-				ack = ackFromLogic(failure, "no such task", null);
-			}
-		}
-		return ack;
-	}*/
-	
-	Bundle deleteTask(int ID, Database db) throws IOException, IllegalAccessException, NoSuchElementException {
-		Bundle ack = new Bundle();
-		try {
-			db.delete(ID);
-			ack = ackFromLogic(success, "delete successful", null);
-		} catch (NoSuchElementException e){
-			ack = ackFromLogic(failure, "no such task", null);
+			ack.putSuccess();
+			ack.putMessage("added successfully");
+			ack.putTask(newTask);
+		} catch (IOException e) {
+			ack.putFailure();
+			ack.putMessage("add command failure");
+			ack.putTask(newTask);
 		}
 		assert ack != null;
 		return ack;
 	}
 
-	Bundle editTask(Bundle extras, Database db) throws IOException {
+	/*
+	 * AcknowledgeBundle deleteTask(String title, Database db) throws
+	 * IOException { AcknowledgeBundle ack = new Bundle(); try {
+	 * db.delete(title); ack = ackFromLogic(success, "delete successful", null);
+	 * } catch (IOException e){ if (e.equals("multiple titles")){ //TODO user
+	 * prompt to UI } else { ack = ackFromLogic(failure, "no such task", null);
+	 * } } return ack; }
+	 */
+
+	AcknowledgeBundle deleteTask(int ID, Database db) throws IOException,
+			IllegalAccessException, NoSuchElementException {
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		try {
+			db.delete(ID);
+			ack.putSuccess();
+			ack.putMessage("deletion success");
+		} catch (NoSuchElementException e) {
+			ack.putFailure();
+			ack.putMessage("no such element in db");
+		}
+		assert ack != null;
+		return ack;
+	}
+
+	AcknowledgeBundle editTask(Bundle extras, Database db) throws IOException, NoSuchElementException {
 		String title = (String) extras.getItem(user_title);
-		//TODO get ID out of bundle
-		Bundle ack = new Bundle();
-		Task toEdit = db.read(ID);
-		if (toEdit != null) {
+		// TODO get ID out of bundle
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		try {
+			Task toEdit = db.read(ID);
 			Bundle editInfo = toEdit.getTaskInfo();
 			editStack.push(editInfo);
 			String newDesc = (String) extras.getItem(user_description);
@@ -110,10 +111,13 @@ public class CommandParser {
 				String oldTime = (String) editInfo.getItem(user_endTime);
 				toAdd.setEndTime(oldDate, oldTime);
 			}
-			ack = addTask(extras, db);
-		} else {
-			ack = ackFromLogic(failure, "Nonexistent task", null);
+			ack.putSuccess();
+			ack.putMessage("editted task successfully");
+		} catch (NoSuchElementException e) {
+			ack.putFailure();
+			ack.putMessage("no such element in db");
 		}
+		assert ack != null;
 		return ack;
 	}
 
@@ -144,7 +148,8 @@ public class CommandParser {
 			} else if (commandType.equalsIgnoreCase("edit")) {
 				// todo stub
 			} else {
-				Bundle acks = ackFromLogic(failure, "fatal error: invalid undo", null);
+				Bundle acks = ackFromLogic(failure,
+						"fatal error: invalid undo", null);
 				return acks;
 			}
 			Bundle acks = ackFromLogic(success, "Undone", null);
@@ -163,12 +168,13 @@ public class CommandParser {
 			String commandType = (String) prevCommand.getItem(user_command);
 			if (commandType.equalsIgnoreCase("add")) {
 				parseUserInputs(prevCommand);
-			} else if (commandType.equalsIgnoreCase("delete")){
+			} else if (commandType.equalsIgnoreCase("delete")) {
 				parseUserInputs(prevCommand);
-			} else if (commandType.equalsIgnoreCase("edit")){
-				//todo edit stub
+			} else if (commandType.equalsIgnoreCase("edit")) {
+				// todo edit stub
 			} else {
-				Bundle acks = ackFromLogic(failure, "fatal error: invalid redo", null);
+				Bundle acks = ackFromLogic(failure,
+						"fatal error: invalid redo", null);
 				return acks;
 			}
 			Bundle acks = ackFromLogic(success, "Redid", null);
@@ -187,31 +193,44 @@ public class CommandParser {
 		return ackBundle;
 	}
 
-	public Bundle parseUserInputs(Bundle userIn) throws ParseException, IOException {
+	public AcknowledgeBundle parseUserInputs(Bundle userIn)
+			throws ParseException, IOException {
 		try {
 			database = new Database();
 		} catch (IOException e) {
-			Bundle b = new Bundle();
-			b.putString(status, failure);
-			b.putString(message, "DB IO exception");
-			b.putObject(task, null);
+			AcknowledgeBundle b = new AcknowledgeBundle();
+			b.putFailure();
+			b.putMessage("DB IO exception");
+			assert b != null;
 			return b;
 		}
 		String commandType = (String) userIn.getItem(user_command);
-		Bundle status = new Bundle();
+		AcknowledgeBundle status = new AcknowledgeBundle();
 		if (commandType.equalsIgnoreCase("add")) {
 			redoStack = new Stack<Bundle>();
 			undoStack.push(userIn);
 			status = addTask(userIn, database);
+			assert status != null;
 			return status;
 		} else if (commandType.equalsIgnoreCase("display")) {
-			displayTasks(database);
-			status = ackFromLogic(null, null, null);
+			try {
+				displayTasks(database);
+				status.putSuccess();
+			} catch (IOException e) {
+				status.putFailure();
+			}
+			assert status.getStatus() != null;
 			return status;
 		} else if (commandType.equalsIgnoreCase("edit")) {
 			redoStack = new Stack<Bundle>();
 			undoStack.push(userIn);
-			editTask(userIn, database);
+			try {
+				editTask(userIn, database);
+				status.putSuccess();
+			} catch (IOException e) {
+				status.putFailure();
+			}
+			assert status.getStatus() != null;
 			return status;
 		} else if (commandType.equalsIgnoreCase("delete")) {
 			redoStack = new Stack<Bundle>();
