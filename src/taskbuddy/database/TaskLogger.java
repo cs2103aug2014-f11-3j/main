@@ -16,6 +16,10 @@ import java.util.Calendar;
 import taskbuddy.logic.Task;
 
 public class TaskLogger {
+
+    private static final String ERR_CANNOT_PARSE = "Cannot parse task";
+    private static final String ERR_CANNOT_OPEN_LOG = "Cannot open log file.";
+
     SimpleDateFormat formatter = new SimpleDateFormat(
             Task.DATABASE_DATE_TIME_FORMATTER);
 
@@ -35,7 +39,7 @@ public class TaskLogger {
     private static final int NUMBER_OF_FIELDS       = 9;
     
     
-    private static final int POSITION_TASK_ID    = 0;
+    private static final int POSITION_TASK_ID       = 0;
     private static final int POSITION_TITLE         = 1;
     private static final int POSITION_DESCRIPTION   = 2;
     private static final int POSITION_START         = 3;
@@ -292,7 +296,7 @@ public class TaskLogger {
         try {
             String[] splitFields = this.splitToFields(taskString);
 
-            result.setTitle(this.extractTitle(splitFields[POSITION_TASK_ID]));
+            result.setTaskId(this.extractTaskId(splitFields[POSITION_TASK_ID]));
             result.setTitle(this.extractTitle(splitFields[POSITION_TITLE]));
             result.setDescription(this
                     .extractDescription(splitFields[POSITION_DESCRIPTION]));
@@ -306,7 +310,7 @@ public class TaskLogger {
             result.setGID(this.extractGoogleId(splitFields[POSITION_GOOGLE_ID]));
         } catch (ParseException e) {
             // TODO Test this
-            throw new ParseException("Cannot parse task", e.getErrorOffset());
+            throw new ParseException(ERR_CANNOT_PARSE, e.getErrorOffset());
         }
 
         return result;
@@ -339,10 +343,11 @@ public class TaskLogger {
                 result.add(aTask);
             }
         } catch (IOException e) {
-            // TODO Test this
-            throw new IOException("Cannot open log file.", e);
+            throw new IOException(ERR_CANNOT_OPEN_LOG, e);
         } finally {
-            reader.close();
+            if (reader != null) {
+                reader.close();
+            }
         }
         return result;
     }

@@ -7,11 +7,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import org.junit.After;
 import org.junit.Test;
 
 import taskbuddy.logic.Task;
 
 public class TaskLoggerTest {
+
+    private static final String ERR_CANNOT_PARSE = "Cannot parse task";
+    private static final String ERR_CANNOT_OPEN_LOG = "Cannot open log file.";
 
     // @formatter:off
     private static final int POSITION_TASK_ID       = 0;
@@ -31,6 +35,7 @@ public class TaskLoggerTest {
     String[] splitFields;
     ArrayList<Task> tasks;
 
+    int taskId;
     String title;
     String description;
     Calendar start;
@@ -41,6 +46,7 @@ public class TaskLoggerTest {
     String googleCalendarId;
 
     public void createTask() {
+        taskId = 0;
         title = "Title";
         description = "Description";
         start = Calendar.getInstance();
@@ -51,6 +57,7 @@ public class TaskLoggerTest {
         googleCalendarId = "11111";
 
         task = new Task(title);
+        task.setTaskId(taskId);
         task.setDescription(description);
         task.setStartTime(start);
         task.setEndTime(end);
@@ -61,6 +68,7 @@ public class TaskLoggerTest {
     }
 
     public void createAnotherTask() {
+        taskId = 1;
         title = "Another title";
         description = "Another description";
         start = Calendar.getInstance();
@@ -71,6 +79,7 @@ public class TaskLoggerTest {
         googleCalendarId = "22222";
 
         task = new Task(title);
+        task.setTaskId(taskId);
         task.setDescription(description);
         task.setStartTime(start);
         task.setEndTime(end);
@@ -111,9 +120,15 @@ public class TaskLoggerTest {
         splitFields = taskLogger.splitToFields(task.displayTask());
     }
 
+    /**
+     * Deletes existing log file after all tests have been run
+     */
+    @After
     public void deleteLog() {
-        // Remove log file after test
-        taskLogger.getLog().delete();
+        File log = taskLogger.getLog();
+        if (log != null && log.isFile()) {
+            taskLogger.getLog().delete();
+        }
     }
 
     @Test
@@ -140,16 +155,14 @@ public class TaskLoggerTest {
         actual = tasks.get(1).displayTask();
         assertTrue("Second task not read properly when preparing from "
                 + "existing log file.", expected.equals(actual));
-        deleteLog();
 
+        deleteLog();
         // Test for non-existing log file
         taskLogger.prepareLog(logName);
         assertTrue("Log file object not initialised with prepareLog method.",
                 taskLogger.log instanceof File);
         assertTrue("Log file doesn't exist even when it's supposed to have "
                 + "been created.", taskLogger.getLog().exists());
-
-        deleteLog();
     }
 
     @Test
@@ -337,8 +350,23 @@ public class TaskLoggerTest {
         String expected;
 
         setup();
-        taskLogger.prepareLog(logName);
 
+        try {
+            taskLogger.prepareLog(logName);
+            // Delete log file intentionally to force reading of non-existent
+            // log file to test for IOException
+            deleteLog();
+
+            taskLogger.readTasks();
+            fail("Exception not thrown when trying to read"
+                    + " non-existent log file");
+        } catch (IOException e) {
+            assertTrue("Wrong IOException message when non-existent"
+                    + " log file cannot be read.",
+                    e.getMessage().equals(ERR_CANNOT_OPEN_LOG));
+        }
+
+        taskLogger.prepareLog(logName);
         // Add two different tasks and write to log file. This method also tests
         // if tasks are written correctly, since they won't be read properly if
         // they were written wrongly at first.
@@ -357,9 +385,6 @@ public class TaskLoggerTest {
         expected = tasks.get(1).displayTask();
         assertTrue("Second task read from log file not the same "
                 + "as actual second task.", actual.equals(expected));
-
-        deleteLog();
-
     }
 
 }

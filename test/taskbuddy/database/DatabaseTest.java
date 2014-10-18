@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 
+import org.junit.After;
 import org.junit.Test;
 
 import taskbuddy.googlecal.GoogleCalendarManager;
@@ -109,8 +110,15 @@ public class DatabaseTest {
         database.taskLogger.writeToLogFile(database.getTasks());
     }
 
+    /**
+     * Deletes existing log file after all tests have been run
+     */
+    @After
     public void deleteLog() {
-        database.taskLogger.getLog().delete();
+        File log = database.taskLogger.getLog();
+        if (log.isFile()) {
+            database.taskLogger.getLog().delete();
+        }
     }
 
     @Test
@@ -123,7 +131,6 @@ public class DatabaseTest {
         for (Task aTask : tasks) {
             assertEquals(tasks.indexOf(aTask), aTask.getTaskId());
         }
-        deleteLog();
     }
 
     @Test
@@ -150,7 +157,6 @@ public class DatabaseTest {
         assertTrue("Task not logged correctly in log file.",
                 actual.equals(expected));
 
-        deleteLog();
     }
 
     @Test
@@ -183,7 +189,6 @@ public class DatabaseTest {
                     .equals(ERR_NO_SUCH_TASK_ID));
         }
 
-        deleteLog();
     }
 
     @Test
@@ -227,11 +232,8 @@ public class DatabaseTest {
             assertTrue("No such task ID exception not thrown.", e.getMessage()
                     .equals(ERR_NO_SUCH_TASK_ID));
         }
-
-        deleteLog();
     }
 
-    // TODO Complete and pass this test
     @Test
     public void testSearch() throws Exception {
         String searchString;
@@ -272,14 +274,12 @@ public class DatabaseTest {
         assertEquals("More than one task is returned.", 1, searchResults.size());
         assertTrue("Search for 'Another' did not return second task.",
                 searchResults.get(0).equals(database.getTasks().get(1)));
-        
+
         searchString = "Another t";
         searchResults = database.search(searchString);
         assertEquals("More than one task is returned.", 1, searchResults.size());
         assertTrue("Search for 'Another' did not return second task.",
                 searchResults.get(0).equals(database.getTasks().get(1)));
-
-        deleteLog();
     }
 
     @Test
@@ -322,8 +322,8 @@ public class DatabaseTest {
         actual = database.getTasks().get(1).displayTask();
         assertTrue("Second task not read properly when preparing from "
                 + "existing log file.", expected.equals(actual));
+        
         deleteLog();
-
         // Test for non-existing log file
         database.taskLogger.prepareLog(logName);
         assertTrue("Log file object not initialised with prepareLog method.",
@@ -331,7 +331,6 @@ public class DatabaseTest {
         assertTrue("Log file doesn't exist even when it's supposed to have "
                 + "been created.", database.taskLogger.getLog().exists());
 
-        deleteLog();
     }
 
 }
