@@ -85,17 +85,20 @@ public class CommandParser {
 		return ack;
 	}
 
-	AcknowledgeBundle editTask(Bundle extras, Database db) throws IOException, NoSuchElementException {
+	AcknowledgeBundle editTask(UserInputBundle extras, Database db)
+			throws IOException, NoSuchElementException, IllegalAccessException {
 		String title = (String) extras.getItem(user_title);
-		// TODO get ID out of bundle
 		AcknowledgeBundle ack = new AcknowledgeBundle();
+		int ID = Integer.parseInt(extras.getTaskID());
 		try {
-			Task toEdit = db.read(ID);
+			Task toEdit = new Task();
+			toEdit = db.read(ID);
 			Bundle editInfo = toEdit.getTaskInfo();
 			editStack.push(editInfo);
-			String newDesc = (String) extras.getItem(user_description);
-			String newEndDate = (String) extras.getItem(user_endDate);
-			String newEndTime = (String) extras.getItem(user_endTime);
+			String newTitle = extras.getTitle();
+			String newDesc = extras.getDescription();
+			String newEndDate = extras.getEndDate();
+			String newEndTime = extras.getEndTime();
 			Task toAdd = new Task();
 			toAdd.setTitle(title);
 			if (!newDesc.equals(nullValue)) {
@@ -146,7 +149,7 @@ public class CommandParser {
 			} else if (commandType.equalsIgnoreCase("delete")) {
 				addTask(prevCommand, db);
 			} else if (commandType.equalsIgnoreCase("edit")) {
-				// todo stub
+				// TODO STUB
 			} else {
 				Bundle acks = ackFromLogic(failure,
 						"fatal error: invalid undo", null);
