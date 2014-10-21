@@ -251,7 +251,7 @@ public class GoogleCalendarManager {
 		
 	}
 	
-	
+	/*
 	public static void main(String[] args) throws IOException {
 		java.util.Calendar calendarInstance = java.util.Calendar.getInstance();
 		GoogleCalendarManager goocal = new GoogleCalendarManager ();
@@ -309,7 +309,7 @@ public class GoogleCalendarManager {
 		
 		System.out.println("Completed");
 	}
-	
+	*/
 }
 
 // https://developers.google.com/resources/api-libraries/documentation/calendar/v3/java/latest/com/google/api/services/calendar/model/EventDateTime.html
