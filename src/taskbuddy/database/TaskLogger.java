@@ -135,6 +135,7 @@ public class TaskLogger {
                     StandardCharsets.UTF_8,
                     StandardOpenOption.TRUNCATE_EXISTING);
             writer.write(this.tasksToString(tasks));
+            writer.flush();
         } finally {
             writer.close();
         }

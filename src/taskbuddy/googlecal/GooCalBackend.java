@@ -183,6 +183,7 @@ public class GooCalBackend {
 	public void deleteEventFromCalendar(Calendar service, String calendarId, String eventId)  {
 		try {
 			service.events().delete(calendarId,eventId).execute();
+			System.out.println("goocal" + eventId);
 		} catch (IOException unableToDeleteEvent) {
 			System.err.println("Unable to delete event from Google Calendar");
 		}
