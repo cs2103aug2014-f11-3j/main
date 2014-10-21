@@ -12,8 +12,8 @@ import taskbuddy.database.Database;
 public class CommandParser {
 
 	private Database database;
-	private Stack<Bundle> undoStack = new Stack<Bundle>();
-	private Stack<Bundle> redoStack = new Stack<Bundle>();
+	private Stack<UserInputBundle> undoStack = new Stack<UserInputBundle>();
+	private Stack<UserInputBundle> redoStack = new Stack<UserInputBundle>();
 	private Stack<Bundle> editStack = new Stack<Bundle>();
 	private static String nullValue = "padding value";
 	// if new command is parsed, clear redo stack;
@@ -34,15 +34,16 @@ public class CommandParser {
 	private String message = "Message";
 	private String task = "Task";
 
-	AcknowledgeBundle addTask(Bundle extras, Database db) throws IOException {
-		String desc = (String) extras.getItem(user_description);
-		String endDate = (String) extras.getItem(user_endDate);
-		String endTime = (String) extras.getItem(user_endTime);
-		String title = (String) extras.getItem(user_title);
+	AcknowledgeBundle addTask(UserInputBundle extras, Database db) throws IOException {
+		String desc = extras.getDescription();
+		String endDate = extras.getEndDate();
+		String endTime = extras.getEndTime();
+		String title = extras.getTitle();
 		Task newTask = new Task(title);
-		String startTime = (String) extras.getItem(user_start);
+		String startTime = extras.getStartTime();
+		String startDate = extras.getStartDate();
 		newTask.setDescription(desc);
-		newTask.setStartTime(endDate, startTime);
+		newTask.setStartTime(startDate, startTime);
 		newTask.setEndTime(endDate, endTime);
 		newTask.setGID(nullValue);
 		assert newTask != null;
