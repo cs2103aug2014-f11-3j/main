@@ -104,6 +104,31 @@ public class GoogleCalendarManagerTest {
 		String eventSummary = goocal.retrieve(GID);
 		assertEquals("Faled. Task title did not match event summary of the Google Calendar Event retrieved", taskTitle, eventSummary);	
 	}
+	
+	@Test
+	public void testUpdateSummary() throws UnknownHostException {
+		setTaskAttributes();
+		String taskTitle = task1.getTitle();		
+		goocal.add(task1);
+		String GID = task1.getGID();
+		String eventSummary = goocal.retrieve(GID);
+		//assertEquals("Faled. Task title did not match event summary of the Google Calendar Event retrieved", taskTitle, eventSummary);	
+		
+		// Now I modify the title
+		task1.setTitle("UPDATEDDDD!");
+		
+		// I store the modified title
+		String updatedTitle = task1.getTitle();
+		
+		// I execute the update method of GoogleCalendarManager
+		goocal.update(task1);
+		
+		// I retrieve the updated event summary 
+		String updatedEventSummary = goocal.retrieve(GID);
+		
+		// I assert to see whether update was successful
+		assertEquals("Faled. Update of event summary failed", updatedTitle, updatedEventSummary);	
+	}
 
 	
 	// Use this test method to test the assertion: Title is missing from this task object

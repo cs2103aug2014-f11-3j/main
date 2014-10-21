@@ -72,12 +72,11 @@ public class GoogleCalendarManager {
 			String eventEndTime = getEndTime(task);
 			
 			gooCalEventID = gooCalBackend.addEventToCalendar(service, eventSummary, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
-			System.out.println(gooCalEventID);
-			task.setGID(gooCalEventID);			
-			System.out.println("Event added!");
 			
-			Object haha = "hello";
-			assert haha != null;
+			task.setGID(gooCalEventID);			
+			
+			
+
 		}
 	}
 	
@@ -117,9 +116,7 @@ public class GoogleCalendarManager {
 			
 			gooCalBackend.deleteEventFromCalendar(service, calendarId, eventId);
 			
-			//service.events().delete(calendarId,eventId).execute();
-			System.out.println("Event deleted!");
-			//return success;
+
 		}
 	}
 
@@ -164,13 +161,52 @@ public class GoogleCalendarManager {
 		}
 	}
 
-	public Bundle update(String eventId, Task task) {
-		// This is a stub
-		Bundle success = new Bundle();
-		Bundle failureNoInternet = new Bundle();
-		Bundle failureUnableToConnectToGoogle = new Bundle();
+	public void update(Task task) throws UnknownHostException {
+		// Assertion Tests
+		assert (task.getGID() != null): MISSING_GOOGLE_ID_ERROR;
+		assert (task.getTitle() != null): MISSING_TITLE_ERROR;
+		// assert (task.getTaskId() != 0): MISSING_TASK_ID_ERROR;  // To be uncommented once database is correctly implemented
+				
+				
+		// Updates an event already present on Google Calendar
+		// Returns true if task has successfully been added to Google Calendar
+		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
+		Calendar service = null;
+		String calendarID = CALENDAR_ID;   // CURRENTLY HARDCODED
 		
-		return failureUnableToConnectToGoogle;
+		GooCalBackend gooCalBackend = new GooCalBackend(); 
+
+		// First, check user online status.
+		if (!gooCalBackend.isUserOnline()) {
+			throw new UnknownHostException(USER_OFFLINE_ERROR); 
+		}
+		else {
+			// This try catch blocks checks if Google's servers can be read
+			try {
+				service = gooCalBackend.initializeCalendar();
+			} catch (IOException connectionProblem) {
+				// This catach statement cataches a connetion problem
+				// Exception is only caught when authentication code is valid, yet tbere is a failure in initializing the Google Calendar
+				//return failureUnableToConnectToGoogle;
+			}
+
+			String eventSummary = getSummary(task);
+			String eventStartDate = getStartDate(task);
+			String eventStartTime = getStartTime(task);
+			String eventEndDate = getEndDate(task);
+			String eventEndTime = getEndTime(task);
+			String gooCalEventID = getGooCalEventID(task);
+
+			gooCalBackend.updateEvent(service, eventSummary, calendarID, gooCalEventID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
+			//System.out.println(gooCalEventID);
+			//task.setGID(gooCalEventID);			
+			
+
+
+		}
+
+
+
 	}
 	
 
@@ -208,8 +244,14 @@ public class GoogleCalendarManager {
 		
 	}
 	
+	public String getGooCalEventID(Task task) {
+		//System.out.println("Executing getEndTime:"); // For debugging
+		//System.out.println(task.displayEndTime());
+		return task.getGID();
+		
+	}
 	
-	/*
+	
 	public static void main(String[] args) throws IOException {
 		java.util.Calendar calendarInstance = java.util.Calendar.getInstance();
 		GoogleCalendarManager goocal = new GoogleCalendarManager ();
@@ -261,9 +303,13 @@ public class GoogleCalendarManager {
 		goocal.delete(task5.getGID());
 		System.out.println("Executing delete:"); // For debugging
 		
+		task4.setTitle("UPDATED!");
+		goocal.update(task4);
+		
+		
 		System.out.println("Completed");
 	}
-	*/
+	
 }
 
 // https://developers.google.com/resources/api-libraries/documentation/calendar/v3/java/latest/com/google/api/services/calendar/model/EventDateTime.html
