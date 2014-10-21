@@ -1,5 +1,7 @@
 package taskbuddy.logic;
 
+import java.util.ArrayList;
+
 public class AcknowledgeBundle extends Bundle{
 	
 	private String status = "Status";
@@ -7,6 +9,7 @@ public class AcknowledgeBundle extends Bundle{
 	private String failure = "Failure";
 	private String message = "Message";
 	private String task = "Task";
+	private String listTask = "List of tasks";
 	
 	//setter methods
 	
@@ -30,6 +33,9 @@ public class AcknowledgeBundle extends Bundle{
 		this.putObject(task, t);
 	}
 	
+	public void putList(ArrayList<String> l){
+		this.putObject(listTask, l);
+	}
 	//access methods
 	
 	public String getStatus(){
@@ -42,5 +48,10 @@ public class AcknowledgeBundle extends Bundle{
 	
 	public Task getTask(){
 		return (Task) this.getItem(task);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public ArrayList<String> getList(){
+		return (ArrayList<String>) this.getItem(listTask);
 	}
 }

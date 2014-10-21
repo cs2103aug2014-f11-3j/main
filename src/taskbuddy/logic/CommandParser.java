@@ -34,7 +34,45 @@ public class CommandParser {
 	private String message = "Message";
 	private String task = "Task";
 
-	AcknowledgeBundle addTask(UserInputBundle extras, Database db) throws IOException {
+	AcknowledgeBundle searchTask(UserInputBundle extras, Database db) {
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		String title = extras.getTitle();
+		String desc = extras.getDescription();
+		ArrayList<Task> searchResults = new ArrayList<Task>();
+		try {
+			if (!title.equals(nullValue)) {
+				searchResults = db.search(title);
+			} else if (!desc.equals(nullValue)) {
+				searchResults = db.search(desc);
+			}
+		} catch (IllegalAccessException e) {
+			ack.putFailure();
+			ack.putMessage("Reading tasks from null");
+		}
+		ArrayList<String> showToUser = concatTaskList(searchResults);
+		
+		return ack;
+	}
+
+	ArrayList<String> concatTaskList(ArrayList<Task> listT) {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		int listLength = listT.size();
+		if (listLength == 0) {
+			toReturn.add("No results found");
+		} else {
+			for (int i = 0; i < listLength; i++) {
+				Task current = listT.get(i);
+				String title = current.getTitle();
+				int ID = current.getTaskId();
+				String toAdd = "Task " + title + " with ID: " + ID;
+				toReturn.add(toAdd);
+			}
+		}
+		return toReturn;
+	}
+
+	AcknowledgeBundle addTask(UserInputBundle extras, Database db)
+			throws IOException {
 		String desc = extras.getDescription();
 		String endDate = extras.getEndDate();
 		String endTime = extras.getEndTime();
@@ -61,15 +99,6 @@ public class CommandParser {
 		assert ack != null;
 		return ack;
 	}
-
-	/*
-	 * AcknowledgeBundle deleteTask(String title, Database db) throws
-	 * IOException { AcknowledgeBundle ack = new Bundle(); try {
-	 * db.delete(title); ack = ackFromLogic(success, "delete successful", null);
-	 * } catch (IOException e){ if (e.equals("multiple titles")){ //TODO user
-	 * prompt to UI } else { ack = ackFromLogic(failure, "no such task", null);
-	 * } } return ack; }
-	 */
 
 	AcknowledgeBundle deleteTask(int ID, Database db) throws IOException,
 			IllegalAccessException, NoSuchElementException {
