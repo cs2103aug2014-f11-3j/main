@@ -34,7 +34,7 @@ public class CommandParser {
 	private String message = "Message";
 	private String task = "Task";
 
-	AcknowledgeBundle searchTask(UserInputBundle extras, Database db) {
+	/*AcknowledgeBundle searchTask(UserInputBundle extras, Database db) {
 		AcknowledgeBundle ack = new AcknowledgeBundle();
 		String title = extras.getTitle();
 		String desc = extras.getDescription();
@@ -50,7 +50,9 @@ public class CommandParser {
 			ack.putMessage("Reading tasks from null");
 		}
 		ArrayList<String> showToUser = concatTaskList(searchResults);
-		
+		ack.putSuccess();
+		ack.putMessage("search success");
+		ack.putList(showToUser);
 		return ack;
 	}
 
@@ -69,10 +71,11 @@ public class CommandParser {
 			}
 		}
 		return toReturn;
-	}
+	}*/
 
 	AcknowledgeBundle addTask(UserInputBundle extras, Database db)
 			throws IOException {
+		
 		String desc = extras.getDescription();
 		String endDate = extras.getEndDate();
 		String endTime = extras.getEndTime();
