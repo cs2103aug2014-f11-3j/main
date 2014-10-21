@@ -116,8 +116,8 @@ public class Database {
 					+ e.getMessage());
 			// TODO Add add command to command queue
 		} finally {
-			this.taskLogger.writeToLogFile(this.getTasks());
 			this.setTaskIds();
+			this.taskLogger.writeToLogFile(this.getTasks());
 		}
 		System.out.println("Add:");
 		this.printTasks();
@@ -201,8 +201,8 @@ public class Database {
 					+ e.getMessage());
 			// TODO Add delete command to command queue
 		} finally {
-			this.taskLogger.writeToLogFile(this.getTasks());
 			this.setTaskIds();
+			this.taskLogger.writeToLogFile(this.getTasks());
 		}
 
 		System.out.println("Delete");
