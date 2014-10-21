@@ -12,8 +12,8 @@ import taskbuddy.database.Database;
 public class CommandParser {
 
 	private Database database;
-	private Stack<Bundle> undoStack = new Stack<Bundle>();
-	private Stack<Bundle> redoStack = new Stack<Bundle>();
+	private Stack<UserInputBundle> undoStack = new Stack<UserInputBundle>();
+	private Stack<UserInputBundle> redoStack = new Stack<UserInputBundle>();
 	private Stack<Bundle> editStack = new Stack<Bundle>();
 	private static String nullValue = "padding value";
 	// if new command is parsed, clear redo stack;
@@ -34,15 +34,16 @@ public class CommandParser {
 	private String message = "Message";
 	private String task = "Task";
 
-	AcknowledgeBundle addTask(Bundle extras, Database db) throws IOException {
-		String desc = (String) extras.getItem(user_description);
-		String endDate = (String) extras.getItem(user_endDate);
-		String endTime = (String) extras.getItem(user_endTime);
-		String title = (String) extras.getItem(user_title);
+	AcknowledgeBundle addTask(UserInputBundle extras, Database db) throws IOException {
+		String desc = extras.getDescription();
+		String endDate = extras.getEndDate();
+		String endTime = extras.getEndTime();
+		String title = extras.getTitle();
 		Task newTask = new Task(title);
-		String startTime = (String) extras.getItem(user_start);
+		String startTime = extras.getStartTime();
+		String startDate = extras.getStartDate();
 		newTask.setDescription(desc);
-		newTask.setStartTime(endDate, startTime);
+		newTask.setStartTime(startDate, startTime);
 		newTask.setEndTime(endDate, endTime);
 		newTask.setGID(nullValue);
 		assert newTask != null;
@@ -85,17 +86,20 @@ public class CommandParser {
 		return ack;
 	}
 
-	AcknowledgeBundle editTask(Bundle extras, Database db) throws IOException, NoSuchElementException {
+	AcknowledgeBundle editTask(UserInputBundle extras, Database db)
+			throws IOException, NoSuchElementException, IllegalAccessException {
 		String title = (String) extras.getItem(user_title);
-		// TODO get ID out of bundle
 		AcknowledgeBundle ack = new AcknowledgeBundle();
+		int ID = Integer.parseInt(extras.getTaskID());
 		try {
-			Task toEdit = db.read(ID);
+			Task toEdit = new Task();
+			toEdit = db.read(ID);
 			Bundle editInfo = toEdit.getTaskInfo();
 			editStack.push(editInfo);
-			String newDesc = (String) extras.getItem(user_description);
-			String newEndDate = (String) extras.getItem(user_endDate);
-			String newEndTime = (String) extras.getItem(user_endTime);
+			String newTitle = extras.getTitle();
+			String newDesc = extras.getDescription();
+			String newEndDate = extras.getEndDate();
+			String newEndTime = extras.getEndTime();
 			Task toAdd = new Task();
 			toAdd.setTitle(title);
 			if (!newDesc.equals(nullValue)) {
@@ -146,7 +150,7 @@ public class CommandParser {
 			} else if (commandType.equalsIgnoreCase("delete")) {
 				addTask(prevCommand, db);
 			} else if (commandType.equalsIgnoreCase("edit")) {
-				// todo stub
+				// TODO STUB
 			} else {
 				Bundle acks = ackFromLogic(failure,
 						"fatal error: invalid undo", null);
