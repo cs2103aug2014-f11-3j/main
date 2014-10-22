@@ -16,12 +16,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TimeZone;
 
-
-
-
-
-
-
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest;
@@ -159,6 +153,7 @@ public class GooCalBackend {
 
 				// Create DateTime object to add to event object
 				event.setSummary(eventSummary);
+				
 				DateTime dateTime1 = new DateTime(dateFirst,TimeZone.getTimeZone("UTC"));
 				event.setStart(new EventDateTime().setDateTime(dateTime1));
 				DateTime dateTime2 = new DateTime(dateSecond,TimeZone.getTimeZone("UTC"));

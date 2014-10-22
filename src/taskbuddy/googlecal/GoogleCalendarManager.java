@@ -49,6 +49,7 @@ public class GoogleCalendarManager {
 		GooCalBackend gooCalBackend = new GooCalBackend(); 
 		
 
+
 		
 		
 		// First, check user online status.
@@ -120,7 +121,45 @@ public class GoogleCalendarManager {
 		}
 	}
 
-	
+	public String retrieve2(String eventId) {
+		GooCalBackend gooCalBackend = new GooCalBackend();
+		GooCalRetriever gooCalRetriever = new GooCalRetriever();
+		
+		Calendar service = null;
+		String calendarId = CALENDAR_ID;
+		
+		if (!gooCalBackend.isUserOnline()) {
+			return "failureNoInternet";
+		}
+		
+		else {
+			// This try catch blocks checks if Google's servers can be read
+			try {
+				service = gooCalBackend.initializeCalendar();
+			} catch (IOException connectionProblem) {
+				// This catach statement cataches a connetion problem
+				// Exception is only caught when authentication code is valid, yet tbere is a failure in initializing the Google Calendar
+			}
+			
+			gooCalRetriever.retrieve(service, calendarId, eventId);
+			
+			
+			
+/*			Event event = null;
+			try {
+				
+				event = service.events().get(calendarId, eventId).execute();
+			} catch (IOException unableToRetrieve) {
+				System.err.println("Unable to retrieve event");
+			}*/
+			
+			System.out.println(gooCalRetriever.getRetrievedSummary());
+			gooCalRetriever.getRetrievedStart();
+			gooCalRetriever.getRetrievedEnd();
+			return gooCalRetriever.getRetrievedSummary();
+		}
+			
+	}
 	
 	public String retrieve(String eventId) {
 		// This is a stub
@@ -129,8 +168,6 @@ public class GoogleCalendarManager {
 		// Returns a task object corresponding to the retrieval of the event from Google Calendar
 		
 		GooCalBackend gooCalBackend = new GooCalBackend(); 
-		
-
 		
 		Calendar service = null;
 		String calendarId = CALENDAR_ID;

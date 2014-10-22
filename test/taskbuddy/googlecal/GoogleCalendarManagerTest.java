@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /*
 Instructions for use:
@@ -32,40 +33,67 @@ Instructions for use:
 
 
 public class GoogleCalendarManagerTest {
-	java.util.Calendar calendarInstance = java.util.Calendar.getInstance();
-	GoogleCalendarManager goocal = new GoogleCalendarManager ();
+	Calendar calendarInstance = null;
+	Calendar calendarSpecifiedStart = null;
+	Calendar calendarSpecifiedEnd = null;
+	
+	GoogleCalendarManager goocal = new GoogleCalendarManager();
+	
+	Task task1Instance = new Task ("Task 1 Instance");
+	Task task2Instance = new Task ("Task 2 Instance");
+	Task task3SpecifiedString = new Task ("Task 3 Specified String");
+	Task task4SpecifiedCalendar = new Task ("Task 4 Specified Calendar");
+	Task task5Delete = new Task ("Task 5 Delete");
+	Task task6Delete = new Task ("Task 6 Delete");
+	Task task7AddRetrieve = new Task ("Task 7 add and retrieve");
+	Task task8UpdateSummary = new Task ("Task 8 update summary");
+	Task task9UpdateStartEnd = new Task ("Task 9 update start end");
+
+	
+	public void createInstanceCalendars() {
+		calendarInstance = Calendar.getInstance();
+	}
 	
 	
-	Task task1 = new Task ("Task number 1");
-	Task task2 = new Task ("Task number 2");
-	Task task3 = new Task ("Task number 3");
-	Task task4 = new Task ("Task number 4");
-	Task task5 = new Task ("Task number 5");
-	Task task6 = new Task ("Task number 6");
-	Task taskAddRetrieve = new Task ("Task add and retrieve");
-	
+	public void createSpecifiedCalendars() {
+		calendarSpecifiedStart = Calendar.getInstance();
+		calendarSpecifiedStart.set(2014,9,22,18,30,00);
+		calendarSpecifiedEnd = Calendar.getInstance();
+		calendarSpecifiedEnd.set(2014,9,22,19,00,00);
+	}
 	
 	public void setTaskAttributes() {
-		task1.setStartTime(calendarInstance);
-		task1.setEndTime("padding value", "padding value");
+		createInstanceCalendars();
+		createSpecifiedCalendars();
 		
-		task2.setStartTime(calendarInstance);
-		task2.setEndTime("padding value", "padding value");
+		task1Instance.setStartTime(calendarInstance);
+		task1Instance.setEndTime("padding value", "padding value");
 		
-		task3.setStartTime(calendarInstance);
-		task3.setEndTime("padding value", "padding value");
+		task2Instance.setStartTime(calendarInstance);
+		task2Instance.setEndTime("padding value", "padding value");
+		
+		// Task 3 start and end is set using strings 
+		task3SpecifiedString.setStartTime("22/10/2014","1800");
+		task3SpecifiedString.setEndTime("22/10/2014", "1830");
 
-		task4.setStartTime(calendarInstance);
-		task4.setEndTime("padding value", "padding value");
+		// Task 4 start and end is set using Calendar objects
+		task4SpecifiedCalendar.setStartTime(calendarSpecifiedStart);
+		task4SpecifiedCalendar.setEndTime(calendarSpecifiedEnd);
 		
-		task5.setStartTime(calendarInstance);
-		task5.setEndTime("padding value", "padding value");
+		task5Delete.setStartTime(calendarInstance);
+		task5Delete.setEndTime("padding value", "padding value");
 		
-		task6.setStartTime(calendarInstance);
-		task6.setEndTime("padding value", "padding value");
+		task6Delete.setStartTime(calendarSpecifiedStart);
+		task6Delete.setEndTime(calendarSpecifiedStart);
 		
-		taskAddRetrieve.setStartTime(calendarInstance);
-		taskAddRetrieve.setEndTime("padding value", "padding value");
+		task7AddRetrieve.setStartTime("22/10/2014", "1900");
+		task7AddRetrieve.setEndTime("22/10/2014", "2000");
+		
+		task8UpdateSummary.setStartTime(calendarInstance);
+		task8UpdateSummary.setEndTime("padding value", "padding value");
+		
+		task9UpdateStartEnd.setStartTime(calendarInstance);
+		task9UpdateStartEnd.setEndTime("padding value", "padding value");
 		
 	}
 	
@@ -74,22 +102,22 @@ public class GoogleCalendarManagerTest {
 	public void testAddDelete() throws UnknownHostException {
 		setTaskAttributes();
 	
-		goocal.add(task1);
+		goocal.add(task1Instance);
 		System.out.println("Executing add:"); // For debugging
-		goocal.add(task2);
+		goocal.add(task2Instance);
 		System.out.println("Executing add:"); // For debugging
-		goocal.add(task3);
+		goocal.add(task3SpecifiedString);
 		System.out.println("Executing add:"); // For debugging
-		goocal.add(task4);
+		goocal.add(task4SpecifiedCalendar);
 		System.out.println("Executing add:"); // For debugging
-		goocal.add(task5);
+		goocal.add(task5Delete);
 		System.out.println("Executing add:"); // For debugging
-		goocal.add(task6);
+		goocal.add(task6Delete);
 		System.out.println("Executing add:"); // For debugging
 		
-		goocal.delete(task1.getGID());
+		goocal.delete(task5Delete.getGID());
 		System.out.println("Executing delete:"); // For debugging
-		goocal.delete(task5.getGID());
+		goocal.delete(task6Delete.getGID());
 		System.out.println("Executing delete:"); // For debugging
 
 	}
@@ -98,30 +126,29 @@ public class GoogleCalendarManagerTest {
 	@Test
 	public void testAddRetrieve() throws UnknownHostException {
 		setTaskAttributes();
-		String taskTitle = task1.getTitle();		
-		goocal.add(task1);
-		String GID = task1.getGID();
-		String eventSummary = goocal.retrieve(GID);
+		String taskTitle = task7AddRetrieve.getTitle();		
+		goocal.add(task7AddRetrieve);
+		String GID = task7AddRetrieve.getGID();
+		String eventSummary = goocal.retrieve2(GID);
 		assertEquals("Faled. Task title did not match event summary of the Google Calendar Event retrieved", taskTitle, eventSummary);	
 	}
 	
 	@Test
 	public void testUpdateSummary() throws UnknownHostException {
 		setTaskAttributes();
-		String taskTitle = task1.getTitle();		
-		goocal.add(task1);
-		String GID = task1.getGID();
+		String taskTitle = task8UpdateSummary.getTitle();		
+		goocal.add(task8UpdateSummary);
+		String GID = task8UpdateSummary.getGID();
 		String eventSummary = goocal.retrieve(GID);
-		//assertEquals("Faled. Task title did not match event summary of the Google Calendar Event retrieved", taskTitle, eventSummary);	
-		
+
 		// Now I modify the title
-		task1.setTitle("UPDATEDDDD!");
+		task8UpdateSummary.setTitle("UPDATEDDDD! Task8");
 		
 		// I store the modified title
-		String updatedTitle = task1.getTitle();
+		String updatedTitle = task8UpdateSummary.getTitle();
 		
 		// I execute the update method of GoogleCalendarManager
-		goocal.update(task1);
+		goocal.update(task8UpdateSummary);
 		
 		// I retrieve the updated event summary 
 		String updatedEventSummary = goocal.retrieve(GID);
@@ -129,25 +156,29 @@ public class GoogleCalendarManagerTest {
 		// I assert to see whether update was successful
 		assertEquals("Faled. Update of event summary failed", updatedTitle, updatedEventSummary);	
 	}
+	
+	
+	@Test
+	public void testUpdateStartEnd() throws UnknownHostException {
+		// This test has not been asserted because the retrieve method is still being worked on
+		
+		setTaskAttributes();	
+		goocal.add(task9UpdateStartEnd);
+		
+		// Now I modify the start date time
+		task9UpdateStartEnd.setStartTime("22/10/2014", "2300");
+		task9UpdateStartEnd.setEndTime("22/20/2014", "2359");
+	
+		// I execute the update method of GoogleCalendarManager
+		goocal.update(task9UpdateStartEnd);
+	}
 
 	
-	// Use this test method to test the assertion: Title is missing from this task object
-	/*
-	@Test
-	public void testAddRetrieve() throws UnknownHostException {
-		setTaskAttributes();
-		String taskTitle = task1.getTitle();
-		task1.setTitle(null); //Removes the element in question on purpose 
-		goocal.add(task1);
-		String GID = task1.getGID();
-		String eventSummary = goocal.retrieve(GID);
-		assertEquals("Faled. Task title did not match event summary of the Google Calendar Event retrieved", taskTitle, eventSummary);	
-	}
-	*/
+
 	
 	@Test
 	public void testGetSummary() {
 		setTaskAttributes();
-		assertEquals("Faled. getSummary method did not return the right string", "Task number 1", goocal.getSummary(task1));
+		assertEquals("Faled. getSummary method did not return the right string", "Task 1 Instance", goocal.getSummary(task1Instance));
 	}	
 }
