@@ -41,7 +41,12 @@ public class GooCalBackend {
 
     private static final String USER_ID = "ipeech";
     
+    private static EventDateTime startEventAllDay;
+    private static EventDateTime endEventAllDay;
+    private static EventDateTime startEventDateTime;
+    private static EventDateTime endEventDateTime;
     
+  
 	public boolean isUserOnline()  {
 		Socket socket = null;
 		try {
@@ -93,79 +98,90 @@ public class GooCalBackend {
 		return service;
 	}
 	
+	public boolean isAllDayEvent(String eventStartTime, String eventEndTime) {
+		System.out.println("check all day start: " + eventStartTime);
+		System.out.println("check all day end: " + eventEndTime);
+		if (eventStartTime.equals("00:00") && eventEndTime.equals("23:59")) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 	
+	
+	public void setEventNormal(String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime) {
+		// This method modifies global variables
+		try {
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			// To parse string into Date object
+			Date dateFirst = simpleDateFormat.parse(eventStartDate + " " + eventStartTime);
+			Date dateSecond = simpleDateFormat.parse(eventEndDate + " " + eventEndTime);
+
+			// Create DateTime object to add to event object
+			DateTime dateTime1 = new DateTime(dateFirst,TimeZone.getTimeZone("UTC"));
+			startEventDateTime = new EventDateTime();
+			startEventDateTime.setDateTime(dateTime1);
+			
+			DateTime dateTime2 = new DateTime(dateSecond,TimeZone.getTimeZone("UTC"));
+			endEventDateTime = new EventDateTime();
+			endEventDateTime.setDateTime(dateTime2);
+		} catch (ParseException ex) {
+			System.out.println("Exception " + ex);
+		}
+	}
+	
+	public void setEventAllDay(String eventStartDate, String eventEndDate) {
+		SimpleDateFormat simpleDateFormatAllDay = new SimpleDateFormat("dd/MM/yyyy");
+		
+		try {
+			// To parse string into Date object
+			Date dateFirst = simpleDateFormatAllDay.parse(eventStartDate);
+			Date dateSecond = simpleDateFormatAllDay.parse(eventEndDate);
+
+			// Creates string from date object, string must be in a
+			// particular format to create a DateTime object with no
+			// time element
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			String startDateStr = dateFormat.format(dateFirst);
+			String endDateStr = dateFormat.format(dateSecond);
+
+			// Out of the 6 methods for creating a DateTime object with
+			// no time element, only the String version works
+			DateTime startDateTime = new DateTime(startDateStr);
+			DateTime endDateTime = new DateTime(endDateStr);
+
+			// Must use the setDate() method for an all-day event
+			// (setDateTime() is used for timed events)
+			startEventAllDay = new EventDateTime();
+			startEventAllDay.setDate(startDateTime);
+			
+			endEventAllDay = new EventDateTime();
+			endEventAllDay.setDate(endDateTime);
+			
+		} catch (ParseException ex) {
+			System.out.println("Exception " + ex);
+		}
+	}
 
 	public String addEventToCalendar(Calendar service, String eventSummary, String calendarID, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime)  {
 		//System.out.println("Executing addEventToCalendar:"); // For debugging
 		
 		Event event = new Event();
-
 		
 
-
-		SimpleDateFormat simpleDateFormatAllDay = new SimpleDateFormat("dd/MM/yyyy");
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
-		if (eventStartTime.isEmpty() || eventEndTime.isEmpty()) {
-			//System.out.println("CREATE AN ALL-DAY EVENT IF END TIMES ARE LEFT BLANK:");
-			try {
-				// To parse string into Date object
-				Date dateFirst = simpleDateFormatAllDay.parse(eventStartDate);
-				Date dateSecond = simpleDateFormatAllDay.parse(eventEndDate);
-
-				// Creates string from date object, string must be in a
-				// particular format to create a DateTime object with no
-				// time element
-				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-				String startDateStr = dateFormat.format(dateFirst);
-				String endDateStr = dateFormat.format(dateSecond);
-
-				// Out of the 6 methods for creating a DateTime object with
-				// no time element, only the String version works
-				DateTime startDateTime = new DateTime(startDateStr);
-				DateTime endDateTime = new DateTime(endDateStr);
-
-				// Must use the setDate() method for an all-day event
-				// (setDateTime() is used for timed events)
-				EventDateTime startEventDateTime = new EventDateTime().setDate(startDateTime);
-				EventDateTime endEventDateTime = new EventDateTime().setDate(endDateTime);
-				
-				//System.out.println(endDateTime);
-
-				// Set event parameters
-				event.setSummary(eventSummary);
-				event.setStart(startEventDateTime);
-				event.setEnd(endEventDateTime);
-			} catch (ParseException ex) {
-				System.out.println("Exception " + ex);
-			}
-		} else {
-			//System.out.println("CREATE A NORMAL TIMED EVENT:");
-			try {
-
-				// To parse string into Date object
-				Date dateFirst = simpleDateFormat.parse(eventStartDate + " " + eventStartTime);
-				Date dateSecond = simpleDateFormat.parse(eventEndDate + " " + eventEndTime);
-
-				// Formats Date object according to simpleDateFormat, print.
-				//System.out.println("date : " + simpleDateFormat.format(dateFirst));
-				//System.out.println("date : " + simpleDateFormat.format(dateSecond));
-
-				// Create DateTime object to add to event object
-				event.setSummary(eventSummary);
-				
-				DateTime dateTime1 = new DateTime(dateFirst,TimeZone.getTimeZone("UTC"));
-				event.setStart(new EventDateTime().setDateTime(dateTime1));
-				DateTime dateTime2 = new DateTime(dateSecond,TimeZone.getTimeZone("UTC"));
-				event.setEnd(new EventDateTime().setDateTime(dateTime2));
-				
-				//System.out.println(dateTime1);
-				//System.out.println(dateTime2);
-				
-				
-			} catch (ParseException ex) {
-				System.out.println("Exception " + ex);
-			}
+		//if (eventStartTime.isEmpty() || eventEndTime.isEmpty()) {
+		if (isAllDayEvent(eventStartTime, eventEndTime)) {
+			setEventAllDay(eventStartDate,eventEndDate);
+			event.setSummary(eventSummary);
+			event.setStart(startEventAllDay);
+			event.setEnd(endEventAllDay);
+		} 
+		else {
+			setEventNormal(eventStartDate, eventStartTime, eventEndDate, eventEndTime);
+			event.setSummary(eventSummary);
+			event.setStart(startEventDateTime);
+			event.setEnd(endEventDateTime);
 		}
 		// Create event object, execute the insertion of this event into the google calendar
 		Event createdEvent = null;

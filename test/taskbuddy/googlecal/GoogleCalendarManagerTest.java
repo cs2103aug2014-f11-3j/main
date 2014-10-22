@@ -48,6 +48,8 @@ public class GoogleCalendarManagerTest {
 	Task task7AddRetrieve = new Task ("Task 7 add and retrieve");
 	Task task8UpdateSummary = new Task ("Task 8 update summary");
 	Task task9UpdateStartEnd = new Task ("Task 9 update start end");
+	Task task10AllDayEventOneDay = new Task ("Task 10 Single Day All Day Event");
+	Task task11AllDayEventMultipleDays = new Task ("Task 11 Multiple Day All Day Event");
 
 	
 	public void createInstanceCalendars() {
@@ -95,6 +97,12 @@ public class GoogleCalendarManagerTest {
 		task9UpdateStartEnd.setStartTime(calendarInstance);
 		task9UpdateStartEnd.setEndTime("padding value", "padding value");
 		
+		task10AllDayEventOneDay.setStartTime("22/10/2014", "0000");
+		task10AllDayEventOneDay.setEndTime("22/10/2014", "2359");
+		
+		task11AllDayEventMultipleDays.setStartTime("22/10/2014", "0000");
+		task11AllDayEventMultipleDays.setEndTime("29/10/2014", "2359");
+		
 	}
 	
 
@@ -119,6 +127,11 @@ public class GoogleCalendarManagerTest {
 		System.out.println("Executing delete:"); // For debugging
 		goocal.delete(task6Delete.getGID());
 		System.out.println("Executing delete:"); // For debugging
+		
+		goocal.add(task10AllDayEventOneDay);
+		System.out.println("Executing add:");
+		goocal.add(task11AllDayEventMultipleDays);
+		System.out.println("Executing add:");
 
 	}
 	
@@ -167,7 +180,7 @@ public class GoogleCalendarManagerTest {
 		
 		// Now I modify the start date time
 		task9UpdateStartEnd.setStartTime("22/10/2014", "2300");
-		task9UpdateStartEnd.setEndTime("22/20/2014", "2359");
+		task9UpdateStartEnd.setEndTime("22/10/2014", "2359");
 	
 		// I execute the update method of GoogleCalendarManager
 		goocal.update(task9UpdateStartEnd);
