@@ -47,11 +47,7 @@ public class GoogleCalendarManager {
 		String calendarID = CALENDAR_ID;   // CURRENTLY HARDCODED
 		String gooCalEventID;
 		GooCalBackend gooCalBackend = new GooCalBackend(); 
-		
-
-
-		
-		
+				
 		// First, check user online status.
 		if (!gooCalBackend.isUserOnline()) {
 			throw new UnknownHostException(USER_OFFLINE_ERROR); 
@@ -67,12 +63,13 @@ public class GoogleCalendarManager {
 			}
 
 			String eventSummary = getSummary(task);
+			String eventDescription = getDescription(task);
 			String eventStartDate = getStartDate(task);
 			String eventStartTime = getStartTime(task);
 			String eventEndDate = getEndDate(task);
 			String eventEndTime = getEndTime(task);
 			
-			gooCalEventID = gooCalBackend.addEventToCalendar(service, eventSummary, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
+			gooCalEventID = gooCalBackend.addEventToCalendar(service, eventSummary, eventDescription, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
 			
 			task.setGID(gooCalEventID);			
 			
@@ -87,6 +84,13 @@ public class GoogleCalendarManager {
 	
 	
 	
+
+
+
+
+
+
+
 	public void delete(String eventId) throws UnknownHostException  {
 		// Assert Tests
 		assert (!eventId.equals("Google Calendar ID:")): MISSING_GOOGLE_ID_ERROR;
@@ -156,6 +160,7 @@ public class GoogleCalendarManager {
 			System.out.println(gooCalRetriever.getRetrievedSummary());
 			gooCalRetriever.getRetrievedStart();
 			gooCalRetriever.getRetrievedEnd();
+			gooCalRetriever.getRetrievedDescription();
 			return gooCalRetriever.getRetrievedSummary();
 		}
 			
@@ -228,13 +233,14 @@ public class GoogleCalendarManager {
 			}
 
 			String eventSummary = getSummary(task);
+			String eventDescription = getDescription(task);
 			String eventStartDate = getStartDate(task);
 			String eventStartTime = getStartTime(task);
 			String eventEndDate = getEndDate(task);
 			String eventEndTime = getEndTime(task);
 			String gooCalEventID = getGooCalEventID(task);
 
-			gooCalBackend.updateEvent(service, eventSummary, calendarID, gooCalEventID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
+			gooCalBackend.updateEvent(service, eventSummary, eventDescription, calendarID, gooCalEventID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
 			//System.out.println(gooCalEventID);
 			//task.setGID(gooCalEventID);			
 			
@@ -253,6 +259,10 @@ public class GoogleCalendarManager {
 		return task.getTitle();
 	}
 	
+	private String getDescription(Task task) {
+		return task.getDescription();
+	}
+
 	
 	public String getStartDate(Task task) throws NullPointerException {
 		//System.out.println("Executing getStartDate:"); // For debugging

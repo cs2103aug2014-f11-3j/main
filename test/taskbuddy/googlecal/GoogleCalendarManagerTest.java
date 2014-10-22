@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import taskbuddy.logic.Task;
 import taskbuddy.logic.Bundle;
+import taskbuddy.googlecal.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,6 +39,8 @@ public class GoogleCalendarManagerTest {
 	Calendar calendarSpecifiedEnd = null;
 	
 	GoogleCalendarManager goocal = new GoogleCalendarManager();
+	GooCalRetriever gooCalRetriever = new GooCalRetriever();
+	
 	
 	Task task1Instance = new Task ("Task 1 Instance");
 	Task task2Instance = new Task ("Task 2 Instance");
@@ -50,6 +53,7 @@ public class GoogleCalendarManagerTest {
 	Task task9UpdateStartEnd = new Task ("Task 9 update start end");
 	Task task10AllDayEventOneDay = new Task ("Task 10 Single Day All Day Event");
 	Task task11AllDayEventMultipleDays = new Task ("Task 11 Multiple Day All Day Event");
+	Task task12UpdateDescription = new Task ("Task 12 Update Description");
 
 	
 	public void createInstanceCalendars() {
@@ -70,6 +74,7 @@ public class GoogleCalendarManagerTest {
 		
 		task1Instance.setStartTime(calendarInstance);
 		task1Instance.setEndTime("padding value", "padding value");
+		task1Instance.setDescription("LALALALALLA DESCRIBE");
 		
 		task2Instance.setStartTime(calendarInstance);
 		task2Instance.setEndTime("padding value", "padding value");
@@ -102,6 +107,9 @@ public class GoogleCalendarManagerTest {
 		
 		task11AllDayEventMultipleDays.setStartTime("22/10/2014", "0000");
 		task11AllDayEventMultipleDays.setEndTime("29/10/2014", "2359");
+		
+		task12UpdateDescription.setStartTime(calendarInstance);
+		task12UpdateDescription.setEndTime("padding value", "padding value");
 		
 	}
 	
@@ -142,17 +150,18 @@ public class GoogleCalendarManagerTest {
 		String taskTitle = task7AddRetrieve.getTitle();		
 		goocal.add(task7AddRetrieve);
 		String GID = task7AddRetrieve.getGID();
-		String eventSummary = goocal.retrieve2(GID);
+		gooCalRetriever.retrieve(GID);
+		String eventSummary = gooCalRetriever.getRetrievedSummary();
 		assertEquals("Faled. Task title did not match event summary of the Google Calendar Event retrieved", taskTitle, eventSummary);	
 	}
 	
 	@Test
 	public void testUpdateSummary() throws UnknownHostException {
 		setTaskAttributes();
-		String taskTitle = task8UpdateSummary.getTitle();		
+		//String taskTitle = task8UpdateSummary.getTitle();		
 		goocal.add(task8UpdateSummary);
 		String GID = task8UpdateSummary.getGID();
-		String eventSummary = goocal.retrieve(GID);
+		//String eventSummary = goocal.retrieve(GID);
 
 		// Now I modify the title
 		task8UpdateSummary.setTitle("UPDATEDDDD! Task8");
@@ -164,7 +173,8 @@ public class GoogleCalendarManagerTest {
 		goocal.update(task8UpdateSummary);
 		
 		// I retrieve the updated event summary 
-		String updatedEventSummary = goocal.retrieve(GID);
+		gooCalRetriever.retrieve(GID);
+		String updatedEventSummary = gooCalRetriever.getRetrievedSummary();
 		
 		// I assert to see whether update was successful
 		assertEquals("Faled. Update of event summary failed", updatedTitle, updatedEventSummary);	
@@ -186,6 +196,30 @@ public class GoogleCalendarManagerTest {
 		goocal.update(task9UpdateStartEnd);
 	}
 
+	@Test
+	public void testUpdateDescription() throws UnknownHostException {
+		setTaskAttributes();
+		goocal.add(task12UpdateDescription);
+		String GID = task12UpdateDescription.getGID();
+
+		// Now I modify the description
+		task12UpdateDescription.setDescription("My Updated Description for Task 12!");
+		
+		// I store the modified title
+		String updatedDescription = task12UpdateDescription.getDescription();
+		
+		// I execute the update method of GoogleCalendarManager
+		goocal.update(task12UpdateDescription);
+		
+		// I retrieve the updated event summary 
+		
+		gooCalRetriever.retrieve(GID);
+		String updatedEventDescription = gooCalRetriever.getRetrievedDescription();
+		
+		
+		// I assert to see whether update was successful
+		assertEquals("Faled. Update of event summary failed", updatedDescription, updatedEventDescription);	
+	}
 	
 
 	

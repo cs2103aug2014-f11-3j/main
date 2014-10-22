@@ -36,7 +36,8 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 
 public class GooCalRetriever {
-	private static final String USER_ID = "ipeech";
+	//private static final String USER_ID = "ipeech";
+    private static final String CALENDAR_ID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
 	
 	// Attributes
 	private String retrievedSummary;
@@ -47,7 +48,47 @@ public class GooCalRetriever {
 	private java.util.Calendar retrievedEndCalendar;
 	
 	
-	public void retrieve(Calendar service, String calendarId, String eventId) {
+	
+	public void retrieve(String eventId) {
+		GooCalBackend gooCalBackend = new GooCalBackend();
+		GooCalRetriever gooCalRetriever = new GooCalRetriever();
+		
+		Calendar service = null;
+		String calendarId = CALENDAR_ID;
+		
+		if (!gooCalBackend.isUserOnline()) {
+			//return "failureNoInternet";
+		}
+		
+		else {
+			// This try catch blocks checks if Google's servers can be read
+			try {
+				service = gooCalBackend.initializeCalendar();
+			} catch (IOException connectionProblem) {
+				// This catach statement cataches a connetion problem
+				// Exception is only caught when authentication code is valid, yet tbere is a failure in initializing the Google Calendar
+			}
+			
+			retriever(service, calendarId, eventId);
+			
+			
+			
+/*			Event event = null;
+			try {
+				
+				event = service.events().get(calendarId, eventId).execute();
+			} catch (IOException unableToRetrieve) {
+				System.err.println("Unable to retrieve event");
+			}*/
+	
+		}
+			
+	}
+	
+	
+	
+	
+	public void retriever(Calendar service, String calendarId, String eventId) {
 		Event event = null;
 		try {
 			event = service.events().get(calendarId, eventId).execute();
@@ -57,9 +98,11 @@ public class GooCalRetriever {
 		setRetrievedSummary(event.getSummary());
 		setRetrievedStart(event.getStart().toString());
 		setRetrievedEnd(event.getEnd().toString());
+		setRetrievedDescription(event.getDescription());
 		
 	}
-	
+
+
 	// Mutators
 	public void setRetrievedSummary(String retrievedSummary) {
 		this.retrievedSummary = retrievedSummary;
@@ -71,6 +114,11 @@ public class GooCalRetriever {
 	
 	public void setRetrievedEnd(String retrievedEnd) {
 		this.retrievedEnd = retrievedEnd;
+	}
+	
+	
+	private void setRetrievedDescription(String retrievedDescription) {
+		this.retrievedDescription = retrievedDescription;
 	}
 
 	
@@ -87,5 +135,10 @@ public class GooCalRetriever {
 	public String getRetrievedEnd() {
 		System.out.println("Retrieved End: " + retrievedEnd);
 		return retrievedEnd;
+	}
+	
+	public String getRetrievedDescription() {
+		System.out.println("Retrieved Description: " + retrievedDescription);
+		return retrievedDescription;
 	}
 }
