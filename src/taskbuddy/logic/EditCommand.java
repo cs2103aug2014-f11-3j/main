@@ -44,7 +44,7 @@ public class EditCommand {
 					toEdit.setStartTime(endDate, endTime);
 				}
 			}
-			//TODO STUB : edit method in db
+			db.edit(toEdit);
 			ack.putSuccess();
 			ack.putMessage("task edited");
 		} catch (Exception e){
