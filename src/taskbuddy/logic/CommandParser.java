@@ -9,6 +9,37 @@ import java.util.Stack;
 import taskbuddy.database.Database;
 
 //Author: andrew
+
+public class CommandParser{
+	private Database database;
+	private static String nullValue = "padding value";
+	
+	public AcknowledgeBundle parseUserInputs(UserInputBundle userIn){
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		try {
+			String commandType = userIn.getCommand();
+			if (commandType.equals("add")){
+				ack = AddCommand.addTask(userIn, database);
+			} else if (commandType.equals("delete")){
+				int id = Integer.parseInt(userIn.getTaskID());
+				ack = DeleteCommand.deleteTask(id, database);
+			} else if (commandType.equals("edit")){
+				ack = EditCommand.editTask(userIn, database);
+			} else if (commandType.equals("display")){
+				ack = DisplayCommand.displayAllTasks(database);
+			} else if (commandType.equals("search")){
+				ack = SearchCommand.searchForTasks(userIn, database);
+			}
+		} catch (Exception e){
+			ack.putFailure();
+			ack.putMessage("parse error");
+		}
+		return ack;
+	}
+}
+
+
+/*
 public class CommandParser {
 
 	private Database database;
@@ -34,7 +65,7 @@ public class CommandParser {
 	private String message = "Message";
 	private String task = "Task";
 
-	/*AcknowledgeBundle searchTask(UserInputBundle extras, Database db) {
+	AcknowledgeBundle searchTask(UserInputBundle extras, Database db) {
 		AcknowledgeBundle ack = new AcknowledgeBundle();
 		String title = extras.getTitle();
 		String desc = extras.getDescription();
@@ -71,7 +102,7 @@ public class CommandParser {
 			}
 		}
 		return toReturn;
-	}*/
+	}
 
 	AcknowledgeBundle addTask(UserInputBundle extras, Database db)
 			throws IOException {
@@ -283,4 +314,4 @@ public class CommandParser {
 			return status;
 		}
 	}
-}
+}*/

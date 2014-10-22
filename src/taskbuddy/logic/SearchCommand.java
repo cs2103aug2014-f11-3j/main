@@ -38,7 +38,7 @@ public class SearchCommand {
 		return ack;
 	}
 	
-	static ArrayList<String> concatTaskList(ArrayList<Task> listT) {
+	private static ArrayList<String> concatTaskList(ArrayList<Task> listT) {
 		ArrayList<String> toReturn = new ArrayList<String>();
 		int listLength = listT.size();
 		if (listLength == 0) {
