@@ -24,19 +24,12 @@ public class AddCommand {
 			taskToAdd.setDescription("no description available");
 		}
 		addTimeToTask(taskToAdd, startTime, startDate, endtime, endDate);
-		System.out.println(startDate);
-		System.out.println(taskToAdd.getStartTime().toString());
-		System.out.println(taskToAdd.displayStart());
-		System.out.println("before try");
 		try {
-			System.out.println("before add to db");
 			db.addTask(taskToAdd);
-			System.out.println("after add to db");
 			ackBundle.putSuccess();
 			ackBundle.putMessage("added task to database with no errors");
 			ackBundle.putTask(taskToAdd);
 		} catch (Exception e) {
-			System.out.println("catch");
 			e.printStackTrace();
 			ackBundle.putFailure();
 			ackBundle.putMessage("failed to add task to database");
@@ -53,7 +46,6 @@ public class AddCommand {
 				// floating task
 				taskToMod.setFloating(true);
 				Calendar cal = Calendar.getInstance();
-				System.out.println(cal.toString());
 				taskToMod.setEndTime(cal);
 				taskToMod.setStartTime(cal);
 			}
@@ -65,8 +57,6 @@ public class AddCommand {
 				int mm = Integer.parseInt(timeEnd.substring(2));
 				cal.set(Calendar.HOUR_OF_DAY, hh);
 				cal.set(Calendar.MINUTE, mm);
-				System.out.println("PRINTING CALENDAR");
-				System.out.println(cal.toString());
 				taskToMod.setEndTime(cal);
 				taskToMod.setStartTime(cal);
 			}
