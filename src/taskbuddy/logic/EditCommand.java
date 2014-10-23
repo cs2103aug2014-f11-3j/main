@@ -47,6 +47,7 @@ public class EditCommand {
 			db.edit(toEdit);
 			ack.putSuccess();
 			ack.putMessage("task edited");
+			ack.putTask(toEdit);
 		} catch (Exception e){
 			ack.putFailure();
 			ack.putMessage("Unable to find task in DB");
