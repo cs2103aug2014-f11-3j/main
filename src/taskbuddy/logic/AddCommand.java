@@ -3,8 +3,8 @@ package taskbuddy.logic;
 import java.util.Calendar;
 
 import taskbuddy.database.Database;
+
 public class AddCommand {
-	
 
 	private static String nullValue = "padding value";
 
@@ -35,7 +35,7 @@ public class AddCommand {
 			ackBundle.putSuccess();
 			ackBundle.putMessage("added task to database with no errors");
 			ackBundle.putTask(taskToAdd);
-		} catch (Exception e){
+		} catch (Exception e) {
 			System.out.println("catch");
 			e.printStackTrace();
 			ackBundle.putFailure();
@@ -48,21 +48,30 @@ public class AddCommand {
 	private static void addTimeToTask(Task taskToMod, String timeStart,
 			String dateStart, String timeEnd, String dateEnd) {
 		System.out.println(dateStart + dateEnd + nullValue);
-		System.out.println(timeStart.equals(timeEnd) && dateStart.equals(dateEnd));
-		
-		
+		System.out.println(timeStart.equals(timeEnd)
+				&& dateStart.equals(dateEnd));
+
+		boolean isFloatingTask = dateStart.equals(nullValue)
+				&& dateEnd.equals(nullValue);
+		boolean isDeadlineButNotAllDayTask = !timeStart.equals(nullValue)
+				&& dateEnd.equals(nullValue);
+		boolean isStartDateEndDateTask = !dateStart.equals(nullValue)
+				&& !dateEnd.equals(nullValue);
+
 		if (timeStart.equals(timeEnd) && dateStart.equals(dateEnd)) {
 			taskToMod.setFloating(false);
-			if (dateStart.equals(nullValue) && dateEnd.equals(nullValue)){
-				//floating task
+			if (isFloatingTask) {
+				// floating task
 				System.out.println("else loop");
 				taskToMod.setFloating(true);
 				Calendar cal = Calendar.getInstance();
 				System.out.println(cal.toString());
 				taskToMod.setEndTime(cal);
-				taskToMod.setStartTime(cal);}
-			//deadline task
-			if (!timeStart.equals(nullValue)) {
+				taskToMod.setStartTime(cal);
+			}
+
+			// deadline task
+			if (isDeadlineButNotAllDayTask) {
 				taskToMod.setStartTime(dateStart, timeStart);
 				taskToMod.setEndTime(dateEnd, timeEnd);
 			} else {
@@ -72,21 +81,21 @@ public class AddCommand {
 				taskToMod.setEndTime(dateEnd, time2);
 			}
 
-		} else if (!dateStart.equals(nullValue) && !dateEnd.equals(nullValue)){
+		} else if (isStartDateEndDateTask) {
 			taskToMod.setFloating(false);
-			if (timeStart.equals(nullValue)){
+			if (timeStart.equals(nullValue)) {
 				String time1 = "0000";
 				taskToMod.setStartTime(dateStart, time1);
 			} else {
 				taskToMod.setStartTime(dateStart, timeStart);
 			}
-			
-			if (timeEnd.equals(nullValue)){
-				String time2 = "2359";
-				taskToMod.setEndTime(dateEnd, time2);
-			} else {
-				taskToMod.setEndTime(dateEnd, timeEnd);
-			}
+
+			// if (timeEnd.equals(nullValue)){
+			// String time2 = "2359";
+			// taskToMod.setEndTime(dateEnd, time2);
+			// } else {
+			// taskToMod.setEndTime(dateEnd, timeEnd);
+			// }
 		}
 	}
 }

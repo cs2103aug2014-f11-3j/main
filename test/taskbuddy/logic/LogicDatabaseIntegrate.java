@@ -37,18 +37,63 @@ public class LogicDatabaseIntegrate {
 			db.printTasks();
 			String status = bf.getStatus();
 			assertEquals("Success", status);
+			
+			 uf.putCommand("delete");
+			
+			uf.putID("0");
+			bf = cp.parseUserInputs(uf);
+			System.out.println(bf.getStatus());
+			
+			
 		} catch (Exception e) {
 			//e.printStackTrace();
 		}
 	}
 
+//	
+//
+//	@Test
+//	public void testAddNonFloating() throws ParseException, IOException {
+//		try {
+//			cp = new CommandParser();
+//			UserInputBundle uf = new UserInputBundle();
+//			AcknowledgeBundle bf = new AcknowledgeBundle();
+//			uf.putTitle("task floating");
+//			uf.putDescription("test task for integration");
+//			uf.putEndDate("23/10/2014");
+//			uf.putEndTime("2000");
+//			uf.putStartDate("23/10/2014");
+//			uf.putStartTime("1900");
+//			uf.putCommand("add");
+//			pr(uf.getCommand());
+//			pr(uf.getTitle());
+//			pr(uf.getDescription());
+//			bf = cp.parseUserInputs(uf);
+//			Database db = cp.getDatabase();
+//			db.printTasks();
+//			String status = bf.getStatus();
+//			assertEquals("Success", status);
+//			
+//			// uf.putCommand("delete");
+//			
+//			//uf.putID("0");
+//			//bf = cp.parseUserInputs(uf);
+//			//System.out.println(bf.getStatus());
+//			
+//			
+//		} catch (Exception e) {
+//			//e.printStackTrace();
+//		}
+//	}
+	
+	
 	public void pr(String s) {
 		System.out.println(s);
 	}
 
-	/*
-	 * @After public void deleteLog(){ File log = new File("log"); if
-	 * (log.isFile()){ log.delete(); } }
-	 */
+//	
+//	  @After public void deleteLog(){ File log = new File("log"); if
+//	  (log.isFile()){ log.delete(); } }
+	 
 
 }
