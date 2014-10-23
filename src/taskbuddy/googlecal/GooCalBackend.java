@@ -159,6 +159,10 @@ public class GooCalBackend {
 			endEventAllDay = new EventDateTime();
 			endEventAllDay.setDate(endDateTime);
 			
+			System.out.println("all day event start: " + startEventAllDay);
+			System.out.println("all day event end: " + endEventAllDay);
+			
+			
 		} catch (ParseException ex) {
 			System.out.println("Exception " + ex);
 		}
@@ -175,6 +179,8 @@ public class GooCalBackend {
 			event.setDescription(eventDescription);
 			event.setStart(startEventAllDay);
 			event.setEnd(endEventAllDay);
+			System.out.println("all day event start: " + startEventAllDay);
+			System.out.println("all day event end: " + endEventAllDay);
 		} 
 		else {
 			setEventNormal(eventStartDate, eventStartTime, eventEndDate, eventEndTime);

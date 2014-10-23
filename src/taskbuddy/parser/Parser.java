@@ -33,6 +33,8 @@ import taskbuddy.logic.UserInputBundle;
  * add <title> 
  * add <title> today/tomorrow/this Saturday/next Wednesday
  * 
+ * FORMAT FOR TIME: 8am, 0830am
+ * 
  * for deadline task:
  * add <title> by <starttime/endtime>
  * add <title> by <startdate/enddate> 

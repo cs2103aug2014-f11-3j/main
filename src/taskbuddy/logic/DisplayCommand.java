@@ -27,9 +27,9 @@ public class DisplayCommand {
 						taskInfo = floating + title;
 						toDisplay.add(taskInfo);
 					} else {
-						String startTime = current.getStartTime().toString();
-						String endTime = current.getEndTime().toString();
-						taskInfo = normal + started + startTime + due + endTime;
+						String startTime = current.getStartTime().getTime().toString();
+						String endTime = current.getEndTime().getTime().toString();
+						taskInfo = normal + title + started + startTime + due + endTime;
 						toDisplay.add(taskInfo);
 					}
 				} 
