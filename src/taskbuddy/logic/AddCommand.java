@@ -56,16 +56,19 @@ public class AddCommand {
 				System.out.println(cal.toString());
 				taskToMod.setEndTime(cal);
 				taskToMod.setStartTime(cal);
-			} else {
-				//deadline task
+			}
+			if (!timeEnd.equals(nullValue)) {
+				// deadline task
 				taskToMod.setFloating(false);
 				Calendar cal = Calendar.getInstance();
-				String year = String.valueOf(cal.YEAR);
-				String month = String.valueOf(cal.MONTH);
-				String date = String.valueOf(cal.DATE);
-				String ddmmyy = date + "/" + month + "/" + year;
-				taskToMod.setEndTime(ddmmyy, timeEnd);
-				taskToMod.setStartTime(ddmmyy, timeEnd);
+				int hh = Integer.parseInt(timeEnd.substring(0, 2));
+				int mm = Integer.parseInt(timeEnd.substring(2));
+				cal.set(Calendar.HOUR_OF_DAY, hh);
+				cal.set(Calendar.MINUTE, mm);
+				System.out.println("PRINTING CALENDAR");
+				System.out.println(cal.toString());
+				taskToMod.setEndTime(cal);
+				taskToMod.setStartTime(cal);
 			}
 		} else {
 			// not floating
