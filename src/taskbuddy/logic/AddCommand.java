@@ -24,6 +24,10 @@ public class AddCommand {
 			taskToAdd.setDescription("no description available");
 		}
 		addTimeToTask(taskToAdd, startTime, startDate, endtime, endDate);
+		System.out.println(startDate);
+		System.out.println(taskToAdd.getStartTime().toString());
+		System.out.println(taskToAdd.displayStart());
+		System.out.println("before try");
 		try {
 			System.out.println("before add to db");
 			db.addTask(taskToAdd);
@@ -32,6 +36,8 @@ public class AddCommand {
 			ackBundle.putMessage("added task to database with no errors");
 			ackBundle.putTask(taskToAdd);
 		} catch (Exception e){
+			System.out.println("catch");
+			e.printStackTrace();
 			ackBundle.putFailure();
 			ackBundle.putMessage("failed to add task to database");
 			ackBundle.putTask(taskToAdd);
@@ -41,8 +47,20 @@ public class AddCommand {
 
 	private static void addTimeToTask(Task taskToMod, String timeStart,
 			String dateStart, String timeEnd, String dateEnd) {
+		System.out.println(dateStart + dateEnd + nullValue);
+		System.out.println(timeStart.equals(timeEnd) && dateStart.equals(dateEnd));
+		
+		
 		if (timeStart.equals(timeEnd) && dateStart.equals(dateEnd)) {
 			taskToMod.setFloating(false);
+			if (dateStart.equals(nullValue) && dateEnd.equals(nullValue)){
+				//floating task
+				System.out.println("else loop");
+				taskToMod.setFloating(true);
+				Calendar cal = Calendar.getInstance();
+				System.out.println(cal.toString());
+				taskToMod.setEndTime(cal);
+				taskToMod.setStartTime(cal);}
 			//deadline task
 			if (!timeStart.equals(nullValue)) {
 				taskToMod.setStartTime(dateStart, timeStart);
@@ -53,12 +71,7 @@ public class AddCommand {
 				taskToMod.setStartTime(dateStart, time1);
 				taskToMod.setEndTime(dateEnd, time2);
 			}
-		} else if (dateStart.equals(nullValue) && dateEnd.equals(nullValue)){
-			//floating task
-			taskToMod.setFloating(true);
-			Calendar cal = Calendar.getInstance();
-			taskToMod.setEndTime(cal);
-			taskToMod.setStartTime(cal);
+
 		} else if (!dateStart.equals(nullValue) && !dateEnd.equals(nullValue)){
 			taskToMod.setFloating(false);
 			if (timeStart.equals(nullValue)){

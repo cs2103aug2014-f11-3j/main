@@ -38,7 +38,7 @@ public class LogicDatabaseIntegrate {
 			String status = bf.getStatus();
 			assertEquals("Success", status);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 
