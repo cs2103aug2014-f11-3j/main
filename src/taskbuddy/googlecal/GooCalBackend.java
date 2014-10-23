@@ -99,8 +99,8 @@ public class GooCalBackend {
 	}
 	
 	public boolean isAllDayEvent(String eventStartTime, String eventEndTime) {
-		System.out.println("check all day start: " + eventStartTime);
-		System.out.println("check all day end: " + eventEndTime);
+		//System.out.println("check all day start: " + eventStartTime);
+		//System.out.println("check all day end: " + eventEndTime);
 		if (eventStartTime.equals("00:00") && eventEndTime.equals("23:59")) {
 			return true;
 		}
@@ -170,8 +170,8 @@ public class GooCalBackend {
 			endEventAllDay = new EventDateTime();
 			endEventAllDay.setDate(endDateTime);
 			
-			System.out.println("all day event start: " + startEventAllDay);
-			System.out.println("all day event end: " + endEventAllDay);
+			//System.out.println("all day event start: " + startEventAllDay);
+			//System.out.println("all day event end: " + endEventAllDay);
 			
 			
 		} catch (ParseException ex) {
@@ -190,8 +190,8 @@ public class GooCalBackend {
 			event.setDescription(eventDescription);
 			event.setStart(startEventAllDay);
 			event.setEnd(endEventAllDay);
-			System.out.println("all day event start: " + startEventAllDay);
-			System.out.println("all day event end: " + endEventAllDay);
+			//System.out.println("all day event start: " + startEventAllDay);
+			//System.out.println("all day event end: " + endEventAllDay);
 		} 
 		else {
 			setEventNormal(eventStartDate, eventStartTime, eventEndDate, eventEndTime);

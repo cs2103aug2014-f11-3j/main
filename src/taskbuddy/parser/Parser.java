@@ -189,7 +189,7 @@ public class Parser {
 		if(title.isEmpty()){
 			title = NULL_VALUE;
 		}
-		System.out.println("Title is "+title);
+		//System.out.println("Title is "+title);
 
 		contentToAdd = removeTitle(contentToAdd, title);
 //		System.out.println("new content after remove title: "+contentToAdd);
@@ -201,7 +201,7 @@ public class Parser {
 		if(startTime.equals(NULL_VALUE)==false){
 			startTime = convertTimeToFourDigit(startTime);
 		}	
-		System.out.println("Start time is "+startTime);
+		//System.out.println("Start time is "+startTime);
 		
 		String endTime = findEndTime(contentToAdd);
 		if(endTime.isEmpty()){
@@ -210,7 +210,7 @@ public class Parser {
 		if(endTime.equals(NULL_VALUE)==false){
 			endTime = convertTimeToFourDigit(endTime);
 		}	
-		System.out.println("End time is "+endTime);
+		//System.out.println("End time is "+endTime);
 
 		contentToAdd = removeStartAndEndTime(startTime, endTime, contentToAdd);
 //		System.out.println("new content after remove start and end time: "+contentToAdd);
@@ -219,13 +219,13 @@ public class Parser {
 		if(startDate.isEmpty()){
 			startDate = NULL_VALUE;
 		}
-		System.out.println("start date is "+startDate);
+		//System.out.println("start date is "+startDate);
 		
 		String endDate = findEndDate(contentToAdd);
 		if(endDate.isEmpty()){
 			endDate = NULL_VALUE;
 		}
-		System.out.println("end date is "+endDate);
+		//System.out.println("end date is "+endDate);
 		
 		b.putCommand(commandType);
 		b.putTitle(title);
