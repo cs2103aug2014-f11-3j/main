@@ -3,8 +3,8 @@ package taskbuddy.logic;
 import java.util.Calendar;
 
 import taskbuddy.database.Database;
+
 public class AddCommand {
-	
 
 	private static String nullValue = "padding value";
 
@@ -35,7 +35,7 @@ public class AddCommand {
 			ackBundle.putSuccess();
 			ackBundle.putMessage("added task to database with no errors");
 			ackBundle.putTask(taskToAdd);
-		} catch (Exception e){
+		} catch (Exception e) {
 			System.out.println("catch");
 			e.printStackTrace();
 			ackBundle.putFailure();
@@ -47,45 +47,43 @@ public class AddCommand {
 
 	private static void addTimeToTask(Task taskToMod, String timeStart,
 			String dateStart, String timeEnd, String dateEnd) {
-		System.out.println(dateStart + dateEnd + nullValue);
-		System.out.println(timeStart.equals(timeEnd) && dateStart.equals(dateEnd));
-		
-		
-		if (timeStart.equals(timeEnd) && dateStart.equals(dateEnd)) {
-			taskToMod.setFloating(false);
-			if (dateStart.equals(nullValue) && dateEnd.equals(nullValue)){
-				//floating task
-				System.out.println("else loop");
+
+		if (dateStart.equals(nullValue) && dateEnd.equals(nullValue)) {
+			if (timeStart.equals(nullValue) && timeEnd.equals(nullValue)) {
+				// floating task
 				taskToMod.setFloating(true);
 				Calendar cal = Calendar.getInstance();
 				System.out.println(cal.toString());
 				taskToMod.setEndTime(cal);
-				taskToMod.setStartTime(cal);}
-			//deadline task
-			if (!timeStart.equals(nullValue)) {
-				taskToMod.setStartTime(dateStart, timeStart);
-				taskToMod.setEndTime(dateEnd, timeEnd);
+				taskToMod.setStartTime(cal);
 			} else {
-				String time1 = "0000";
-				String time2 = "2359";
-				taskToMod.setStartTime(dateStart, time1);
-				taskToMod.setEndTime(dateEnd, time2);
+				//deadline task
+				taskToMod.setFloating(false);
+				Calendar cal = Calendar.getInstance();
+				String year = String.valueOf(cal.YEAR);
+				String month = String.valueOf(cal.MONTH);
+				String date = String.valueOf(cal.DATE);
+				String ddmmyy = date + "/" + month + "/" + year;
+				taskToMod.setEndTime(ddmmyy, timeEnd);
+				taskToMod.setStartTime(ddmmyy, timeEnd);
 			}
-
-		} else if (!dateStart.equals(nullValue) && !dateEnd.equals(nullValue)){
+		} else {
+			// not floating
 			taskToMod.setFloating(false);
-			if (timeStart.equals(nullValue)){
-				String time1 = "0000";
-				taskToMod.setStartTime(dateStart, time1);
-			} else {
-				taskToMod.setStartTime(dateStart, timeStart);
-			}
-			
-			if (timeEnd.equals(nullValue)){
-				String time2 = "2359";
-				taskToMod.setEndTime(dateEnd, time2);
-			} else {
-				taskToMod.setEndTime(dateEnd, timeEnd);
+			if (!dateStart.equals(nullValue) && !dateEnd.equals(nullValue)) {
+				// task within 2 dates
+				String startT = "0000";
+				String endT = "2359";
+				if (timeStart.equals(nullValue)) {
+					taskToMod.setStartTime(dateStart, startT);
+				} else {
+					taskToMod.setStartTime(dateStart, timeStart);
+				}
+				if (timeEnd.equals(nullValue)) {
+					taskToMod.setEndTime(dateEnd, endT);
+				} else {
+					taskToMod.setEndTime(dateEnd, timeEnd);
+				}
 			}
 		}
 	}
