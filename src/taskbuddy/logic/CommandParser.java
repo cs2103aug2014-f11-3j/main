@@ -2,9 +2,6 @@ package taskbuddy.logic;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
-import java.util.Stack;
 
 import taskbuddy.database.Database;
 
@@ -35,6 +32,14 @@ public class CommandParser{
 			ack.putMessage("parse error");
 		}
 		return ack;
+	}
+	
+	public CommandParser() throws ParseException, IOException{
+		 database = new Database();
+	}
+
+	public Database getDatabase() {
+		return database;
 	}
 }
 

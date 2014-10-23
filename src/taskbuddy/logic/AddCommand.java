@@ -3,8 +3,8 @@ package taskbuddy.logic;
 import java.util.Calendar;
 
 import taskbuddy.database.Database;
-
 public class AddCommand {
+	
 
 	private static String nullValue = "padding value";
 
