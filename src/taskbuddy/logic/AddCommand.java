@@ -25,7 +25,9 @@ public class AddCommand {
 		}
 		addTimeToTask(taskToAdd, startTime, startDate, endtime, endDate);
 		try {
+			System.out.println("before add to db");
 			db.addTask(taskToAdd);
+			System.out.println("after add to db");
 			ackBundle.putSuccess();
 			ackBundle.putMessage("added task to database with no errors");
 			ackBundle.putTask(taskToAdd);

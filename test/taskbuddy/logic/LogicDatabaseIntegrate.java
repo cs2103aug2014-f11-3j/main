@@ -32,7 +32,7 @@ public class LogicDatabaseIntegrate {
 			pr(uf.getCommand());
 			pr(uf.getTitle());
 			pr(uf.getDescription());
-			cp.parseUserInputs(uf);
+			bf = cp.parseUserInputs(uf);
 			Database db = cp.getDatabase();
 			db.printTasks();
 			String status = bf.getStatus();
