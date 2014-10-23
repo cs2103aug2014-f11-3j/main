@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import taskbuddy.logic.AcknowledgeBundle;
 import taskbuddy.logic.CommandParser;
 import taskbuddy.logic.UserInputBundle;
 
@@ -72,6 +73,14 @@ public class Parser {
 			}else if(isDeleteType(commandType)){
 				deleteDataPadding(userInputs, commandType, userCommand);
 				commandParser.parseUserInputs(userInputs);
+			
+			}else if(isDisplayType(commandType)){
+				displayDataPadding(userInputs, commandType);
+				AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
+				ArrayList<String> display = a.getList();
+				for (String s: display) {
+					System.out.println(s);
+				}
 			}
 			
 			else{
@@ -82,6 +91,27 @@ public class Parser {
 
 
 
+	}
+
+	private static void displayDataPadding(UserInputBundle b,
+			String commandType) {
+		
+		b.putCommand(commandType);
+		b.putTitle(NULL_VALUE);
+		b.putDescription(NULL_VALUE);
+		b.putStartTime(NULL_VALUE);
+		b.putEndTime(NULL_VALUE);
+		b.putStartDate(NULL_VALUE);
+		b.putEndDate(NULL_VALUE);
+	}
+
+	private static boolean isDisplayType(String commandType) {
+		// TODO Auto-generated method stub
+		if(commandType.equalsIgnoreCase("display")){
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	private static String getFirstWord(String userCommand) {
