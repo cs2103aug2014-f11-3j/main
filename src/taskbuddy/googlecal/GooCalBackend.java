@@ -134,22 +134,33 @@ public class GooCalBackend {
 	public void setEventAllDay(String eventStartDate, String eventEndDate) {
 		SimpleDateFormat simpleDateFormatAllDay = new SimpleDateFormat("dd/MM/yyyy");
 		
+		
+		
+		
 		try {
 			// To parse string into Date object
 			Date dateFirst = simpleDateFormatAllDay.parse(eventStartDate);
 			Date dateSecond = simpleDateFormatAllDay.parse(eventEndDate);
-
+			
+			java.util.Calendar cal = java.util.Calendar.getInstance();
+			cal.setTime(dateSecond);
+			cal.add( java.util.Calendar.DATE, 1 );
+			
+			
+			
+			
 			// Creates string from date object, string must be in a
 			// particular format to create a DateTime object with no
 			// time element
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			String startDateStr = dateFormat.format(dateFirst);
+			String endDateStr2 = dateFormat.format(cal.getTime());
 			String endDateStr = dateFormat.format(dateSecond);
 
 			// Out of the 6 methods for creating a DateTime object with
 			// no time element, only the String version works
 			DateTime startDateTime = new DateTime(startDateStr);
-			DateTime endDateTime = new DateTime(endDateStr);
+			DateTime endDateTime = new DateTime(endDateStr2);
 
 			// Must use the setDate() method for an all-day event
 			// (setDateTime() is used for timed events)
