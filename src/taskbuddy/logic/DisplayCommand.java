@@ -22,14 +22,15 @@ public class DisplayCommand {
 				boolean isCompleted = current.getCompletionStatus();
 				if (!isCompleted) {
 					String title = current.getTitle();
+					String ID = String.valueOf(current.getTaskId());
 					boolean isFloating = current.isFloatingTask();
 					if (isFloating) {
-						taskInfo = floating + title;
+						taskInfo = "ID:" + ID + " " + floating + title;
 						toDisplay.add(taskInfo);
 					} else {
 						String startTime = current.getStartTime().getTime().toString();
 						String endTime = current.getEndTime().getTime().toString();
-						taskInfo = normal + title + started + startTime + due + endTime;
+						taskInfo = "ID:" + ID + " " + normal + title + started + startTime + due + endTime;
 						toDisplay.add(taskInfo);
 					}
 				} 
