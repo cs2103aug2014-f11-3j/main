@@ -1444,10 +1444,20 @@ public class Parser {
 				// eg. 10am
 				time = s.substring(0, 2) + "00";
 			}else if(s.length() > 4){
-				// eg. 10:30am  11:35am
-				String firstPart = s.substring(0, 2);
-				String secondPart = s.substring(s.length()-4, s.length()-2);
-				time = firstPart + secondPart;
+				String firstChar = s.substring(0, 1);
+				if(firstChar.equals("1")){
+					// eg. 10:30am  11:35am
+					String firstPart = s.substring(0, 2);
+					String secondPart = s.substring(s.length()-4, s.length()-2);
+					time = firstPart + secondPart;
+				}else{
+					// eg. 8:30am
+					String partFirst = s.substring(0, 1);
+					String partSecond = s.substring(s.length()-4, s.length()-2);
+					time = "0" + partFirst + partSecond;		
+				}
+				
+				
 			}
 		}else if(s.contains("pm")||s.contains("PM")){
 			if(s.length()==3){
@@ -1463,11 +1473,22 @@ public class Parser {
 				value = value + 12;
 				time = "" + value + "00";
 			}else if(s.length() > 4){
-				String firstPart = s.substring(0, 2);
-				String secondPart = s.substring(s.length()-4, s.length()-2);
-				int value = Integer.parseInt(firstPart);
-				value = value + 12;
-				time = "" + value + secondPart;
+				String charFirst = s.substring(0, 1);
+				if(charFirst.equals("1")){
+					// 11:30pm
+					String firstPart = s.substring(0, 2);
+					String secondPart = s.substring(s.length()-4, s.length()-2);
+					int value = Integer.parseInt(firstPart);
+					value = value + 12;
+					time = "" + value + secondPart;
+				}else{
+					// 9:30pm
+					String partFirst = s.substring(0, 1);
+					String partSecond = s.substring(s.length()-4, s.length()-2);
+					int value = Integer.parseInt(partFirst);
+					value = value + 12;
+					time = "" + value + partSecond;	
+				}
 			}
 		}
 	
