@@ -68,6 +68,11 @@ public class GoogleCalendarManagerTest {
 		calendarSpecifiedEnd.set(2014,9,22,19,00,00);
 	}
 	
+	
+	// There is evidence of boundary value analysis here, as we are testing the different inputs which can be put into the task before the task is added.
+	// Main boundary values are "padding value" and a string of the date "22/10/2014" and a string of the time "1830".
+	// We also have some tasks havinga description value and some not having any field in description, to see if both types of tasks can be added successfully.
+	
 	public void setTaskAttributes() {
 		createInstanceCalendars();
 		createSpecifiedCalendars();
@@ -114,6 +119,12 @@ public class GoogleCalendarManagerTest {
 	}
 	
 
+	// There is evidence of boundary value analysis here, as we are testing the different inputs which can be put into the task before the task is added.
+	// Main boundary values are "padding value" and a string of the date "22/10/2014" and a string of the time "1830".
+	// We also have some tasks havinga description value and some not having any field in description, to see if both types of tasks can be added successfully.
+	
+	
+	// Use case testing: User uses add and delete function of taskbuddy
 	@Test
 	public void testAddDelete() throws UnknownHostException {
 		setTaskAttributes();
@@ -155,6 +166,7 @@ public class GoogleCalendarManagerTest {
 		assertEquals("Faled. Task title did not match event summary of the Google Calendar Event retrieved", taskTitle, eventSummary);	
 	}
 	
+	// Use case testing: User uses edit function to edit title of task
 	@Test
 	public void testUpdateSummary() throws UnknownHostException {
 		setTaskAttributes();
@@ -181,6 +193,7 @@ public class GoogleCalendarManagerTest {
 	}
 	
 	
+	// Use case testing: User uses edit function to edit time and date of task
 	@Test
 	public void testUpdateStartEnd() throws UnknownHostException {
 		// This test has not been asserted because the retrieve method is still being worked on
@@ -196,6 +209,7 @@ public class GoogleCalendarManagerTest {
 		goocal.update(task9UpdateStartEnd);
 	}
 
+	// Use case testing: User uses edit function to edit description of task
 	@Test
 	public void testUpdateDescription() throws UnknownHostException {
 		setTaskAttributes();
