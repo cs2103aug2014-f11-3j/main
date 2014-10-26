@@ -5,22 +5,22 @@ package taskbuddy.gui;
 
 import java.awt.*;        // Using AWT container and component classes
 import java.awt.event.*;  // Using AWT event classes and listener interfaces
+import java.io.IOException;
+import java.text.ParseException;
 
-
+import taskbuddy.logic.CommandParser;
+import taskbuddy.parser.Parser;
 
 public class AWTgui extends Frame implements ActionListener, WindowListener{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -8401665365520669252L;
 	private Label commandLabel;    // Declare component Label
 	private Label responseLabel;    // Declare component Label
 	private TextField commandTextField; // Declare component TextField
 	private TextField responseTextField; // Declare component TextField
 	private Button sendButton;   // Declare component Button
-	private Button btnCount2;   // Declare component Button
-	private int count = 0;     // Counter's value
-	private String stringIn = null;
+	//private Button btnCount2;   // Declare component Button
+	//private int count = 0;     // Counter's value
+	private String stringResponse = null;
 	
 
 
@@ -28,59 +28,35 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 	/** Constructor to setup GUI components and event handling */
 	public AWTgui () {
 		setLayout(new FlowLayout());
-		// "super" Frame sets its layout to FlowLayout, which arranges the components
-		//  from left-to-right, and flow to next row from top-to-bottom.
 
-		commandLabel = new Label("Command:");  // construct Label
-		add(commandLabel);                    // "super" Frame adds Label
-		
-		
-		commandTextField = new TextField("0", 10); // construct TextField
-		commandTextField.setEditable(true);       // set to read-only
-		add(commandTextField);                     // "super" Frame adds tfCount
-		
-		
-		
-		responseLabel = new Label("Response:");  // construct Label
-		add(responseLabel);                    // "super" Frame adds Label
+		commandLabel = new Label("Command:");  
+		add(commandLabel);                    
 
+		commandTextField = new TextField("0", 10); 
+		commandTextField.setEditable(true);       
+		add(commandTextField);                     
+		
+		responseLabel = new Label("Response:");
+		add(responseLabel);
 
-
+		responseTextField = new TextField("0", 10); 
+		responseTextField.setEditable(false); 
+		add(responseTextField);
 		
-		responseTextField = new TextField("0", 10); // construct TextField
-		responseTextField.setEditable(false);       // set to read-only
-		add(responseTextField);                     // "super" Frame adds tfCount
-		
-		
-		sendButton = new Button("Send");   // construct Button
-		add(sendButton);                    // "super" Frame adds Button
+		sendButton = new Button("Send"); 
+		add(sendButton);
 
 		sendButton.addActionListener(this);
 		// Clicking Button source fires ActionEvent
-		// btnCount registers this instance as ActionEvent listener
-		
-		
 		commandTextField.addActionListener(this);
 		// Hitting enter fires ActionEvent
 
 		
 		
 
-		setTitle("TaskBuddy v0.3!");  // "super" Frame sets title
-		setSize(250, 100);        // "super" Frame sets initial window size
-
-		// System.out.println(this);
-		// System.out.println(lblCount);
-		// System.out.println(tfCount);
-		// System.out.println(btnCount);
-
-		setVisible(true);         // "super" Frame shows
-
-		// System.out.println(this);
-		// System.out.println(lblCount);
-		// System.out.println(tfCount);
-		// System.out.println(btnCount);
-		
+		setTitle("TaskBuddy v0.3!");
+		setSize(250, 500);       
+		setVisible(true); 
 		addWindowListener(this);
 		
 	}
@@ -94,8 +70,31 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 	/** ActionEvent handler - Called back upon button-click. */
 	@Override
 	public void actionPerformed(ActionEvent evt) {
-		stringIn = commandTextField.getText();
-		responseTextField.setText(stringIn);
+		stringResponse = commandTextField.getText();
+	
+		
+		try {
+			Parser.userInput(stringResponse);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+//		try {
+//			Parser.userInput(stringResponse);
+//		} catch (ParseException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+		responseTextField.setText(stringResponse);
 		
 		
 		//Integer.parseInt(tfInput.getText());

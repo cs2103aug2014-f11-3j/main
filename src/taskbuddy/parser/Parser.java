@@ -51,13 +51,16 @@ public class Parser {
 	private static Scanner scanner = new Scanner(System.in);
 	private static final String NULL_VALUE = "padding value";
 
-	public static void main(String[] args) throws ParseException, IOException {
-
+	//public static void main(String[] args) throws ParseException, IOException {
+	
+	public static void userInput(String command) throws ParseException, IOException {
 		CommandParser commandParser = new CommandParser();
-		boolean continueLoop = true;
-		while (continueLoop) {
+		//boolean continueLoop = true;
+		//while (continueLoop) {
 			System.out.print("command:");
-			String userCommand = scanner.nextLine();
+			//String userCommand = scanner.nextLine();
+			String userCommand = command;
+			
 			String commandType = getFirstWord(userCommand);
 
 			if(isUndoType(commandType)){
@@ -90,10 +93,10 @@ public class Parser {
 			}
 
 		}
+	
 
 
-
-	}
+	
 
 	private static void displayDataPadding(UserInputBundle b,
 			String commandType) {
