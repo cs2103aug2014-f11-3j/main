@@ -5,6 +5,7 @@ package taskbuddy.gui;
 
 import java.awt.*;        // Using AWT container and component classes
 import java.awt.event.*;  // Using AWT event classes and listener interfaces
+import java.awt.KeyboardFocusManager;
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -13,15 +14,18 @@ import taskbuddy.parser.Parser;
 
 public class AWTgui extends Frame implements ActionListener, WindowListener{
 	private static final long serialVersionUID = -8401665365520669252L;
+	private Label displayLabel;    // Declare component Label
 	private Label commandLabel;    // Declare component Label
 	private Label responseLabel;    // Declare component Label
 	private TextField commandTextField; // Declare component TextField
 	private TextField responseTextField; // Declare component TextField
+	private TextArea displayTextArea;
+	
 	private Button sendButton;   // Declare component Button
 	//private Button btnCount2;   // Declare component Button
 	//private int count = 0;     // Counter's value
-	private String stringResponse = null;
-	
+	private static String stringResponse = null;
+	private static String display = "";
 
 
 
@@ -29,33 +33,44 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 	public AWTgui () {
 		setLayout(new FlowLayout());
 
+
+		
+		//COMMAND
 		commandLabel = new Label("Command:");  
 		add(commandLabel);                    
-
-		commandTextField = new TextField("0", 10); 
+		commandTextField = new TextField("", 50); 
 		commandTextField.setEditable(true);       
 		add(commandTextField);                     
 		
+		//RESPONSE
 		responseLabel = new Label("Response:");
 		add(responseLabel);
-
-		responseTextField = new TextField("0", 10); 
+		responseTextField = new TextField(stringResponse, 50); 
 		responseTextField.setEditable(false); 
 		add(responseTextField);
 		
-		sendButton = new Button("Send"); 
+		//DISPLAY
+		displayLabel = new Label("Display:");  
+		add(displayLabel);      
+		displayTextArea = new TextArea(stringResponse, 30, 50, 1);
+		displayTextArea.setEditable(false);
+		add(displayTextArea);
+		
+		//BUTTON
+		sendButton = new Button("TaskBuddy!"); 
 		add(sendButton);
-
+		
+		//ACTIONEVENT FIRING
 		sendButton.addActionListener(this);
 		// Clicking Button source fires ActionEvent
 		commandTextField.addActionListener(this);
 		// Hitting enter fires ActionEvent
 
-		
+
 		
 
 		setTitle("TaskBuddy v0.3!");
-		setSize(250, 500);       
+		setSize(440, 700);       
 		setVisible(true); 
 		addWindowListener(this);
 		
@@ -67,14 +82,25 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		AWTgui app = new AWTgui();
 	}
 
+	
+	public static void appendToDisplay(String toAppend) {
+		display = display + System.getProperty("line.separator") + toAppend;
+	
+		
+	}
+	
+	public static void setResponseString(String response) {
+		stringResponse = response;
+	}
+	
+	
+	
 	/** ActionEvent handler - Called back upon button-click. */
 	@Override
 	public void actionPerformed(ActionEvent evt) {
-		stringResponse = commandTextField.getText();
-	
-		
+		String stringCommand = commandTextField.getText();
 		try {
-			Parser.userInput(stringResponse);
+			Parser.userInput(stringCommand);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -95,6 +121,7 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 //		}
 //		
 		responseTextField.setText(stringResponse);
+		displayTextArea.append(display);
 		
 		
 		//Integer.parseInt(tfInput.getText());
