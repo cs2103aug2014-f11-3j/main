@@ -9,6 +9,10 @@ import java.awt.KeyboardFocusManager;
 import java.io.IOException;
 import java.text.ParseException;
 
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+
+import taskbuddy.googlecal.GooCalBackend;
 import taskbuddy.logic.CommandParser;
 import taskbuddy.parser.Parser;
 
@@ -27,13 +31,23 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 	private static String stringResponse = null;
 	private static String display = "";
 
+	
+	private Label gooCalLabel;    
+	private static TextField gooCalDisplay;
+	private TextField gooCalUserInput;
+	private static String stringGooCalDisplay = null;
+	//private Button authenticateCal;
+	
+	
 
 
 	/** Constructor to setup GUI components and event handling */
 	public AWTgui () {
 		setLayout(new FlowLayout());
 
-
+		GooCalBackend goocalbackend = new GooCalBackend();
+		
+		
 		
 		//COMMAND
 		commandLabel = new Label("Command:");  
@@ -67,6 +81,62 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		// Hitting enter fires ActionEvent
 
 
+		//ACTIVATE GOOGLE CAL
+		
+		JButton gooCalButton = new JButton("GooCal");
+//		
+//				new AbstractAction("GooCal") {
+//	        @Override
+//	        public void actionPerformed( ActionEvent e ) {
+//	            System.out.println("KALALLA");
+//	        	String stringGooCalUserInput = gooCalUserInput.getText();
+//	        	GooCalBackend.generateNewToken(stringGooCalUserInput);
+//	        	gooCalDisplay.setText(stringGooCalDisplay);
+//	        }
+//	    });
+
+
+		gooCalLabel = new Label("Google Calendar:");  
+		add(gooCalLabel);                    
+		gooCalDisplay = new TextField("", 50); 
+		gooCalDisplay.setEditable(false);       
+		
+		//if(GooCalBackend.isAuthenticationValid()) {
+		//	gooCalDisplay.setText("Authenticated.");
+		//}
+		//else {
+			gooCalDisplay.setText(GooCalBackend.generateNewTokenStep1());
+		//}
+		
+//		if (goocalbackend.isUserOnline()) {
+//			gooCalDisplay.setText("User is online");
+//		}
+//		else {
+//			gooCalDisplay.setText("User is offline");
+//		}
+		
+		
+		add(gooCalDisplay);
+		gooCalUserInput = new TextField("", 50);
+		gooCalUserInput.setEditable(true);
+		add(gooCalUserInput);
+		gooCalButton = new JButton ("GooCal!");
+		add(gooCalButton);
+		gooCalButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+	            System.out.println("KALALLA");
+	        	String stringGooCalUserInput = gooCalUserInput.getText();
+	        	GooCalBackend.generateNewTokenStep2(stringGooCalUserInput);
+	        	gooCalDisplay.setText("Generated");
+			}
+		});
+		
+		
+		
+		
+		
 		
 
 		setTitle("TaskBuddy v0.3!");
@@ -93,6 +163,9 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		stringResponse = response;
 	}
 	
+	public static void setGoogleCalDisplay(String googleCalDisplayToSet) {
+		stringGooCalDisplay = googleCalDisplayToSet;
+	}
 	
 	
 	/** ActionEvent handler - Called back upon button-click. */
