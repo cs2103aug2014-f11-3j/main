@@ -9,6 +9,7 @@ public class AcknowledgeBundle extends Bundle{
 	private String failure = "Failure";
 	private String message = "Message";
 	private String task = "Task";
+	private String oldTask = "Old Task";
 	private String listTask = "List of tasks";
 	
 	//setter methods
@@ -33,6 +34,10 @@ public class AcknowledgeBundle extends Bundle{
 		this.putObject(task, t);
 	}
 	
+	public void putOldTask(Task t){
+		this.putObject(oldTask, t);
+	}
+	
 	public void putList(ArrayList<String> l){
 		this.putObject(listTask, l);
 	}
@@ -48,6 +53,10 @@ public class AcknowledgeBundle extends Bundle{
 	
 	public Task getTask(){
 		return (Task) this.getItem(task);
+	}
+	
+	public Task getOldTask(){
+		return (Task) this.getItem(oldTask);
 	}
 	
 	@SuppressWarnings("unchecked")
