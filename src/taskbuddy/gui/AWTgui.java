@@ -18,24 +18,30 @@ import taskbuddy.parser.Parser;
 
 public class AWTgui extends Frame implements ActionListener, WindowListener{
 	private static final long serialVersionUID = -8401665365520669252L;
-	private Label displayLabel;    // Declare component Label
+	
+	// Command
 	private Label commandLabel;    // Declare component Label
-	private Label responseLabel;    // Declare component Label
 	private TextField commandTextField; // Declare component TextField
+	
+	// Response
+	private Label responseLabel;    // Declare component Label
 	private TextField responseTextField; // Declare component TextField
-	private TextArea displayTextArea;
-	
-	private Button sendButton;   // Declare component Button
-	//private Button btnCount2;   // Declare component Button
-	//private int count = 0;     // Counter's value
 	private static String stringResponse = null;
-	private static String display = "";
 
+	// Display
+	private Label displayLabel;    // Declare component Label
+	private TextArea displayTextArea;
+	private static String display = "";
 	
+	// Button
+	private Button sendButton;   // Declare component Button
+	
+	// Google Cal
 	private Label gooCalLabel;    
 	private static TextField gooCalDisplay;
-	private TextField gooCalUserInput;
 	private static String stringGooCalDisplay = null;
+	private TextField gooCalUserInput;
+	private static TextField gooCalAuthenticationStatus;
 	//private Button authenticateCal;
 	
 	
@@ -82,7 +88,6 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 
 
 		//ACTIVATE GOOGLE CAL
-		
 		JButton gooCalButton = new JButton("GooCal");
 //		
 //				new AbstractAction("GooCal") {
@@ -94,10 +99,14 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 //	        	gooCalDisplay.setText(stringGooCalDisplay);
 //	        }
 //	    });
-
-
+		JButton gooCalCheckStatus = new JButton("GooCalCheckStatus");
+		
 		gooCalLabel = new Label("Google Calendar:");  
-		add(gooCalLabel);                    
+		add(gooCalLabel);      
+		
+		gooCalAuthenticationStatus = new TextField("Cal Status", 50);
+		add(gooCalAuthenticationStatus);
+		
 		gooCalDisplay = new TextField("", 50); 
 		gooCalDisplay.setEditable(false);       
 		
@@ -120,7 +129,22 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		gooCalUserInput = new TextField("", 50);
 		gooCalUserInput.setEditable(true);
 		add(gooCalUserInput);
-		gooCalButton = new JButton ("GooCal!");
+		
+		gooCalCheckStatus = new JButton ("Check Cal Status");
+		add(gooCalCheckStatus);
+		gooCalCheckStatus.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(GooCalBackend.isAuthenticationValid()) {
+					gooCalAuthenticationStatus.setText("Authenticated.");
+				}
+				else {
+					gooCalAuthenticationStatus.setText("Not authenticated. Please copy URL, paste code, click Autheticate.");
+				}
+			}
+		});
+		
+		gooCalButton = new JButton ("Authenticate");
 		add(gooCalButton);
 		gooCalButton.addActionListener(new ActionListener() {
 			@Override
@@ -135,12 +159,10 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		
 		
 		
-		
-		
-		
+				
 
 		setTitle("TaskBuddy v0.3!");
-		setSize(440, 800);       
+		setSize(440, 850);       
 		setVisible(true); 
 		addWindowListener(this);
 		
