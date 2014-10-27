@@ -14,6 +14,7 @@ import javax.swing.JButton;
 
 import taskbuddy.googlecal.GooCalBackend;
 import taskbuddy.logic.CommandParser;
+import taskbuddy.logic.GoogleCalendarController;
 import taskbuddy.parser.Parser;
 
 public class AWTgui extends Frame implements ActionListener, WindowListener{
@@ -52,6 +53,7 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		setLayout(new FlowLayout());
 
 		GooCalBackend goocalbackend = new GooCalBackend();
+		GoogleCalendarController googlecalendarcontroller = new GoogleCalendarController();
 		
 		
 		
@@ -114,7 +116,8 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		//	gooCalDisplay.setText("Authenticated.");
 		//}
 		//else {
-			gooCalDisplay.setText(GooCalBackend.generateNewTokenStep1());
+			gooCalDisplay.setText(googlecalendarcontroller.getAuthenticationUrl());
+			//gooCalDisplay.setText(GooCalBackend.generateNewTokenStep1());
 		//}
 		
 //		if (goocalbackend.isUserOnline()) {
@@ -152,7 +155,8 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 				
 	            System.out.println("KALALLA");
 	        	String stringGooCalUserInput = gooCalUserInput.getText();
-	        	GooCalBackend.generateNewTokenStep2(stringGooCalUserInput);
+	        	googlecalendarcontroller.authenticate(stringGooCalUserInput);
+	        	//GooCalBackend.generateNewTokenStep2(stringGooCalUserInput);
 	        	gooCalDisplay.setText("Generated");
 			}
 		});
