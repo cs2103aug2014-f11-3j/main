@@ -112,13 +112,12 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		gooCalDisplay = new TextField("", 50); 
 		gooCalDisplay.setEditable(false);       
 		
-		//if(GooCalBackend.isAuthenticationValid()) {
-		//	gooCalDisplay.setText("Authenticated.");
-		//}
-		//else {
+		if(googlecalendarcontroller.isCalendarAuthenticated()) {
+			gooCalDisplay.setText("Authenticated.");
+		}
+		else {
 			gooCalDisplay.setText(googlecalendarcontroller.getAuthenticationUrl());
-			//gooCalDisplay.setText(GooCalBackend.generateNewTokenStep1());
-		//}
+		}
 		
 //		if (goocalbackend.isUserOnline()) {
 //			gooCalDisplay.setText("User is online");
@@ -156,7 +155,6 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 	            System.out.println("KALALLA");
 	        	String stringGooCalUserInput = gooCalUserInput.getText();
 	        	googlecalendarcontroller.authenticate(stringGooCalUserInput);
-	        	//GooCalBackend.generateNewTokenStep2(stringGooCalUserInput);
 	        	gooCalDisplay.setText("Generated");
 			}
 		});
