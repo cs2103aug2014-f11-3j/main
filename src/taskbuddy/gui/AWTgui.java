@@ -140,7 +140,7 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		
 
 		setTitle("TaskBuddy v0.3!");
-		setSize(440, 700);       
+		setSize(440, 800);       
 		setVisible(true); 
 		addWindowListener(this);
 		
@@ -154,7 +154,7 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 
 	
 	public static void appendToDisplay(String toAppend) {
-		display = display + System.getProperty("line.separator") + toAppend;
+		display = display + System.getProperty("line.separator") + toAppend + System.getProperty("line.separator");
 	
 		
 	}
