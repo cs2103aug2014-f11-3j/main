@@ -106,14 +106,14 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		gooCalLabel = new Label("Google Calendar:");  
 		add(gooCalLabel);      
 		
-		gooCalAuthenticationStatus = new TextField("Cal Status", 50);
-		add(gooCalAuthenticationStatus);
+//		gooCalAuthenticationStatus = new TextField("Cal Status", 50);
+//		add(gooCalAuthenticationStatus);
 		
 		gooCalDisplay = new TextField("", 50); 
 		gooCalDisplay.setEditable(false);       
 		
 		if(googlecalendarcontroller.isCalendarAuthenticated()) {
-			gooCalDisplay.setText("Authenticated.");
+			gooCalDisplay.setText("Google Calendar Already Authenticated!");
 		}
 		else {
 			gooCalDisplay.setText(googlecalendarcontroller.getAuthenticationUrl());
@@ -132,19 +132,19 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		gooCalUserInput.setEditable(true);
 		add(gooCalUserInput);
 		
-		gooCalCheckStatus = new JButton ("Check Cal Status");
-		add(gooCalCheckStatus);
-		gooCalCheckStatus.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(GooCalBackend.isAuthenticationValid()) {
-					gooCalAuthenticationStatus.setText("Authenticated.");
-				}
-				else {
-					gooCalAuthenticationStatus.setText("Not authenticated. Please copy URL, paste code, click Autheticate.");
-				}
-			}
-		});
+//		gooCalCheckStatus = new JButton ("Check Cal Status");
+//		add(gooCalCheckStatus);
+//		gooCalCheckStatus.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				if(GooCalBackend.isAuthenticationValid()) {
+//					gooCalAuthenticationStatus.setText("Authenticated.");
+//				}
+//				else {
+//					gooCalAuthenticationStatus.setText("Not authenticated. Please copy URL, paste code, click Autheticate.");
+//				}
+//			}
+//		});
 		
 		gooCalButton = new JButton ("Authenticate");
 		add(gooCalButton);
