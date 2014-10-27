@@ -12,7 +12,7 @@ public class EditCommand {
 		int taskID =  Integer.parseInt(extras.getTaskID());
 		try{
 			toEdit = db.findMatchingTask(taskID);
-			
+			ack.putOldTask(toEdit);
 			String title = extras.getTitle();
 			if (!title.equals(nullValue)){
 				toEdit.setTitle(title);
