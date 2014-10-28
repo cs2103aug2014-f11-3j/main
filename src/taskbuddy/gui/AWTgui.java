@@ -3,10 +3,18 @@ package taskbuddy.gui;
 
 
 
-import java.awt.*;        // Using AWT container and component classes
+//import java.awt.*;        // Using AWT container and component classes
 import java.awt.event.*;  // Using AWT event classes and listener interfaces
-import java.awt.KeyboardFocusManager;
+import java.awt.Button;
+import java.awt.Desktop;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Label;
+import java.awt.TextArea;
+import java.awt.TextField;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 
 import javax.swing.AbstractAction;
@@ -116,7 +124,14 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 			gooCalDisplay.setText("Google Calendar Already Authenticated!");
 		}
 		else {
-			gooCalDisplay.setText(googlecalendarcontroller.getAuthenticationUrl());
+			String url = googlecalendarcontroller.getAuthenticationUrl();
+			gooCalDisplay.setText(url);
+			try {
+				Desktop.getDesktop().browse(new URI(url));
+			} catch (IOException | URISyntaxException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 		
 //		if (goocalbackend.isUserOnline()) {
