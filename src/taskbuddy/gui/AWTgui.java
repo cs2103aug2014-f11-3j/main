@@ -19,6 +19,7 @@ import java.text.ParseException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.text.DefaultCaret;
 
 import taskbuddy.googlecal.GooCalBackend;
 import taskbuddy.logic.CommandParser;
@@ -84,6 +85,7 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		add(displayLabel);      
 		displayTextArea = new TextArea(stringResponse, 30, 50, 1);
 		displayTextArea.setEditable(false);
+		
 		add(displayTextArea);
 		
 		//BUTTON
@@ -194,8 +196,14 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 	
 	public static void appendToDisplay(String toAppend) {
 		display = display + System.getProperty("line.separator") + toAppend + System.getProperty("line.separator");
+	}
 	
-		
+	public static void clearDisplayString() {
+		display = "";
+	}
+	
+	public void clearCommandTextField() {
+		commandTextField.setText("");
 	}
 	
 	public static void setResponseString(String response) {
@@ -231,9 +239,16 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		
+		DisplayObserver displayObserver = new DisplayObserver();
+		displayObserver.generateDisplayString();
 //		
 		responseTextField.setText(stringResponse);
-		displayTextArea.append(display);
+		//displayTextArea.append(display);
+		displayTextArea.setText(display);
+		displayTextArea.setCaretPosition(display.length()); // Used to move cart (scrolling) of displayTextArea to the bottom
+		clearDisplayString();
+		clearCommandTextField();
 		
 		
 		//Integer.parseInt(tfInput.getText());
