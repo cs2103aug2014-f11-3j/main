@@ -41,6 +41,13 @@ public class CommandParser {
 				ack = DisplayCommand.displayAllTasks(database);
 			} else if (commandType.equals("search")) {
 				ack = SearchCommand.searchForTasks(userIn, database);
+			} else if (commandType.equals("undo")){
+				ack = UndoCommand.undo(undoStack, redoStack, undoStackTask, redoStackTask, database);
+			} else if (commandType.equals("redo")){
+				ack = RedoCommand.redo(undoStack, redoStack, undoStackTask, redoStackTask, database);
+			} else {
+				ack.putFailure();
+				ack.putMessage("invalid command");
 			}
 		} catch (Exception e) {
 			ack.putFailure();
@@ -48,8 +55,8 @@ public class CommandParser {
 		}
 		return ack;
 	}
-	
-	private void preProcess(UserInputBundle u){
+
+	private void preProcess(UserInputBundle u) {
 		redoStack = new Stack<UserInputBundle>();
 		redoStackTask = new Stack<Task>();
 		undoStack.push(u);
