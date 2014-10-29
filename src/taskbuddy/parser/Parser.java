@@ -88,9 +88,19 @@ public class Parser {
 					//AWTgui.setResponseString(s);
 					AWTgui.appendToDisplay(s);
 				}
+			
 			}else if(isEditType(commandType)){
 				try{
 					editDataPadding(userInputs, commandType, userCommand);
+					commandParser.parseUserInputs(userInputs);
+				}catch(NullPointerException e){
+//					System.out.println(e.getMessage());
+					AWTgui.setResponseString(e.getMessage());
+				}
+			
+			}else if(isSearchType(commandType)){
+				try{
+					searchDatePadding(userInputs, commandType, userCommand);
 					commandParser.parseUserInputs(userInputs);
 				}catch(NullPointerException e){
 //					System.out.println(e.getMessage());
@@ -167,7 +177,6 @@ public class Parser {
 	}
 	
 	private static boolean isDisplayType(String commandType) {
-		// TODO Auto-generated method stub
 		if(commandType.equalsIgnoreCase("display")){
 			return true;
 		}else{
@@ -176,8 +185,15 @@ public class Parser {
 	}
 	
 	private static boolean isEditType(String commandType) {
-		// TODO Auto-generated method stub
 		if(commandType.equalsIgnoreCase("edit")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private static boolean isSearchType(String commandType) {	
+		if(commandType.equalsIgnoreCase("search")){
 			return true;
 		}else{
 			return false;
@@ -388,6 +404,24 @@ public class Parser {
 	    return true;
 	}
 	
+	private static void searchDatePadding(UserInputBundle b, String commandType, String userCommand) {
+		String contentToSearch = removeFirstWord(userCommand);
+		if(contentToSearch.isEmpty()){
+			throw new NullPointerException("Please enter search keyword");
+		}else{
+			b.putCommand(commandType);
+			b.putDescription(contentToSearch);
+			b.putTitle(contentToSearch);
+			b.putStartTime(NULL_VALUE);
+			b.putEndTime(NULL_VALUE);
+			b.putStartDate(NULL_VALUE);
+			b.putEndDate(NULL_VALUE);
+			
+//			System.out.println("Title is "+b.getTitle());
+//			System.out.println("Description is "+b.getDescription());
+		}
+		
+	}
 	
 	private static String findDescription(String content) {
 		String[] contentSplit = content.trim().split("\\s+");
