@@ -83,7 +83,7 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		//DISPLAY
 		displayLabel = new Label("Display:");  
 		add(displayLabel);      
-		displayTextArea = new TextArea(stringResponse, 30, 50, 1);
+		displayTextArea = new TextArea(stringResponse, 15, 50, 1);
 		displayTextArea.setEditable(false);
 		
 		add(displayTextArea);
@@ -187,7 +187,7 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 				
 
 		setTitle("TaskBuddy v0.3!");
-		setSize(440, 850);       
+		setSize(440, 580);       
 		setVisible(true); 
 		addWindowListener(this);
 		
