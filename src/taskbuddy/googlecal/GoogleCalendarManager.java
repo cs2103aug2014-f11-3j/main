@@ -145,7 +145,7 @@ public class GoogleCalendarManager {
 				// Exception is only caught when authentication code is valid, yet tbere is a failure in initializing the Google Calendar
 			}
 			
-			gooCalRetriever.retrieve(service, calendarId, eventId);
+			//gooCalRetriever.retrieve(service, calendarId, eventId);
 			
 			
 			

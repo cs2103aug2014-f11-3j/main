@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import taskbuddy.gui.AWTgui;
 import taskbuddy.logic.AcknowledgeBundle;
 import taskbuddy.logic.CommandParser;
 import taskbuddy.logic.UserInputBundle;
@@ -51,13 +52,16 @@ public class Parser {
 	private static Scanner scanner = new Scanner(System.in);
 	private static final String NULL_VALUE = "padding value";
 
-	public static void main(String[] args) throws ParseException, IOException {
-
+	//public static void main(String[] args) throws ParseException, IOException {
+	
+	public static void userInput(String command) throws ParseException, IOException {
 		CommandParser commandParser = new CommandParser();
-		boolean continueLoop = true;
-		while (continueLoop) {
+		//boolean continueLoop = true;
+		//while (continueLoop) {
 			System.out.print("command:");
-			String userCommand = scanner.nextLine();
+			//String userCommand = scanner.nextLine();
+			String userCommand = command;
+			
 			String commandType = getFirstWord(userCommand);
 
 			if(isUndoType(commandType)){
@@ -81,7 +85,9 @@ public class Parser {
 				AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
 				ArrayList<String> display = a.getList();
 				for (String s: display) {
-					System.out.println(s);
+					//System.out.println(s);
+					//AWTgui.setResponseString(s);
+					AWTgui.appendToDisplay(s);
 				}
 			}
 			
@@ -90,10 +96,10 @@ public class Parser {
 			}
 
 		}
+	
 
 
-
-	}
+	
 
 	private static void displayDataPadding(UserInputBundle b,
 			String commandType) {
@@ -127,7 +133,8 @@ public class Parser {
 	}
 
 	private static void showInvalidMessage(){
-		System.out.println("Invalid Command Format");
+		//System.out.println("Invalid Command Format");
+		AWTgui.setResponseString("Invalid Command Format");
 	}
 	
 	

@@ -8,9 +8,11 @@ public class DeleteCommand {
 	public static AcknowledgeBundle deleteTask(int id, Database db){
 		AcknowledgeBundle ack = new AcknowledgeBundle();
 		try{
+			Task t = db.findMatchingTask(id);
 			db.delete(id);
 			ack.putSuccess();
 			ack.putMessage("task deleted successfully");
+			ack.putTask(t);
 		} catch (Exception e){
 			ack.putFailure();
 			ack.putMessage("Unable to delete task");
