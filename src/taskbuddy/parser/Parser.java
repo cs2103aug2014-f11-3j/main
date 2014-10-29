@@ -206,6 +206,18 @@ public class Parser {
 
 	private static void addDataPadding(UserInputBundle b, String commandType, String userCommand){
 		String contentToAdd = removeFirstWord(userCommand);
+		
+		String description = findDescription(contentToAdd);
+		if(description.isEmpty()){
+			description = NULL_VALUE;
+		}
+		if(description.equals(NULL_VALUE)==false){
+			contentToAdd = removeDescription(contentToAdd);
+		}
+//		System.out.println("Description is "+description);
+//		System.out.println("After remove description: "+contentToAdd);
+
+
 		String title = findTitle(contentToAdd);
 		if(title.isEmpty()){
 			title = NULL_VALUE;
@@ -254,7 +266,7 @@ public class Parser {
 		
 		b.putCommand(commandType);
 		b.putTitle(title);
-		b.putDescription(NULL_VALUE);
+		b.putDescription(description);
 		b.putStartTime(startTime);
 		b.putEndTime(endTime);
 		b.putStartDate(startDate);
@@ -364,6 +376,64 @@ public class Parser {
 	        return false; 
 	    }
 	    return true;
+	}
+	
+	
+	private static String findDescription(String content) {
+		String[] contentSplit = content.trim().split("\\s+");
+		String description = "";
+		ArrayList<String> contentSplitCopy = new ArrayList<String>();
+		for(int i=0; i<contentSplit.length; i++){
+			contentSplitCopy.add(contentSplit[i]);
+		}
+		
+		boolean hasDescription = false;
+		int j;
+		for(j=0; j<contentSplitCopy.size(); j++){
+			if(contentSplitCopy.get(j).contains("#")){
+				hasDescription = true;
+				break;
+			}
+		}
+		
+		if(hasDescription){
+			for(int k=j; k<contentSplitCopy.size(); k++){
+				description += contentSplitCopy.get(k);
+				description += " ";
+			}
+		}
+		description = description.trim();
+		description = description.replace("#", "");
+		
+		return description;
+	}
+	
+
+	private static String removeDescription(String content) {
+		String[] contentSplit = content.trim().split("\\s+");
+		ArrayList<String> contentSplitCopy = new ArrayList<String>();
+		for(int i=0; i<contentSplit.length; i++){
+			contentSplitCopy.add(contentSplit[i]);
+		}
+		
+		int j;
+		for(j=0; j<contentSplitCopy.size(); j++){
+			if(contentSplitCopy.get(j).contains("#")){
+				break;
+			}
+		}
+		
+		while( j < contentSplitCopy.size()){
+			contentSplitCopy.remove(j);
+		}
+		
+		String contentToAdd = "";
+		for(int k=0; k<contentSplitCopy.size(); k++){
+			contentToAdd += contentSplitCopy.get(k);
+			contentToAdd += " ";
+		}
+		contentToAdd = contentToAdd.trim();
+		return contentToAdd;
 	}
 	
 	private static String findTitle(String content){
