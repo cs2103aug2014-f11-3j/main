@@ -3,7 +3,6 @@ package taskbuddy.parser;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 import taskbuddy.gui.AWTgui;
 import taskbuddy.logic.AcknowledgeBundle;
@@ -49,7 +48,7 @@ import taskbuddy.logic.UserInputBundle;
 public class Parser {
 
 	private static UserInputBundle userInputs = new UserInputBundle();
-	private static Scanner scanner = new Scanner(System.in);
+//	private static Scanner scanner = new Scanner(System.in);
 	private static final String NULL_VALUE = "padding value";
 
 	//public static void main(String[] args) throws ParseException, IOException {
@@ -89,6 +88,14 @@ public class Parser {
 					//AWTgui.setResponseString(s);
 					AWTgui.appendToDisplay(s);
 				}
+			}else if(isEditType(commandType)){
+				try{
+					editDataPadding(userInputs, commandType, userCommand);
+					commandParser.parseUserInputs(userInputs);
+				}catch(NullPointerException e){
+//					System.out.println(e.getMessage());
+					AWTgui.setResponseString(e.getMessage());
+				}
 			}
 			
 			else{
@@ -98,29 +105,7 @@ public class Parser {
 		}
 	
 
-
 	
-
-	private static void displayDataPadding(UserInputBundle b,
-			String commandType) {
-		
-		b.putCommand(commandType);
-		b.putTitle(NULL_VALUE);
-		b.putDescription(NULL_VALUE);
-		b.putStartTime(NULL_VALUE);
-		b.putEndTime(NULL_VALUE);
-		b.putStartDate(NULL_VALUE);
-		b.putEndDate(NULL_VALUE);
-	}
-
-	private static boolean isDisplayType(String commandType) {
-		// TODO Auto-generated method stub
-		if(commandType.equalsIgnoreCase("display")){
-			return true;
-		}else{
-			return false;
-		}
-	}
 
 	private static String getFirstWord(String userCommand) {
 		String commandTypeString = userCommand.trim().split("\\s+")[0];
@@ -128,7 +113,18 @@ public class Parser {
 	}
 
 	private static String removeFirstWord(String userCommand) {
-		String result = userCommand.replace(getFirstWord(userCommand), "").trim();	
+		String[] splitCommand = userCommand.trim().split("\\s+");
+		ArrayList<String> splitCommandCopy = new ArrayList<String>();
+		for(int i=0; i<splitCommand.length; i++){
+			splitCommandCopy.add(splitCommand[i]);
+		}
+		splitCommandCopy.remove(0);
+		String result = "";
+		for(int j=0; j<splitCommandCopy.size(); j++){
+			result += splitCommandCopy.get(j);
+			result += " ";
+		}
+		result = result.trim();
 		return result;
 	}
 
@@ -169,6 +165,24 @@ public class Parser {
 			return false;
 		}
 	}
+	
+	private static boolean isDisplayType(String commandType) {
+		// TODO Auto-generated method stub
+		if(commandType.equalsIgnoreCase("display")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private static boolean isEditType(String commandType) {
+		// TODO Auto-generated method stub
+		if(commandType.equalsIgnoreCase("edit")){
+			return true;
+		}else{
+			return false;
+		}
+	}
 
 	private static void undoDataPadding(UserInputBundle b, String commandType){
 		b.putCommand(commandType);
@@ -198,7 +212,9 @@ public class Parser {
 		}
 		//System.out.println("Title is "+title);
 
-		contentToAdd = removeTitle(contentToAdd, title);
+		if(title.equals(NULL_VALUE)==false){
+			contentToAdd = removeTitle(contentToAdd, title);
+		}
 //		System.out.println("new content after remove title: "+contentToAdd);
 		
 		String startTime = findStartTime(contentToAdd);
@@ -219,7 +235,9 @@ public class Parser {
 		}	
 		//System.out.println("End time is "+endTime);
 
-		contentToAdd = removeStartAndEndTime(startTime, endTime, contentToAdd);
+		if(startTime.equals(NULL_VALUE)==false||endTime.equals(NULL_VALUE)==false){
+			contentToAdd = removeStartAndEndTime(startTime, endTime, contentToAdd);
+		}
 //		System.out.println("new content after remove start and end time: "+contentToAdd);
 		
 		String startDate = findStartDate(contentToAdd);
@@ -259,6 +277,93 @@ public class Parser {
 			showInvalidMessage();
 		}			
 			
+	}
+	
+	private static void displayDataPadding(UserInputBundle b,
+			String commandType) {
+		
+		b.putCommand(commandType);
+		b.putTitle(NULL_VALUE);
+		b.putDescription(NULL_VALUE);
+		b.putStartTime(NULL_VALUE);
+		b.putEndTime(NULL_VALUE);
+		b.putStartDate(NULL_VALUE);
+		b.putEndDate(NULL_VALUE);
+	}
+	
+	private static void editDataPadding(UserInputBundle b, String commandType, String userCommand) {
+		String contentToEdit = removeFirstWord(userCommand);
+		String ID = getFirstWord(contentToEdit);
+		if(isNumericType(ID) == true){
+			System.out.println("ID is "+ID);
+			contentToEdit = removeFirstWord(contentToEdit);
+			
+			String title = findTitle(contentToEdit);
+			if(title.isEmpty()){
+				title = NULL_VALUE;
+			}
+			System.out.println("Title is "+title);
+			
+			if(title.equals(NULL_VALUE)==false){
+				contentToEdit = removeTitle(contentToEdit, title);
+			}
+			
+			String startTime = findStartTime(contentToEdit);
+			if(startTime.isEmpty()){
+				startTime = NULL_VALUE;
+			}
+			if(startTime.equals(NULL_VALUE)==false){
+				startTime = convertTimeToFourDigit(startTime);
+			}	
+			System.out.println("Start time is "+startTime);
+			
+			String endTime = findEndTime(contentToEdit);
+			if(endTime.isEmpty()){
+				endTime = NULL_VALUE;
+			}
+			if(endTime.equals(NULL_VALUE)==false){
+				endTime = convertTimeToFourDigit(endTime);
+			}	
+			System.out.println("End time is "+endTime);
+			
+			if(startTime.equals(NULL_VALUE)==false||endTime.equals(NULL_VALUE)==false){
+				contentToEdit = removeStartAndEndTime(startTime, endTime, contentToEdit);
+			}
+			
+			String startDate = findStartDate(contentToEdit);
+			if(startDate.isEmpty()){
+				startDate = NULL_VALUE;
+			}
+			System.out.println("start date is "+startDate);
+			
+			String endDate = findEndDate(contentToEdit);
+			if(endDate.isEmpty()){
+				endDate = NULL_VALUE;
+			}
+			System.out.println("end date is "+endDate);
+			
+			b.putCommand(commandType);
+			b.putID(ID);
+			b.putTitle(title);
+			b.putDescription(NULL_VALUE);
+			b.putStartTime(startTime);
+			b.putEndTime(endTime);
+			b.putStartDate(startDate);
+			b.putEndDate(endDate);
+		}else{
+			throw new NullPointerException("Please enter task ID");
+		}
+		
+	
+	}
+	
+	private static boolean isNumericType(String ID){
+		try { 
+	        Integer.parseInt(ID); 
+	    } catch(NumberFormatException e) { 
+	        return false; 
+	    }
+	    return true;
 	}
 	
 	private static String findTitle(String content){
@@ -864,25 +969,6 @@ public class Parser {
 			}
 		}
 
-		// eg. watch movie tomorrow at GV
-		// eg. run this Sat along east coast
-//		if(startTime.isEmpty()){
-//			for(int k=contentSplitCopy.size()-1; k>=0; k--){
-//				if(isTodayKeyword(contentSplitCopy.get(k))){
-//					startTime = "today";
-//				}else if(isTomorrowKeyword(contentSplitCopy.get(k))){
-//					startTime = "tomorrow";
-//				}else if(isWeekDayKeyword(contentSplitCopy.get(k))){
-//					if(k-1 >= 0){
-//						if(isThisKeyword(contentSplitCopy.get(k-1))){
-//							startTime = "this" + " " + contentSplitCopy.get(k);
-//						}else if(isNextKeyword(contentSplitCopy.get(k-1))){
-//							startTime = "next" + " " + contentSplitCopy.get(k);
-//						}
-//					}
-//				}
-//			}
-//		} 
 		return startTime;
 	}
 
@@ -1036,8 +1122,12 @@ public class Parser {
 			contentSplitCopy.add(contentSplit[i]);
 		}
 		
-		contentSplitCopy.remove(startTime);
-		contentSplitCopy.remove(endTime);
+		if(startTime.equals(NULL_VALUE)==false){
+			contentSplitCopy.remove(startTime);
+		}
+		if(endTime.equals(NULL_VALUE)==false){
+			contentSplitCopy.remove(endTime);
+		}
 		
 		String newContent = "";
 		for(int k=0; k<contentSplitCopy.size(); k++){
@@ -1383,16 +1473,6 @@ public class Parser {
 		}
 	}
 
-	private static boolean notTimeIndicator(String s){
-		if(isAtKeyword(s)==false && 
-				isOnKeyword(s)==false &&
-				isFromKeyword(s)==false &&
-				isDeadlineKeyword(s)==false){
-			return true;
-		}else{
-			return false;
-		}
-	}
 
 	private static boolean isTimeString(String s){
 		if((s.contains("am")||s.contains("pm")
