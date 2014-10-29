@@ -85,7 +85,7 @@ public class IntegratedGoogleCalDatabaseTest {
 
         // Test for task edition to task log
         // Read tasks from log file first
-        ArrayList<Task> readTasks = database.taskLogger.readTasks();
+        ArrayList<Task> readTasks = database.databaseHandler.taskLogger.readTasks();
         // Then compare read tasks from log file with that of arraylist in
         // database
         for (int i = 0; i < 3; i++) {

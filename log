@@ -1,6 +1,3 @@
-5 tasks:
-Task ID: 0 | Title: floating task | Description: no description available | Start: 24-10-2014 at 09:28 | End: 24-10-2014 at 09:28 | Priority: 0 | Completed: false | Floating task: true | Google Calendar ID: sqq0po3i4j51s4hb1uvtgnvgcs
-Task ID: 1 | Title: deadline task | Description: no description available | Start: 25-10-2014 at 08:00 | End: 25-10-2014 at 08:00 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: ahhi72huj3pr9f9dkm1n2rc4gs
-Task ID: 2 | Title: all day task for one day | Description: no description available | Start: 24-10-2014 at 00:00 | End: 24-10-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: glchi80luc51g5pcpc9vkno9b4
-Task ID: 3 | Title: all day task for two days | Description: no description available | Start: 24-10-2014 at 00:00 | End: 25-10-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: 23rdursngub3fh9p0miu06a79g
-Task ID: 4 | Title: normal timed task | Description: no description available | Start: 24-10-2014 at 17:00 | End: 24-10-2014 at 21:30 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: 7lqgcsqb56s54dj92pf0cvu8uk
+2 tasks:
+Task ID: 0 | Title: Title | Description: Description | Start: 29-10-2014 at 17:28 | End: 29-10-2014 at 17:28 | Priority: 1 | Completed: true | Floating task: false | Google Calendar ID: 11111
+Task ID: 1 | Title: Another title | Description: Another description | Start: 29-10-2014 at 17:28 | End: 29-10-2014 at 17:28 | Priority: 2 | Completed: false | Floating task: true | Google Calendar ID: 11111

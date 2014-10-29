@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 
-import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import taskbuddy.googlecal.GoogleCalendarManager;
@@ -35,7 +35,7 @@ public class DatabaseTest {
     // @formatter:on
 
     Database database;
-    String logName = Database.LOG_NAME;
+    String logName = DatabaseHandler.LOG_NAME;
     Task task;
     GoogleCalendarManagerStub googleCalendarManagerStub;
 
@@ -89,7 +89,7 @@ public class DatabaseTest {
     public void setup() throws IOException, ParseException {
         database = new Database();
         googleCalendarManagerStub = new GoogleCalendarManagerStub();
-        database.setGoogleCal(googleCalendarManagerStub);
+        database.databaseHandler.setGoogleCal(googleCalendarManagerStub);
     }
 
     public void addTasks() throws IOException {
@@ -107,17 +107,17 @@ public class DatabaseTest {
      */
     public void createDummyLog() throws IOException {
         addTasks();
-        database.taskLogger.writeToLogFile(database.getTasks());
+        database.databaseHandler.taskLogger.writeToLogFile(database.getTasks());
     }
 
     /**
      * Deletes existing log file after all tests have been run
      */
-    @After
+    @Before
     public void deleteLog() {
-        File log = database.taskLogger.getLog();
+        File log = new File(DatabaseHandler.LOG_NAME);
         if (log.isFile()) {
-            database.taskLogger.getLog().delete();
+            log.delete();
         }
     }
 
@@ -126,7 +126,7 @@ public class DatabaseTest {
         setup();
         addTasks();
 
-        database.setTaskIds();
+        database.databaseHandler.setTaskIds();
         ArrayList<Task> tasks = database.getTasks();
         for (Task aTask : tasks) {
             assertEquals(tasks.indexOf(aTask), aTask.getTaskId());
@@ -151,7 +151,8 @@ public class DatabaseTest {
         // Test for task addition to task log
         String expected;
         String actual;
-        ArrayList<Task> readTasks = database.taskLogger.readTasks();
+        ArrayList<Task> readTasks = database.databaseHandler.taskLogger
+                .readTasks();
         assertEquals("Number of tasks in log did not increase from 0 to 1 ", 1,
                 readTasks.size());
         actual = readTasks.get(0).displayTask();
@@ -218,7 +219,8 @@ public class DatabaseTest {
         // Test if task is deleted from task log
         String expected;
         String actual;
-        ArrayList<Task> readTasks = database.taskLogger.readTasks();
+        ArrayList<Task> readTasks = database.databaseHandler.taskLogger
+                .readTasks();
         assertEquals("Number of tasks in log did not decrease to one ", 1,
                 readTasks.size());
         actual = readTasks.get(0).displayTask();
@@ -293,8 +295,8 @@ public class DatabaseTest {
             createTask();
             database.addTask(task);
         }
-        assertEquals("Number of tasks is not three", numberOfTasks,
-                database.getTasks().size());
+        assertEquals("Number of tasks is not three", numberOfTasks, database
+                .getTasks().size());
 
         // Create task with task ID 1
         createAnotherTask();
@@ -325,7 +327,8 @@ public class DatabaseTest {
         // Test for task edition to task log
         String expected;
         String actual;
-        ArrayList<Task> readTasks = database.taskLogger.readTasks();
+        ArrayList<Task> readTasks = database.databaseHandler.taskLogger
+                .readTasks();
         for (int i = 0; i < numberOfTasks; i++) {
             actual = readTasks.get(i).displayTask();
             expected = database.getTasks().get(i).displayTask();
@@ -344,21 +347,23 @@ public class DatabaseTest {
         // Construct database
         setup();
         assertTrue("Database not constructed with arraylist of Task objects.",
-                database.tasks instanceof ArrayList);
+                database.databaseHandler.tasks instanceof ArrayList);
         assertTrue("Database not constructed with linkedlist of DbCommands"
-                + "objects.", database.commands instanceof LinkedList);
+                + "objects.",
+                database.databaseHandler.commands instanceof LinkedList);
         assertTrue("Database not constructed with an instance of TaskLogger.",
-                database.taskLogger instanceof TaskLogger);
-        assertTrue("Database not constructed with an instance of "
-                + "GoogleCalendarManager.",
-                database.googleCal instanceof GoogleCalendarManager);
+                database.databaseHandler.taskLogger instanceof TaskLogger);
+        assertTrue(
+                "Database not constructed with an instance of "
+                        + "GoogleCalendarManager.",
+                database.databaseHandler.googleCal instanceof GoogleCalendarManager);
 
         String expected;
         String actual;
 
         // Test for preparing from existing log file
         ArrayList<Task> readTasks;
-        database.taskLogger.prepareLog(logName);
+        database.databaseHandler.taskLogger.prepareLog(logName);
         createDummyLog();
 
         // Construct database again and see if it reads in from log file.
@@ -378,11 +383,12 @@ public class DatabaseTest {
 
         deleteLog();
         // Test for non-existing log file
-        database.taskLogger.prepareLog(logName);
+        database.databaseHandler.taskLogger.prepareLog(logName);
         assertTrue("Log file object not initialised with prepareLog method.",
-                database.taskLogger.log instanceof File);
+                database.databaseHandler.taskLogger.log instanceof File);
         assertTrue("Log file doesn't exist even when it's supposed to have "
-                + "been created.", database.taskLogger.getLog().exists());
+                + "been created.", database.databaseHandler.taskLogger.getLog()
+                .exists());
 
     }
 
