@@ -310,11 +310,21 @@ public class Parser {
 			System.out.println("ID is "+ID);
 			contentToEdit = removeFirstWord(contentToEdit);
 			
+			String description = findDescription(contentToEdit);
+			if(description.isEmpty()){
+				description = NULL_VALUE;
+			}
+//			System.out.println("Description is "+description);
+			
+			if(description.equals(NULL_VALUE)==false){
+				contentToEdit = removeDescription(contentToEdit);
+			}
+			
 			String title = findTitle(contentToEdit);
 			if(title.isEmpty()){
 				title = NULL_VALUE;
 			}
-			System.out.println("Title is "+title);
+//			System.out.println("Title is "+title);
 			
 			if(title.equals(NULL_VALUE)==false){
 				contentToEdit = removeTitle(contentToEdit, title);
@@ -327,7 +337,7 @@ public class Parser {
 			if(startTime.equals(NULL_VALUE)==false){
 				startTime = convertTimeToFourDigit(startTime);
 			}	
-			System.out.println("Start time is "+startTime);
+//			System.out.println("Start time is "+startTime);
 			
 			String endTime = findEndTime(contentToEdit);
 			if(endTime.isEmpty()){
@@ -336,7 +346,7 @@ public class Parser {
 			if(endTime.equals(NULL_VALUE)==false){
 				endTime = convertTimeToFourDigit(endTime);
 			}	
-			System.out.println("End time is "+endTime);
+//			System.out.println("End time is "+endTime);
 			
 			if(startTime.equals(NULL_VALUE)==false||endTime.equals(NULL_VALUE)==false){
 				contentToEdit = removeStartAndEndTime(startTime, endTime, contentToEdit);
@@ -346,18 +356,18 @@ public class Parser {
 			if(startDate.isEmpty()){
 				startDate = NULL_VALUE;
 			}
-			System.out.println("start date is "+startDate);
+//			System.out.println("start date is "+startDate);
 			
 			String endDate = findEndDate(contentToEdit);
 			if(endDate.isEmpty()){
 				endDate = NULL_VALUE;
 			}
-			System.out.println("end date is "+endDate);
+//			System.out.println("end date is "+endDate);
 			
 			b.putCommand(commandType);
 			b.putID(ID);
 			b.putTitle(title);
-			b.putDescription(NULL_VALUE);
+			b.putDescription(description);
 			b.putStartTime(startTime);
 			b.putEndTime(endTime);
 			b.putStartDate(startDate);
