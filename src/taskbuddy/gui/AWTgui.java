@@ -129,8 +129,14 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 			String url = googlecalendarcontroller.getAuthenticationUrl();
 			gooCalDisplay.setText(url);
 			try {
-				Desktop.getDesktop().browse(new URI(url));
-			} catch (IOException | URISyntaxException e1) {
+				try {
+					Desktop.getDesktop().browse(new URI(url));
+				} catch (URISyntaxException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			//} catch (IOException | URISyntaxException e1) {
+			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
