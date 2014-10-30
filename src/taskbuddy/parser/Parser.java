@@ -74,11 +74,15 @@ public class Parser {
 
 			}else if(isAddType(commandType)){
 				addDataPadding(userInputs, commandType, userCommand);
-				commandParser.parseUserInputs(userInputs);
+				AcknowledgeBundle a =commandParser.parseUserInputs(userInputs);
+				String response = a.getMessage();
+				AWTgui.setResponseString(response);
 
 			}else if(isDeleteType(commandType)){
 				deleteDataPadding(userInputs, commandType, userCommand);
-				commandParser.parseUserInputs(userInputs);
+				AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
+				String response = a.getMessage();
+				AWTgui.setResponseString(response);
 			
 			}else if(isDisplayType(commandType)){
 				displayDataPadding(userInputs, commandType);
@@ -93,7 +97,9 @@ public class Parser {
 			}else if(isEditType(commandType)){
 				try{
 					editDataPadding(userInputs, commandType, userCommand);
-					commandParser.parseUserInputs(userInputs);
+					AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
+					String response = a.getMessage();
+					AWTgui.setResponseString(response);
 				}catch(NullPointerException e){
 //					System.out.println(e.getMessage());
 					AWTgui.setResponseString(e.getMessage());
@@ -102,7 +108,11 @@ public class Parser {
 			}else if(isSearchType(commandType)){
 				try{
 					searchDatePadding(userInputs, commandType, userCommand);
-					commandParser.parseUserInputs(userInputs);
+					AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
+					ArrayList<String> toDisplay = a.getList();
+					for (String s: toDisplay) {
+						AWTgui.appendToDisplay(s);
+					}
 				}catch(NullPointerException e){
 //					System.out.println(e.getMessage());
 					AWTgui.setResponseString(e.getMessage());
