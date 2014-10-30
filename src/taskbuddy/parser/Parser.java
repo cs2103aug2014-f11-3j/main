@@ -50,7 +50,8 @@ public class Parser {
 	private static UserInputBundle userInputs = new UserInputBundle();
 //	private static Scanner scanner = new Scanner(System.in);
 	private static final String NULL_VALUE = "padding value";
-
+	private static String userCommand = "";
+	
 	//public static void main(String[] args) throws ParseException, IOException {
 	
 	public static void userInput(String command) throws ParseException, IOException {
@@ -59,7 +60,7 @@ public class Parser {
 		//while (continueLoop) {
 			System.out.print("command:");
 			//String userCommand = scanner.nextLine();
-			String userCommand = command;
+			userCommand = command;
 			
 			String commandType = getFirstWord(userCommand);
 
@@ -115,7 +116,9 @@ public class Parser {
 		}
 	
 
-	
+	public static UserInputBundle getUserInput(){
+		return userInputs;
+	}
 
 	private static String getFirstWord(String userCommand) {
 		String commandTypeString = userCommand.trim().split("\\s+")[0];
