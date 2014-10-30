@@ -1,80 +1,136 @@
 package taskbuddy.logic;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 
+import org.junit.After;
 import org.junit.Test;
 
-import taskbuddy.database.*;
+import taskbuddy.database.Database;
 
 public class CommandParserTest {
-	CommandParser cp = new CommandParser();
-	
-	private String user_command = "command";
-	private String user_description = "description";
-	private String user_endDate = "endDate";
-	private String user_start = "startTime";
-	private String user_endTime = "endTime";
-	private String user_title = "title";
-	private Database db;
-	private String status = "Status";
-	private String success = "Success";
-	private String failure = "Failure";
-	private String message = "Message";
-	private String task = "Task";
-	
+
+	private static String nullValue = "padding value";
+	private CommandParser cp;
+
 	@Test
-	public void testAdd() throws ParseException, IOException {
+	public void testAddFloating() throws ParseException, IOException {
 		try {
-			db = new Database();
-		} catch (IOException e) {
-			Bundle b = new Bundle();
-			b.putString("status", "failure");
-			b.putString("message", "DB IO exception");
-			b.putObject("task", null);
-			//assertEquals(expected, returnvalue);
+			cp = new CommandParser();
+			UserInputBundle uf = new UserInputBundle();
+			AcknowledgeBundle bf = new AcknowledgeBundle();
+			uf.putTitle("task floating");
+			uf.putDescription("test task for integration");
+			uf.putEndDate(nullValue);
+			uf.putEndTime(nullValue);
+			uf.putStartDate(nullValue);
+			uf.putStartTime(nullValue);
+			uf.putCommand("add");
+			bf = cp.parseUserInputs(uf);
+			Database db = cp.getDatabase();
+			db.printTasks();
+			String status = bf.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			// e.printStackTrace();
 		}
-		Bundle addUserInputs = new Bundle();
-		addUserInputs.putString(user_command, "add");
-		addUserInputs.putString(user_description, "test description");
-		addUserInputs.putString(user_endDate, "10-10-2014");
-		addUserInputs.putString(user_start, "padding value");
-		addUserInputs.putString(user_endTime, "2359");
-		addUserInputs.putString(user_title, "test title");
-		Bundle returnValue = cp.addTask(addUserInputs, db);
-		
-		Bundle expected = new Bundle();
-		expected.putString(status, success);
-		String expectedString = (String) expected.getItem(status);
-		String returnedString = (String) returnValue.getItem(status);
-		assertEquals(expectedString, returnedString);
-		//assertEquals(expected, returnValue);
-		// Remove log file after test
-        db.taskLogger.getLog().delete();
 	}
-	
-	/*
-	public void testDelete() throws ParseException, IOException{
+
+	@Test
+	public void testAddNormal() throws ParseException, IOException {
 		try {
-			db = new Database();
-		} catch (IOException e) {
-			Bundle b = new Bundle();
-			b.putString("status", "failure");
-			b.putString("message", "DB IO exception");
-			b.putObject("task", null);
-			//assertEquals(expected, returnvalue);
+			cp = new CommandParser();
+			UserInputBundle uf = new UserInputBundle();
+			AcknowledgeBundle bf = new AcknowledgeBundle();
+			uf.putTitle("task normal");
+			uf.putDescription("test task for 2 dates");
+			uf.putEndDate("23/10/2014");
+			uf.putEndTime("2300");
+			uf.putStartDate("23/10/2014");
+			uf.putStartTime("2100");
+			uf.putCommand("add");
+			bf = cp.parseUserInputs(uf);
+			Database db = cp.getDatabase();
+			db.printTasks();
+			String status = bf.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			// e.printStackTrace();
 		}
-		Bundle addUserInputs = new Bundle();
-		addUserInputs.putString(user_command, "delete");
-		addUserInputs.putString(user_description, "test description");
-		addUserInputs.putString(user_endDate, "10 10 14");
-		addUserInputs.putString(user_start, "padding value");
-		addUserInputs.putString(user_endTime, "2359");
-		addUserInputs.putString(user_title, "test title");
-		String title = (String) addUserInputs.getItem(user_title);
-		Bundle d = cp.deleteTask(title, db);
-		//cant test because db is empty
-	}*/
+	}
+
+	@Test
+	public void testAddDeadline() throws ParseException, IOException {
+		try {
+			cp = new CommandParser();
+			UserInputBundle uf = new UserInputBundle();
+			AcknowledgeBundle bf = new AcknowledgeBundle();
+			uf.putTitle("task deadline today");
+			uf.putDescription("test task for deadline");
+			uf.putEndDate(nullValue);
+			uf.putEndTime("2000");
+			uf.putStartDate(nullValue);
+			uf.putStartTime("2000");
+			uf.putCommand("add");
+			bf = cp.parseUserInputs(uf);
+			Database db = cp.getDatabase();
+			// db.printTasks();
+			String status = bf.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			// e.printStackTrace();
+		}
+	}
+
+	public void testEdit() throws Exception {
+		try {
+			cp = new CommandParser();
+			UserInputBundle et = new UserInputBundle();
+			AcknowledgeBundle eb = new AcknowledgeBundle();
+			et.putCommand("edit");
+			et.putDescription("changed desc");
+			et.putID("1");
+			et.putTitle("changed title");
+			et.putEndDate(nullValue);
+			et.putEndTime(nullValue);
+			et.putStartDate(nullValue);
+			et.putStartTime(nullValue);
+			eb = cp.parseUserInputs(et);
+			String status = eb.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void testSearch() throws Exception {
+		try {
+			cp = new CommandParser();
+			UserInputBundle st = new UserInputBundle();
+			AcknowledgeBundle sb = new AcknowledgeBundle();
+			st.putCommand("search");
+			st.putDescription("changed");
+			st.putTitle("changed");
+			st.putEndDate(nullValue);
+			st.putEndTime(nullValue);
+			st.putStartDate(nullValue);
+			st.putStartTime(nullValue);
+			sb = cp.parseUserInputs(st);
+			String status = sb.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@After
+	public void deleteLog() {
+		File log = new File("log");
+		if (log.isFile()) {
+			log.delete();
+		}
+	}
 }
