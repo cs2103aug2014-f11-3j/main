@@ -1655,8 +1655,13 @@ public class Parser {
 				// eg. 9am
 				time = "0" + s.substring(0, 1) + "00";
 			}else if(s.length()==4){
-				// eg. 10am
-				time = s.substring(0, 2) + "00";
+				if(s.equals("12am")||s.equals("12AM")){
+					time = "0000";
+				}else{
+					// eg. 10am
+					time = s.substring(0, 2) + "00";
+				}			
+		
 			}else if(s.length() > 4){
 				String firstChar = s.substring(0, 1);
 				if(firstChar.equals("1")){
@@ -1681,11 +1686,15 @@ public class Parser {
 				value = value + 12;
 				time = "" + value + "00";	
 			}else if(s.length()==4){
-				// eg. 11pm
-				String strDigit = s.substring(0, 2);
-				int value = Integer.parseInt(strDigit);
-				value = value + 12;
-				time = "" + value + "00";
+				if(s.equals("12pm")||s.equals("12PM")){
+					time = "1200";
+				}else{
+					// eg. 11pm
+					String strDigit = s.substring(0, 2);
+					int value = Integer.parseInt(strDigit);
+					value = value + 12;
+					time = "" + value + "00";
+				}
 			}else if(s.length() > 4){
 				String charFirst = s.substring(0, 1);
 				if(charFirst.equals("1")){
