@@ -42,21 +42,40 @@ public class AddCommand {
 			String dateStart, String timeEnd, String dateEnd) {
 
 		if (dateStart.equals(nullValue) && dateEnd.equals(nullValue)) {
-			if (timeStart.equals(nullValue) && timeEnd.equals(nullValue)) {
-				// floating task
-				taskToMod.setFloating(true);
-				Calendar cal = Calendar.getInstance();
-				taskToMod.setEndTime(cal);
-				taskToMod.setStartTime(cal);
-			}
-			if (!timeEnd.equals(nullValue)) {
-				// deadline task
+			if (!timeStart.equals(nullValue) && !timeEnd.equals(nullValue)) {
+				Calendar calStart = Calendar.getInstance();
+				Calendar calEnd = Calendar.getInstance();
+				int startH = Integer.parseInt(timeStart.substring(0, 2));
+				int startM = Integer.parseInt(timeStart.substring(2));
+				int endH = Integer.parseInt(timeEnd.substring(0, 2));
+				int endM = Integer.parseInt(timeEnd.substring(2));
+				calStart.set(Calendar.HOUR_OF_DAY, startH);
+				calStart.set(Calendar.MINUTE, startM);
+				calEnd.set(Calendar.HOUR_OF_DAY, endH);
+				calEnd.set(Calendar.MINUTE, endM);
+				taskToMod.setEndTime(calEnd);
+				taskToMod.setStartTime(calStart);
+			} else if (!timeEnd.equals(nullValue)) {
 				taskToMod.setFloating(false);
 				Calendar cal = Calendar.getInstance();
 				int hh = Integer.parseInt(timeEnd.substring(0, 2));
 				int mm = Integer.parseInt(timeEnd.substring(2));
 				cal.set(Calendar.HOUR_OF_DAY, hh);
 				cal.set(Calendar.MINUTE, mm);
+				taskToMod.setEndTime(cal);
+				taskToMod.setStartTime(cal);
+			} else if (!timeStart.equals(nullValue)) {
+				taskToMod.setFloating(false);
+				Calendar cal = Calendar.getInstance();
+				int hh = Integer.parseInt(timeStart.substring(0, 2));
+				int mm = Integer.parseInt(timeStart.substring(2));
+				cal.set(Calendar.HOUR_OF_DAY, hh);
+				cal.set(Calendar.MINUTE, mm);
+				taskToMod.setEndTime(cal);
+				taskToMod.setStartTime(cal);
+			} else {
+				taskToMod.setFloating(true);
+				Calendar cal = Calendar.getInstance();
 				taskToMod.setEndTime(cal);
 				taskToMod.setStartTime(cal);
 			}
