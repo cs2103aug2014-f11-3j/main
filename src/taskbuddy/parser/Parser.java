@@ -336,7 +336,7 @@ public class Parser {
 		String contentToEdit = removeFirstWord(userCommand);
 		String ID = getFirstWord(contentToEdit);
 		if(isNumericType(ID) == true){
-			System.out.println("ID is "+ID);
+//			System.out.println("ID is "+ID);
 			contentToEdit = removeFirstWord(contentToEdit);
 			
 			String description = findDescription(contentToEdit);
