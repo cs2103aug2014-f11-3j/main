@@ -49,7 +49,7 @@ public class EditCommand {
 			String endDate = extras.getEndDate();
 			String endTime = extras.getEndTime();
 			if (!endDate.equals(nullValue) && !endTime.equals(nullValue)) {
-				toEdit.setStartTime(endDate, endTime);
+				toEdit.setEndTime(endDate, endTime);
 			} else if (!endDate.equals(nullValue)) {
 				Calendar cal = Calendar.getInstance();
 				String[] ddmmyyyy = endDate.split("/");
@@ -57,14 +57,14 @@ public class EditCommand {
 				int m = Integer.parseInt(ddmmyyyy[1]);
 				int y = Integer.parseInt(ddmmyyyy[2]);
 				cal.set(y, m, d);
-				toEdit.setStartTime(cal);
+				toEdit.setEndTime(cal);
 			} else if (!endTime.equals(nullValue)) {
 				Calendar cal = Calendar.getInstance();
 				int h = Integer.parseInt(endTime.substring(0, 2));
 				int m = Integer.parseInt(endTime.substring(2));
 				cal.set(Calendar.HOUR_OF_DAY, h);
 				cal.set(Calendar.MINUTE, m);
-				toEdit.setStartTime(cal);
+				toEdit.setEndTime(cal);
 			}
 
 			db.edit(toEdit);
