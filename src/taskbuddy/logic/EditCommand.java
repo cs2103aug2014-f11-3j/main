@@ -11,7 +11,7 @@ public class EditCommand {
 		Task toEdit = new Task();
 		int taskID =  Integer.parseInt(extras.getTaskID());
 		try{
-			toEdit = db.findMatchingTask(taskID);
+			toEdit = db.read(taskID);
 			ack.putOldTask(toEdit);
 			String title = extras.getTitle();
 			if (!title.equals(nullValue)){

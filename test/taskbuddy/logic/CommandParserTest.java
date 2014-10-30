@@ -84,7 +84,8 @@ public class CommandParserTest {
 			// e.printStackTrace();
 		}
 	}
-
+	
+	@Test
 	public void testEdit() throws Exception {
 		try {
 			cp = new CommandParser();
@@ -106,6 +107,7 @@ public class CommandParserTest {
 		}
 	}
 
+	@Test
 	public void testSearch() throws Exception {
 		try {
 			cp = new CommandParser();
