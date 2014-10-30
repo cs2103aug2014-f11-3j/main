@@ -4,17 +4,18 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import taskbuddy.logic.Task;
 
 public class TaskLoggerTest {
 
-    private static final String ERR_CANNOT_PARSE = "Cannot parse task";
     private static final String ERR_CANNOT_OPEN_LOG = "Cannot open log file.";
 
     // @formatter:off
@@ -28,85 +29,65 @@ public class TaskLoggerTest {
     private static final int POSITION_IS_FLOATING   = 7;
     private static final int POSITION_GOOGLE_ID     = 8;
     // @formatter:on
+    private static final String DUMMY_GOOGLE_ID = "1111";
 
-    Task task;
-    TaskLogger taskLogger;
-    String logName;
-    String[] splitFields;
+    Task firstTask;
+    Task secondTask;
     ArrayList<Task> tasks;
+    String logName;
+    TaskLogger taskLogger;
+    String[] splitFields;
 
-    int taskId;
-    String title;
-    String description;
-    Calendar start;
-    Calendar end;
-    int priority;
-    boolean isComplete;
-    boolean isFloating;
-    String googleCalendarId;
+    String expected;
+    String actual;
 
-    public void createTask() {
-        taskId = 0;
-        title = "Title";
-        description = "Description";
-        start = Calendar.getInstance();
-        end = Calendar.getInstance();
-        priority = 1;
-        isComplete = true;
-        isFloating = false;
-        googleCalendarId = "11111";
+    /**
+     * Deletes existing log file before running tests
+     */
+    public void deleteLog() {
+        File log = new File(DatabaseHandler.LOG_NAME);
+        if (log.isFile()) {
+            log.delete();
+        }
+    }
 
-        task = new Task(title);
-        task.setTaskId(taskId);
+    public void addTasks() throws IOException, UnknownHostException {
+        tasks.add(firstTask);
+        tasks.add(secondTask);
+    }
+
+    public Task createTask(String title, String description) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        int priority = 1;
+        boolean isComplete = true;
+        boolean isFloating = false;
+
+        Task task = new Task(title);
         task.setDescription(description);
         task.setStartTime(start);
         task.setEndTime(end);
         task.setPriority(priority);
         task.setCompletion(isComplete);
         task.setFloating(isFloating);
-        task.setGID(googleCalendarId);
+
+        return task;
     }
 
-    public void createAnotherTask() {
-        taskId = 1;
-        title = "Another title";
-        description = "Another description";
-        start = Calendar.getInstance();
-        end = Calendar.getInstance();
-        priority = 2;
-        isComplete = false;
-        isFloating = true;
-        googleCalendarId = "22222";
+    @Before
+    public void setup() throws Exception {
+        deleteLog();
 
-        task = new Task(title);
-        task.setTaskId(taskId);
-        task.setDescription(description);
-        task.setStartTime(start);
-        task.setEndTime(end);
-        task.setPriority(priority);
-        task.setCompletion(isComplete);
-        task.setFloating(isFloating);
-        task.setGID(googleCalendarId);
-    }
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
 
-    public void setup() throws IOException {
         tasks = new ArrayList<Task>();
         taskLogger = new TaskLogger();
-        logName = "log";
-    }
-
-    public void addTasks() {
-        createTask();
-        tasks.add(task);
-        createAnotherTask();
-        tasks.add(task);
+        logName = DatabaseHandler.LOG_NAME;
     }
 
     /**
-     * Create a dummy log file with two tasks added by <code>addTasks</code>
-     * method
-     * 
-     * @throws IOException
+     * Create a dummy log file with tasks added by <code>addTasks</code> method
      */
     public void createDummyLog() throws IOException {
         addTasks();
@@ -115,37 +96,29 @@ public class TaskLoggerTest {
 
     /**
      * Can only be used only after task is initialised
+     * 
+     * @param task
+     *            TODO
      */
-    public void splitFields() {
+    public void splitFields(Task task) {
         splitFields = taskLogger.splitToFields(task.displayTask());
-    }
-
-    /**
-     * Deletes existing log file after all tests have been run
-     */
-    @After
-    public void deleteLog() {
-        File log = taskLogger.getLog();
-        if (log != null && log.isFile()) {
-            taskLogger.getLog().delete();
-        }
     }
 
     @Test
     public void testPrepareLog() throws Exception {
-        String expected;
-        String actual;
         setup();
         File log = new File(logName);
         assertFalse("Log file created when it's not supposed to exist.",
                 log.isFile());
 
-        // Test for preparing from existing log file
-        ArrayList<Task> readTasks;
+        // Create empty log file since log file hasn't existed.
         taskLogger.prepareLog(logName);
         createDummyLog();
-        readTasks = taskLogger.prepareLog(logName);
+        // prepareLog method should read tasks in from existing log file
+        ArrayList<Task> readTasks = taskLogger.prepareLog(logName);
 
+        // Test if tasks read in from task log match those of temporary memory,
+        // i.e. ArrayList tasks.
         assertEquals("No tasks read in from log file", 2, readTasks.size());
         expected = readTasks.get(0).displayTask();
         actual = tasks.get(0).displayTask();
@@ -157,6 +130,7 @@ public class TaskLoggerTest {
                 + "existing log file.", expected.equals(actual));
 
         deleteLog();
+
         // Test for non-existing log file
         taskLogger.prepareLog(logName);
         assertTrue("Log file object not initialised with prepareLog method.",
@@ -183,79 +157,79 @@ public class TaskLoggerTest {
     @Test
     public void testSplitToFields() throws Exception {
         setup();
-        createTask();
-        String fields[] = taskLogger.splitToFields(task.displayTask());
+        splitFields(firstTask);
 
         assertTrue("Task ID field not extracted properly.",
-                fields[POSITION_TASK_ID].equals(task.displayTaskId()));
+                splitFields[POSITION_TASK_ID].equals(firstTask.displayTaskId()));
         assertTrue("Title field not extracted properly.",
-                fields[POSITION_TITLE].equals(task.displayTitle()));
+                splitFields[POSITION_TITLE].equals(firstTask.displayTitle()));
         assertTrue("Description field not extracted properly.",
-                fields[POSITION_DESCRIPTION].equals(task.displayDescription()));
+                splitFields[POSITION_DESCRIPTION].equals(firstTask
+                        .displayDescription()));
         assertTrue("Start field not extracted properly.",
-                fields[POSITION_START].equals(task.displayStart()));
+                splitFields[POSITION_START].equals(firstTask.displayStart()));
         assertTrue("End field not extracted properly.",
-                fields[POSITION_END].equals(task.displayEnd()));
+                splitFields[POSITION_END].equals(firstTask.displayEnd()));
         assertTrue("End field not extracted properly.",
-                fields[POSITION_PRIORITY].equals(task.displayPriority()));
+                splitFields[POSITION_PRIORITY].equals(firstTask
+                        .displayPriority()));
         assertTrue("End field not extracted properly.",
-                fields[POSITION_IS_COMPLETE].equals(task.displayIsComplete()));
+                splitFields[POSITION_IS_COMPLETE].equals(firstTask
+                        .displayIsComplete()));
         assertTrue("End field not extracted properly.",
-                fields[POSITION_IS_FLOATING].equals(task.displayIsFloating()));
+                splitFields[POSITION_IS_FLOATING].equals(firstTask
+                        .displayIsFloating()));
         assertTrue("End field not extracted properly.",
-                fields[POSITION_GOOGLE_ID].equals(task.displayGoogleId()));
+                splitFields[POSITION_GOOGLE_ID].equals(firstTask
+                        .displayGoogleId()));
     }
 
     @Test
     public void testExtractTaskId() throws Exception {
         setup();
-        createTask();
-        splitFields();
+        splitFields(firstTask);
         String displayTaskId = splitFields[POSITION_TASK_ID];
         int extractedTaskId = taskLogger.extractTaskId(displayTaskId);
 
         assertEquals("Title not extracted properly.", extractedTaskId,
-                task.getTaskId());
+                firstTask.getTaskId());
     }
 
     @Test
     public void testExtractTitle() throws Exception {
         setup();
-        createTask();
-        splitFields();
+        splitFields(firstTask);
         String displayTitle = splitFields[POSITION_TITLE];
         String extractedTitle = taskLogger.extractTitle(displayTitle);
 
         assertTrue("Title not extracted properly.",
-                extractedTitle.equals(task.getTitle()));
+                extractedTitle.equals(firstTask.getTitle()));
     }
 
     @Test
     public void testExtractDescription() throws Exception {
         setup();
-        createTask();
-        splitFields();
+        splitFields(firstTask);
         String displayDescription = splitFields[POSITION_DESCRIPTION];
         String extractedDescription = taskLogger
                 .extractDescription(displayDescription);
 
         assertTrue("Description not extracted properly.",
-                extractedDescription.equals(task.getDescription()));
+                extractedDescription.equals(firstTask.getDescription()));
     }
 
     @Test
     public void testExtractStart() throws Exception {
         setup();
-        createTask();
-        splitFields();
+        splitFields(firstTask);
         String displayStart = splitFields[POSITION_START];
         Calendar extractedStart = taskLogger.extractStart(displayStart);
 
         // Have to convert to string because extractedStart is only accurate to
         // minutes and will be different from task.getStartTime() that is
         // accurate to seconds
-        String actual = task.displayDateTime(extractedStart);
-        String expected = task.displayDateTime(task.getStartTime());
+        String actual = firstTask.displayDateTime(extractedStart);
+        String expected = firstTask.displayDateTime(firstTask.getStartTime());
         assertTrue("Start time not extracted properly.",
                 actual.equals(expected));
     }
@@ -263,95 +237,88 @@ public class TaskLoggerTest {
     @Test
     public void testExtractEnd() throws Exception {
         setup();
-        createTask();
-        splitFields();
+        splitFields(firstTask);
         String displayEnd = splitFields[POSITION_END];
         Calendar extractedEnd = taskLogger.extractEnd(displayEnd);
 
         // Have to convert to string, same reason as that for extracting start
         // time
-        String actual = task.displayDateTime(extractedEnd);
-        String expected = task.displayDateTime(task.getEndTime());
+        String actual = firstTask.displayDateTime(extractedEnd);
+        String expected = firstTask.displayDateTime(firstTask.getEndTime());
         assertTrue("End time not extracted properly.", actual.equals(expected));
     }
 
     @Test
     public void testExtractPriority() throws Exception {
         setup();
-        createTask();
-        splitFields();
+        splitFields(firstTask);
         String displayPriority = splitFields[POSITION_PRIORITY];
         int extractedPriority = taskLogger.extractPriority(displayPriority);
 
         assertEquals("Priority not extracted properly", extractedPriority,
-                task.getPriority());
+                firstTask.getPriority());
     }
 
     @Test
     public void testExtractIsComplete() throws Exception {
         setup();
-        createTask();
-        splitFields();
+        splitFields(firstTask);
         String displayIsComplete = splitFields[POSITION_IS_COMPLETE];
         boolean extractedIsComplete = taskLogger
                 .extractIsComplete(displayIsComplete);
 
         assertEquals("isComplete not extracted properly", extractedIsComplete,
-                task.getCompletionStatus());
+                firstTask.getCompletionStatus());
     }
 
+    @Ignore
     @Test
     public void testExtractIsFloating() throws Exception {
         setup();
-        createTask();
-        splitFields();
+        splitFields(firstTask);
         String displayIsFloating = splitFields[POSITION_IS_FLOATING];
         boolean extractedIsFloating = taskLogger
                 .extractIsComplete(displayIsFloating);
 
         assertEquals("isFloating not extracted properly", extractedIsFloating,
-                task.isFloatingTask());
+                firstTask.isFloatingTask());
     }
 
     @Test
     public void testExtractGoogleId() throws Exception {
         setup();
-        createTask();
-        splitFields();
+        firstTask.setGID(DUMMY_GOOGLE_ID);
+        splitFields(firstTask);
         String displayGoogleId = splitFields[POSITION_GOOGLE_ID];
         String extractedGoogleId = taskLogger.extractGoogleId(displayGoogleId);
 
         assertEquals("Google Calendar ID not extracted properly",
-                extractedGoogleId, task.getGID());
+                extractedGoogleId, firstTask.getGID());
     }
 
     @Test
     public void testReadTask() throws Exception {
         setup();
-        createTask();
-        String taskString = task.displayTask();
+        String taskString = firstTask.displayTask();
         Task actualTask = taskLogger.readTask(taskString);
 
         // Use string versions of actual and expected tasks for comparison for
         // the similar reason in testExtractStart method, i.e. start/end times
         // for actual task is accurate to seconds whereas that for read task is
         // only accurate to minutes.
-        String actual = actualTask.displayTask();
-        String expected = task.displayTask();
+        actual = actualTask.displayTask();
+        expected = firstTask.displayTask();
 
         assertTrue("Task not read in properly from task string.",
                 actual.equals(expected));
-
     }
 
+    // TODO 
     @Test
     public void testReadTasks() throws Exception {
-        String actual;
-        String expected;
-
         setup();
-
         try {
+            // prepareLog initialises log variable in taskLogger
             taskLogger.prepareLog(logName);
             // Delete log file intentionally to force reading of non-existent
             // log file to test for IOException
@@ -367,9 +334,6 @@ public class TaskLoggerTest {
         }
 
         taskLogger.prepareLog(logName);
-        // Add two different tasks and write to log file. This method also tests
-        // if tasks are written correctly, since they won't be read properly if
-        // they were written wrongly at first.
         createDummyLog();
 
         ArrayList<Task> readTasks = taskLogger.readTasks();

@@ -74,7 +74,8 @@ public class DatabaseHandler {
      */
     void setTaskIds() {
         for (Task aTask : this.getTasks()) {
-            aTask.setTaskId(this.getTasks().indexOf(aTask));
+            int taskId = this.getTasks().indexOf(aTask) + 1;
+            aTask.setTaskId(taskId);
         }
     }
 
