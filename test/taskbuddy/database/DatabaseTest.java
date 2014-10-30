@@ -4,12 +4,14 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 
-import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import taskbuddy.googlecal.GoogleCalendarManager;
@@ -22,7 +24,6 @@ import taskbuddy.logic.Task;
  *
  */
 public class DatabaseTest {
-
     private static final String EMPTY_STRING = "";
 
     // @formatter:off
@@ -34,156 +35,113 @@ public class DatabaseTest {
             "Search string cannot be empty.";
     // @formatter:on
 
+    Task firstTask;
+    Task secondTask;
+
     Database database;
-    String logName = Database.LOG_NAME;
-    Task task;
+    String logName = DatabaseHandler.LOG_NAME;
     GoogleCalendarManagerStub googleCalendarManagerStub;
+    DatabaseHandler myDatabaseHandler;
 
-    String title;
-    String description;
-    Calendar start;
-    Calendar end;
-    int priority;
-    boolean isComplete;
-    boolean isFloating;
-    String googleCalendarId;
+    String expected;
+    String actual;
 
-    public void createTask() {
-        title = "Title";
-        description = "Description";
-        start = Calendar.getInstance();
-        end = Calendar.getInstance();
-        priority = 1;
-        isComplete = true;
-        isFloating = false;
+    /**
+     * Deletes existing log file before running tests
+     */
+    public void deleteLog() {
+        File log = new File(DatabaseHandler.LOG_NAME);
+        if (log.isFile()) {
+            log.delete();
+        }
+    }
 
-        task = new Task(title);
+    public void addTasks() throws IOException, UnknownHostException {
+        database.addTask(firstTask);
+        database.addTask(secondTask);
+    }
+
+    public Task createTask(String title, String description) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        int priority = 1;
+        boolean isComplete = true;
+        boolean isFloating = false;
+
+        Task task = new Task(title);
         task.setDescription(description);
         task.setStartTime(start);
         task.setEndTime(end);
         task.setPriority(priority);
         task.setCompletion(isComplete);
         task.setFloating(isFloating);
-        task.setGID(googleCalendarId);
+
+        return task;
     }
 
-    public void createAnotherTask() {
-        title = "Another title";
-        description = "Another description";
-        start = Calendar.getInstance();
-        end = Calendar.getInstance();
-        priority = 2;
-        isComplete = false;
-        isFloating = true;
+    @Before
+    public void setup() throws Exception {
+        deleteLog();
 
-        task = new Task(title);
-        task.setDescription(description);
-        task.setStartTime(start);
-        task.setEndTime(end);
-        task.setPriority(priority);
-        task.setCompletion(isComplete);
-        task.setFloating(isFloating);
-        task.setGID(googleCalendarId);
-    }
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
 
-    public void setup() throws IOException, ParseException {
         database = new Database();
         googleCalendarManagerStub = new GoogleCalendarManagerStub();
-        database.setGoogleCal(googleCalendarManagerStub);
-    }
-
-    public void addTasks() throws IOException {
-        createTask();
-        database.addTask(task);
-        createAnotherTask();
-        database.addTask(task);
-    }
-
-    /**
-     * Create a dummy log file with two tasks added by <code>addTasks</code>
-     * method
-     * 
-     * @throws IOException
-     */
-    public void createDummyLog() throws IOException {
-        addTasks();
-        database.taskLogger.writeToLogFile(database.getTasks());
-    }
-
-    /**
-     * Deletes existing log file after all tests have been run
-     */
-    @After
-    public void deleteLog() {
-        File log = database.taskLogger.getLog();
-        if (log.isFile()) {
-            database.taskLogger.getLog().delete();
-        }
+        database.databaseHandler.setGoogleCal(googleCalendarManagerStub);
+        myDatabaseHandler = database.databaseHandler;
     }
 
     @Test
     public void testSetTaskIds() throws Exception {
-        setup();
         addTasks();
 
-        database.setTaskIds();
+        database.databaseHandler.setTaskIds();
         ArrayList<Task> tasks = database.getTasks();
         for (Task aTask : tasks) {
-            assertEquals(tasks.indexOf(aTask), aTask.getTaskId());
+            int expectedTaskId = tasks.indexOf(aTask) + 1;
+            assertEquals(expectedTaskId, aTask.getTaskId());
         }
     }
 
     @Test
     public void testAddTask() throws Exception {
-        setup();
-        createTask();
-
-        // Test for task addition to database
-        database.addTask(task);
+        database.addTask(firstTask);
         assertEquals("Number of tasks did not increase from 0 to 1 after task "
                 + "addition", 1, database.getTasks().size());
         assertTrue("Task not added properly", database.getTasks().get(0)
-                .equals(task));
+                .equals(firstTask));
         assertEquals("Google Calendar ID of task not set properly.", database
                 .getTasks().get(0).getGID(),
                 googleCalendarManagerStub.googleCalendarId);
 
-        // Test for task addition to task log
-        String expected;
-        String actual;
-        ArrayList<Task> readTasks = database.taskLogger.readTasks();
+        ArrayList<Task> readTasks = myDatabaseHandler.taskLogger.readTasks();
         assertEquals("Number of tasks in log did not increase from 0 to 1 ", 1,
                 readTasks.size());
         actual = readTasks.get(0).displayTask();
         expected = database.getTasks().get(0).displayTask();
         assertTrue("Task not logged correctly in log file.",
                 actual.equals(expected));
-
     }
 
     @Test
     public void testRead() throws Exception {
-        setup();
-
-        // Test for reading from empty task list
         try {
-            database.read(0);
+            database.read(1);
+            fail("Exception not thrown when trying to "
+                    + "read from empty list of tasks.");
         } catch (Exception e) {
             assertTrue("Empty list exception not thrown.", e.getMessage()
                     .equals(ERR_NO_TASKS));
         }
 
-        // Test if task is read correctly
-        createTask();
-        database.addTask(task);
+        database.addTask(firstTask);
         assertTrue("First task not read correctly from given task ID.",
-                database.read(0).equals(task));
-        createAnotherTask();
-        database.addTask(task);
+                database.read(1).equals(firstTask));
+        database.addTask(secondTask);
         assertTrue("Second task not read correctly from given task ID.",
-                database.read(1).equals(task));
+                database.read(2).equals(secondTask));
 
-        // Test for invalid task ID
         try {
             database.read(3);
         } catch (Exception e) {
@@ -193,32 +151,32 @@ public class DatabaseTest {
 
     }
 
+    // TODO
     @Test
     public void testDelete() throws Exception {
-        setup();
-
         // Test for deletion from empty task list
         try {
             database.delete(0);
-            fail("Should have thrown empty list exception.");
+            fail("Exception not thrown when trying to delete "
+                    + "from empty list of tasks.");
         } catch (Exception e) {
             assertTrue("Empty list exception not thrown.", e.getMessage()
                     .equals(ERR_NO_TASKS));
         }
 
-        // Test if task is deleted from database
         addTasks();
-        assertEquals(database.getTasks().size(), 2);
-        database.delete(0);
-        assertEquals(database.getTasks().size(), 1);
-        task.setTaskId(0);
-        assertTrue("Remaining task after deletion is not correct.", database
-                .getTasks().get(0).equals(task));
+        assertEquals("Number of tasks in temporary memory is not two.",
+                database.getTasks().size(), 2);
 
-        // Test if task is deleted from task log
-        String expected;
-        String actual;
-        ArrayList<Task> readTasks = database.taskLogger.readTasks();
+        int taskIdToDelete = 1;
+        database.delete(taskIdToDelete);
+
+        assertEquals("Number of tasks did not decrease to one.", database
+                .getTasks().size(), 1);
+        assertTrue("Remaining task after deletion is not correct.", database
+                .getTasks().get(0).equals(secondTask));
+
+        ArrayList<Task> readTasks = myDatabaseHandler.taskLogger.readTasks();
         assertEquals("Number of tasks in log did not decrease to one ", 1,
                 readTasks.size());
         actual = readTasks.get(0).displayTask();
@@ -236,11 +194,12 @@ public class DatabaseTest {
         }
     }
 
+    // TODO
+    @Ignore
     @Test
     public void testSearch() throws Exception {
         String searchString;
         ArrayList<Task> searchResults;
-        setup();
 
         // Test for empty search string
         try {
@@ -286,86 +245,65 @@ public class DatabaseTest {
 
     @Test
     public void testEdit() throws Exception {
-        setup();
-        int numberOfTasks = 3;
-        // Add three tasks
-        for (int i = 0; i < numberOfTasks; i++) {
-            createTask();
-            database.addTask(task);
-        }
-        assertEquals("Number of tasks is not three", numberOfTasks,
-                database.getTasks().size());
+        addTasks();
+        int numberOfTasks = 2;
+        assertEquals("Number of tasks is not two", numberOfTasks, database
+                .getTasks().size());
 
         // Create task with task ID 1
-        createAnotherTask();
-        int taskIndexToEdit = 1;
-        task.setTaskId(taskIndexToEdit);
+        Task newTask = createTask("New", "New description.");
+        int taskIdToEdit = 1;
+        newTask.setTaskId(taskIdToEdit);
 
-        // Test edited task
-        database.edit(task);
-        assertTrue("Second task is not replaced properly",
-                task.equals(database.getTasks().get(taskIndexToEdit)));
-
-        // Check that other tasks are not edited
-        createTask();
-        for (int i = 0; i < numberOfTasks; i++) {
-            if (i != taskIndexToEdit) {
-                assertTrue(
-                        "Other task titles got edited instead",
-                        task.displayTitle().equals(
-                                database.getTasks().get(i).displayTitle()));
-                assertTrue(
-                        "Other task descriptions got edited instead",
-                        task.displayDescription()
-                                .equals(database.getTasks().get(i)
-                                        .displayDescription()));
-            }
-        }
+        database.edit(newTask);
+        assertTrue("First task is not replaced properly",
+                newTask.equals(database.read(taskIdToEdit)));
+        int taskIdNotEdited = 2;
+        assertTrue("Second task is wrongly edited.",
+                secondTask.equals(database.read(taskIdNotEdited)));
 
         // Test for task edition to task log
-        String expected;
-        String actual;
-        ArrayList<Task> readTasks = database.taskLogger.readTasks();
+        ArrayList<Task> readTasks = myDatabaseHandler.taskLogger.readTasks();
         for (int i = 0; i < numberOfTasks; i++) {
             actual = readTasks.get(i).displayTask();
             expected = database.getTasks().get(i).displayTask();
             assertTrue("Task " + i + " not logged correctly in log file.",
                     actual.equals(expected));
         }
-
     }
 
+    // TODO
     @Test
     public void testDatabase() throws Exception {
-        File log = new File(logName);
-        assertFalse("Log file created when it's not supposed to exist.",
-                log.isFile());
-
-        // Construct database
-        setup();
         assertTrue("Database not constructed with arraylist of Task objects.",
-                database.tasks instanceof ArrayList);
+                database.databaseHandler.tasks instanceof ArrayList);
         assertTrue("Database not constructed with linkedlist of DbCommands"
-                + "objects.", database.commands instanceof LinkedList);
+                + "objects.",
+                database.databaseHandler.commands instanceof LinkedList);
         assertTrue("Database not constructed with an instance of TaskLogger.",
-                database.taskLogger instanceof TaskLogger);
-        assertTrue("Database not constructed with an instance of "
-                + "GoogleCalendarManager.",
-                database.googleCal instanceof GoogleCalendarManager);
+                database.databaseHandler.taskLogger instanceof TaskLogger);
+        assertTrue(
+                "Database not constructed with an instance of "
+                        + "GoogleCalendarManager.",
+                database.databaseHandler.googleCal instanceof GoogleCalendarManager);
 
-        String expected;
-        String actual;
+        // Test for non-existing log file
+        myDatabaseHandler.taskLogger.prepareLog(logName);
+        assertTrue("Log file object not initialised with prepareLog method.",
+                database.databaseHandler.taskLogger.log instanceof File);
+        assertTrue("Log file doesn't exist even when it's supposed to have "
+                + "been created.", database.databaseHandler.taskLogger.getLog()
+                .exists());
 
         // Test for preparing from existing log file
-        ArrayList<Task> readTasks;
-        database.taskLogger.prepareLog(logName);
-        createDummyLog();
-
+        addTasks();
         // Construct database again and see if it reads in from log file.
         // Log file is read when database is constructed.
-        setup();
-        readTasks = database.getTasks();
-
+        database = new Database();
+        database.databaseHandler.setGoogleCal(googleCalendarManagerStub);
+        myDatabaseHandler = database.databaseHandler;
+        
+        ArrayList<Task> readTasks = database.getTasks();
         assertEquals("No tasks read in from log file", 2, readTasks.size());
         expected = readTasks.get(0).displayTask();
         actual = database.getTasks().get(0).displayTask();
@@ -375,15 +313,6 @@ public class DatabaseTest {
         actual = database.getTasks().get(1).displayTask();
         assertTrue("Second task not read properly when preparing from "
                 + "existing log file.", expected.equals(actual));
-
-        deleteLog();
-        // Test for non-existing log file
-        database.taskLogger.prepareLog(logName);
-        assertTrue("Log file object not initialised with prepareLog method.",
-                database.taskLogger.log instanceof File);
-        assertTrue("Log file doesn't exist even when it's supposed to have "
-                + "been created.", database.taskLogger.getLog().exists());
-
     }
 
 }
