@@ -50,7 +50,8 @@ public class GoogleCalBackwardSync {
 		printArrayListOfTasks(tasks);
 	}
 
-	public static void getListFromGoogle() {
+	public void getListFromGoogle() {
+		
 		GooCalBackend gooCalBackend = new GooCalBackend();
 		Calendar service = null;
 
@@ -85,7 +86,7 @@ public class GoogleCalBackwardSync {
 		}
 	}
 		
-	public static void createTaskObject(Event event) {
+	public void createTaskObject(Event event) {
 		Task newTask = new Task();
 
 		EventDateTime eventStart = null;
@@ -147,7 +148,7 @@ public class GoogleCalBackwardSync {
 		}
 	}
 
-	public static Date formatDateNormal(DateTime date) {
+	public Date formatDateNormal(DateTime date) {
 		SimpleDateFormat formatDateNormal = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 		try {
 			return formatDateNormal.parse(date.toString());
@@ -158,7 +159,7 @@ public class GoogleCalBackwardSync {
 		return null;
 	}
 	
-	public static Date formatDateAllDay(DateTime date) {
+	public Date formatDateAllDay(DateTime date) {
 		Date formattedDate = new Date();
 		SimpleDateFormat formatDateAllDaySDF = new SimpleDateFormat("yyyy-MM-dd");
 		try {
@@ -171,7 +172,7 @@ public class GoogleCalBackwardSync {
 		return formattedDate;
 	}
 	
-	public static boolean isEventAllDay(EventDateTime eventStart, EventDateTime eventEnd) {
+	public boolean isEventAllDay(EventDateTime eventStart, EventDateTime eventEnd) {
 		if (eventStart.getDateTime() == null && eventEnd.getDateTime() == null) {
 			return true;
 		}
@@ -182,14 +183,18 @@ public class GoogleCalBackwardSync {
 		return false;
 	}
 		
-	public static ArrayList<Task> addTaskToArraylist(Task task) {	
+	public ArrayList<Task> addTaskToArraylist(Task task) {	
 		tasks.add(task);
 		return tasks;
 	}
 	
-	public static void printArrayListOfTasks(ArrayList<Task> tasks) {
+	public void printArrayListOfTasks(ArrayList<Task> tasks) {
 		for (Task task : tasks) {
 			System.out.println(task.displayTask());
 		}
+	}
+	
+	public ArrayList<Task> getArrayListOfTasksFromGoogleSync() {
+		return tasks;
 	}
 }
