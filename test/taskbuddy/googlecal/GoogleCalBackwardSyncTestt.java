@@ -14,7 +14,7 @@ public class GoogleCalBackwardSyncTestt {
 		GoogleCalBackwardSync googleCalBackwardSync = new GoogleCalBackwardSync();
 		ArrayList<Task> tasks = new ArrayList<Task>();
 		googleCalBackwardSync.getListFromGoogle();
-		tasks = googleCalBackwardSync.getArrayListOfTasksFromGoogleSync();
+		tasks = googleCalBackwardSync.getTasks();
 		googleCalBackwardSync.printArrayListOfTasks(tasks);
 		
 		//fail("Not yet implemented");

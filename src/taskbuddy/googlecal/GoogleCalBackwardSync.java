@@ -194,7 +194,7 @@ public class GoogleCalBackwardSync {
 		}
 	}
 	
-	public ArrayList<Task> getArrayListOfTasksFromGoogleSync() {
+	public ArrayList<Task> getTasks() {
 		return tasks;
 	}
 }
