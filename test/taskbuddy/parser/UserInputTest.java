@@ -55,7 +55,25 @@ public class UserInputTest {
 		}
 		
 		
-	
+		command = "edit 6 go to Japan";
+		try {
+			Parser.userInput(command);
+			UserInputBundle bundle = Parser.getUserInput();
+			assertEquals("Incorrect Command Type for case 3", "edit", bundle.getCommand());
+			assertEquals("Incorrect ID for case 3", "6", bundle.getTaskID());
+			assertEquals("Incorrect Description for case 3", NULL_VALUE, bundle.getDescription());
+			assertEquals("Incorrect Title for case 3", "go to Japan", bundle.getTitle());
+			assertEquals("Incorrect Start Time for case 3", NULL_VALUE, bundle.getStartTime());
+			assertEquals("Incorrect End Time for case 3", NULL_VALUE, bundle.getEndTime());
+			assertEquals("Incorrect Start Date for case 3", NULL_VALUE, bundle.getStartDate());
+			assertEquals("Incorrect End Date for case 3", NULL_VALUE, bundle.getEndDate());
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 }

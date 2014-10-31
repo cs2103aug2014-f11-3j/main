@@ -110,6 +110,7 @@ public class Parser {
 					searchDatePadding(userInputs, commandType, userCommand);
 					AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
 					ArrayList<String> toDisplay = a.getList();
+					AWTgui.setResponseString(a.getMessage());
 					for (String s: toDisplay) {
 						AWTgui.appendToDisplay(s);
 					}
@@ -336,7 +337,7 @@ public class Parser {
 		String contentToEdit = removeFirstWord(userCommand);
 		String ID = getFirstWord(contentToEdit);
 		if(isNumericType(ID) == true){
-			System.out.println("ID is "+ID);
+//			System.out.println("ID is "+ID);
 			contentToEdit = removeFirstWord(contentToEdit);
 			
 			String description = findDescription(contentToEdit);
@@ -1661,22 +1662,24 @@ public class Parser {
 					// eg. 10am
 					time = s.substring(0, 2) + "00";
 				}			
-		
 			}else if(s.length() > 4){
-				String firstChar = s.substring(0, 1);
-				if(firstChar.equals("1")){
-					// eg. 10:30am  11:35am
-					String firstPart = s.substring(0, 2);
-					String secondPart = s.substring(s.length()-4, s.length()-2);
-					time = firstPart + secondPart;
-				}else{
-					// eg. 8:30am
+				if(s.length()==6){
+					//eg. 0:45am, 1:30am, 8:45am
 					String partFirst = s.substring(0, 1);
 					String partSecond = s.substring(s.length()-4, s.length()-2);
 					time = "0" + partFirst + partSecond;		
+				}else if(s.length()==7){
+					String firstPart = s.substring(0, 2);
+					if(firstPart.equals("12")){
+						// eg. 12:30am
+						String secondPart = s.substring(s.length()-4, s.length()-2);
+						time = "00" + secondPart;
+					}else{
+						//eg. 10:30am, 11:35am
+						String secondPart = s.substring(s.length()-4, s.length()-2);
+						time = firstPart + secondPart;
+					}
 				}
-				
-				
 			}
 		}else if(s.contains("pm")||s.contains("PM")){
 			if(s.length()==3){
@@ -1696,23 +1699,29 @@ public class Parser {
 					time = "" + value + "00";
 				}
 			}else if(s.length() > 4){
-				String charFirst = s.substring(0, 1);
-				if(charFirst.equals("1")){
-					// 11:30pm
-					String firstPart = s.substring(0, 2);
-					String secondPart = s.substring(s.length()-4, s.length()-2);
-					int value = Integer.parseInt(firstPart);
-					value = value + 12;
-					time = "" + value + secondPart;
-				}else{
-					// 9:30pm
+				if(s.length() == 6){
+					// 1:30pm, 9:40pm
 					String partFirst = s.substring(0, 1);
 					String partSecond = s.substring(s.length()-4, s.length()-2);
 					int value = Integer.parseInt(partFirst);
 					value = value + 12;
 					time = "" + value + partSecond;	
+				}else if(s.length() == 7){
+					String firstPart = s.substring(0, 2);
+					// eg. 12:35pm
+					if(firstPart.equals("12")){
+						String secondPart = s.substring(s.length()-4, s.length()-2);
+						time = firstPart + secondPart;
+					}else{
+						// eg. 11:30pm, 10:55pm
+						String secondPart = s.substring(s.length()-4, s.length()-2);
+						int value = Integer.parseInt(firstPart);
+						value = value + 12;
+						time = "" + value + secondPart;
+					}
 				}
 			}
+		
 		}
 	
 		return time;
