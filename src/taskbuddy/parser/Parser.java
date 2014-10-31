@@ -110,6 +110,7 @@ public class Parser {
 					searchDatePadding(userInputs, commandType, userCommand);
 					AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
 					ArrayList<String> toDisplay = a.getList();
+					AWTgui.setResponseString(a.getMessage());
 					for (String s: toDisplay) {
 						AWTgui.appendToDisplay(s);
 					}

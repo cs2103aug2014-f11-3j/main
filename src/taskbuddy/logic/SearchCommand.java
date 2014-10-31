@@ -25,7 +25,7 @@ public class SearchCommand {
 				listTask = db.search(desc);
 				displayToUser = concatTaskList(listTask);
 				ack.putSuccess();
-				ack.putMessage("Search success");
+				ack.putMessage("Displaying results for:" + title);
 				ack.putList(displayToUser);
 			} else {
 				ack.putFailure();
