@@ -5,7 +5,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ TaskLoggerTest.class, DatabaseTest.class, DbCommandTest.class, IntegratedGoogleCalDatabaseTest.class })
+@SuiteClasses({ TaskLoggerTest.class, DatabaseTest.class, DbCommandTest.class,
+        DatabaseObserverStubTest.class })
 public class AllTests {
 
 }

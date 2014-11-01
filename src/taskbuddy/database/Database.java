@@ -150,4 +150,15 @@ public class Database {
             NoSuchElementException, IOException {
         databaseHandler.edit(newTask);
     }
+
+    /**
+     * Adds observer to observe changes to tasks stored in this class.
+     * 
+     * @param databaseObserver
+     *            observer subscribing for tasks updates in this class
+     */
+    public void addObserver(DatabaseObserver databaseObserver) {
+        databaseHandler.addObserver(databaseObserver);
+    }
+
 }

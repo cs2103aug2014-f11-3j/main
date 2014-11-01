@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -14,6 +13,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import taskbuddy.database.Database;
+import taskbuddy.database.DatabaseHandler;
+import taskbuddy.database.GoogleCalendarManagerStub;
+import taskbuddy.database.TaskLogger;
 import taskbuddy.googlecal.GoogleCalendarManager;
 import taskbuddy.logic.Task;
 
@@ -45,6 +48,8 @@ public class DatabaseTest {
 
     String expected;
     String actual;
+
+    private DatabaseObserverStub databaseObserverStub;
 
     /**
      * Deletes existing log file before running tests
@@ -87,16 +92,19 @@ public class DatabaseTest {
         secondTask = createTask("Second", "Second description.");
 
         database = new Database();
-        googleCalendarManagerStub = new GoogleCalendarManagerStub();
-        database.databaseHandler.setGoogleCal(googleCalendarManagerStub);
         myDatabaseHandler = database.databaseHandler;
+        
+        googleCalendarManagerStub = new GoogleCalendarManagerStub();
+        myDatabaseHandler.googleCal = googleCalendarManagerStub;
+        
+        databaseObserverStub = new DatabaseObserverStub(database);
     }
 
     @Test
     public void testSetTaskIds() throws Exception {
         addTasks();
 
-        database.databaseHandler.setTaskIds();
+        myDatabaseHandler.setTaskIds();
         ArrayList<Task> tasks = database.getTasks();
         for (Task aTask : tasks) {
             int expectedTaskId = tasks.indexOf(aTask) + 1;
@@ -151,7 +159,6 @@ public class DatabaseTest {
 
     }
 
-    // TODO
     @Test
     public void testDelete() throws Exception {
         // Test for deletion from empty task list
@@ -194,55 +201,6 @@ public class DatabaseTest {
         }
     }
 
-    // TODO
-    @Ignore
-    @Test
-    public void testSearch() throws Exception {
-        String searchString;
-        ArrayList<Task> searchResults;
-
-        // Test for empty search string
-        try {
-            database.search(EMPTY_STRING);
-            fail("Should have thrown exception when search string is empty.");
-        } catch (IllegalArgumentException e) {
-            assertEquals(
-                    "Wrong error message shown when search string is empty "
-                            + "string.", e.getMessage(),
-                    ERR_MSG_SEARCH_STRING_EMPTY);
-        }
-
-        // First alphabet 'T'/'t' left out deliberately
-        searchString = "itle";
-        // Test for empty task list
-        try {
-            database.search(searchString);
-            fail("Should have thrown empty list exception.");
-        } catch (Exception e) {
-            assertEquals("Wrong error message for empty list exception.",
-                    ERR_NO_TASKS, e.getMessage());
-        }
-
-        // Test for search in title/description fields
-        addTasks();
-        searchResults = database.search(searchString);
-        assertTrue(
-                "Search for 'itle' did not return both currently stored tasks.",
-                database.getTasks().equals(searchResults));
-
-        searchString = "Another";
-        searchResults = database.search(searchString);
-        assertEquals("More than one task is returned.", 1, searchResults.size());
-        assertTrue("Search for 'Another' did not return second task.",
-                searchResults.get(0).equals(database.getTasks().get(1)));
-
-        searchString = "Another t";
-        searchResults = database.search(searchString);
-        assertEquals("More than one task is returned.", 1, searchResults.size());
-        assertTrue("Search for 'Another' did not return second task.",
-                searchResults.get(0).equals(database.getTasks().get(1)));
-    }
-
     @Test
     public void testEdit() throws Exception {
         addTasks();
@@ -272,27 +230,24 @@ public class DatabaseTest {
         }
     }
 
-    // TODO
     @Test
     public void testDatabase() throws Exception {
         assertTrue("Database not constructed with arraylist of Task objects.",
-                database.databaseHandler.tasks instanceof ArrayList);
+                myDatabaseHandler.tasks instanceof ArrayList);
         assertTrue("Database not constructed with linkedlist of DbCommands"
-                + "objects.",
-                database.databaseHandler.commands instanceof LinkedList);
+                + "objects.", myDatabaseHandler.commands instanceof LinkedList);
         assertTrue("Database not constructed with an instance of TaskLogger.",
-                database.databaseHandler.taskLogger instanceof TaskLogger);
-        assertTrue(
-                "Database not constructed with an instance of "
-                        + "GoogleCalendarManager.",
-                database.databaseHandler.googleCal instanceof GoogleCalendarManager);
+                myDatabaseHandler.taskLogger instanceof TaskLogger);
+        assertTrue("Database not constructed with an instance of "
+                + "GoogleCalendarManager.",
+                myDatabaseHandler.googleCal instanceof GoogleCalendarManager);
 
         // Test for non-existing log file
         myDatabaseHandler.taskLogger.prepareLog(logName);
         assertTrue("Log file object not initialised with prepareLog method.",
-                database.databaseHandler.taskLogger.log instanceof File);
+                myDatabaseHandler.taskLogger.log instanceof File);
         assertTrue("Log file doesn't exist even when it's supposed to have "
-                + "been created.", database.databaseHandler.taskLogger.getLog()
+                + "been created.", myDatabaseHandler.taskLogger.getLog()
                 .exists());
 
         // Test for preparing from existing log file
@@ -300,9 +255,8 @@ public class DatabaseTest {
         // Construct database again and see if it reads in from log file.
         // Log file is read when database is constructed.
         database = new Database();
-        database.databaseHandler.setGoogleCal(googleCalendarManagerStub);
-        myDatabaseHandler = database.databaseHandler;
-        
+        myDatabaseHandler.googleCal = googleCalendarManagerStub;
+
         ArrayList<Task> readTasks = database.getTasks();
         assertEquals("No tasks read in from log file", 2, readTasks.size());
         expected = readTasks.get(0).displayTask();
@@ -315,4 +269,58 @@ public class DatabaseTest {
                 + "existing log file.", expected.equals(actual));
     }
 
+    // TODO
+    @Ignore
+    @Test
+    public void testSearchWord() throws Exception {
+
+    }
+
+
+    public void checkObservedTasksCorrectness() {
+        ArrayList<Task> databaseTasks = database.getTasks();
+        ArrayList<Task> observedTasks = databaseObserverStub.getObservedTasks();
+        int numberOfDatabaseTasks = databaseTasks.size();
+        int numberOfObservedTasks = observedTasks.size();
+        
+        for (int i = 0; i < numberOfDatabaseTasks; i++) {
+            Task aDatabaseTask = databaseTasks.get(i);
+            Task anObservedTask = observedTasks.get(i);
+            String aDatabaseTitle = aDatabaseTask.getTitle();
+            String anObservedTitle = anObservedTask.getTitle();
+            String aDatabaseDescription = aDatabaseTask.getDescription();
+            String anObservedDescription = anObservedTask.getDescription();
+            
+            assertEquals("Number of tasks in observer stub is not "
+                    + "the same as that stored in database.",
+                    numberOfDatabaseTasks, numberOfObservedTasks);
+            assertEquals("Observed task " + i
+                    + "'s title doesn't match that of its"
+                    + " database task counterpart.", aDatabaseTitle,
+                    anObservedTitle);
+            assertEquals("Observed task " + i
+                    + "'s description doesn't match that of its"
+                    + " database task counterpart.", aDatabaseDescription,
+                    anObservedDescription);
+        }
+    }
+
+    @Test
+    public void testObserver() throws Exception {
+        int numberOfObservers = 1;
+        assertEquals(numberOfObservers, myDatabaseHandler.observerList.size());
+
+        addTasks();
+        checkObservedTasksCorrectness();
+        
+        int taskIdToDelete = 1;
+        database.delete(taskIdToDelete);
+        checkObservedTasksCorrectness();
+        
+        Task newTask = createTask("New Task", "New description.");
+        int taskIdToEdit = 1;
+        newTask.setTaskId(taskIdToEdit);
+        database.edit(newTask);
+        checkObservedTasksCorrectness();
+    }
 }

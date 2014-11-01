@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import taskbuddy.database.DatabaseHandler;
+import taskbuddy.database.TaskLogger;
 import taskbuddy.logic.Task;
 
 public class TaskLoggerTest {

@@ -30,15 +30,14 @@ public class DatabaseHandler {
     TaskLogger taskLogger;
     GoogleCalendarManager googleCal;
     String logName;
+    ArrayList<DatabaseObserver> observerList;
 
     /**
      * Constructor for this class. Initialises temporary and logged memory for
      * tasks and commands.
      * 
      * @throws IOException
-     *             when log file cannot be read from, written to or created when
-     *             user is offline and tasks cannot be synced to Google
-     *             Calendar.
+     *             when log file cannot be read from, written to or created
      * @throws ParseException
      *             when tasks cannot be parsed from existing log file
      */
@@ -49,13 +48,10 @@ public class DatabaseHandler {
         taskLogger = new TaskLogger();
         tasks = taskLogger.prepareLog(logName);
 
+        observerList = new ArrayList<DatabaseObserver>();
         commands = new LinkedList<DbCommand>();
         googleCal = new GoogleCalendarManager();
-    }
 
-    // For injecting GoogleCalendarManager stub
-    void setGoogleCal(GoogleCalendarManager googleCal) {
-        this.googleCal = googleCal;
     }
 
     /**
@@ -102,6 +98,7 @@ public class DatabaseHandler {
         } finally {
             this.setTaskIds();
             this.taskLogger.writeToLogFile(this.getTasks());
+            this.notifyObservers();
         }
     }
 
@@ -137,8 +134,7 @@ public class DatabaseHandler {
      *             task ID.
      * 
      */
-    Task read(int taskId) throws IllegalAccessException,
-            NoSuchElementException {
+    Task read(int taskId) throws IllegalAccessException, NoSuchElementException {
         if (this.getTasks().isEmpty()) {
             throw new IllegalAccessException(ERR_NO_TASKS);
         }
@@ -184,6 +180,7 @@ public class DatabaseHandler {
         } finally {
             this.setTaskIds();
             this.taskLogger.writeToLogFile(this.getTasks());
+            this.notifyObservers();
         }
     }
 
@@ -309,7 +306,28 @@ public class DatabaseHandler {
         } finally {
             this.setTaskIds();
             this.taskLogger.writeToLogFile(this.getTasks());
+            this.notifyObservers();
         }
 
     }
+
+    /**
+     * Adds observer to observe changes to tasks stored in this class.
+     * 
+     * @param databaseObserver
+     *            observer subscribing for tasks updates in this class
+     */
+    void addObserver(DatabaseObserver databaseObserver) {
+        this.observerList.add(databaseObserver);
+    }
+
+    /**
+     * Notify observers of updates to tasks stored in this class
+     */
+    void notifyObservers() {
+        for (DatabaseObserver anObserver : observerList) {
+            anObserver.update();
+        }
+    }
+
 }
