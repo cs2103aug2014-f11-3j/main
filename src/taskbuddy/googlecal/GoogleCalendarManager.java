@@ -62,14 +62,20 @@ public class GoogleCalendarManager {
 				//return failureUnableToConnectToGoogle;
 			}
 
-			String eventSummary = getSummary(task);
-			String eventDescription = getDescription(task);
-			String eventStartDate = getStartDate(task);
-			String eventStartTime = getStartTime(task);
-			String eventEndDate = getEndDate(task);
-			String eventEndTime = getEndTime(task);
+			String eventSummary = task.getTitle();
+			String eventDescription = task.getDescription();
+			String eventStartDate = task.displayStartDate();
+			String eventStartTime = task.displayStartTime();
+			String eventEndDate = task.displayEndDate();
+			String eventEndTime = task.displayEndTime();
+			int eventPriority = task.getPriority();
+			boolean isComplete = task.getCompletionStatus();
 			
-			gooCalEventID = gooCalBackend.addEventToCalendar(service, eventSummary, eventDescription, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
+			if (isComplete) {
+				eventPriority = 4;
+			}
+			
+			gooCalEventID = gooCalBackend.addEventToCalendar(service, eventSummary, eventDescription, calendarID, eventStartDate, eventStartTime, eventEndDate, eventEndTime, eventPriority);
 			
 			task.setGID(gooCalEventID);			
 			
@@ -232,15 +238,31 @@ public class GoogleCalendarManager {
 				//return failureUnableToConnectToGoogle;
 			}
 
-			String eventSummary = getSummary(task);
-			String eventDescription = getDescription(task);
-			String eventStartDate = getStartDate(task);
-			String eventStartTime = getStartTime(task);
-			String eventEndDate = getEndDate(task);
-			String eventEndTime = getEndTime(task);
-			String gooCalEventID = getGooCalEventID(task);
+//			String eventSummary = getSummary(task);
+//			String eventDescription = getDescription(task);
+//			String eventStartDate = getStartDate(task);
+//			String eventStartTime = getStartTime(task);
+//			String eventEndDate = getEndDate(task);
+//			String eventEndTime = getEndTime(task);
+//			String gooCalEventID = getGooCalEventID(task);
+			
+			
+			String eventSummary = task.getTitle();
+			String eventDescription = task.getDescription();
+			String eventStartDate = task.displayStartDate();
+			String eventStartTime = task.displayStartTime();
+			String eventEndDate = task.displayEndDate();
+			String eventEndTime = task.displayEndTime();
+			String gooCalEventID = task.getGID();
+			int eventPriority = task.getPriority();
+			boolean isComplete = task.getCompletionStatus();
 
-			gooCalBackend.updateEvent(service, eventSummary, eventDescription, calendarID, gooCalEventID, eventStartDate, eventStartTime, eventEndDate, eventEndTime);
+			if (isComplete) {
+				eventPriority = 4;
+			}
+			
+			
+			gooCalBackend.updateEvent(service, eventSummary, eventDescription, calendarID, gooCalEventID, eventStartDate, eventStartTime, eventEndDate, eventEndTime, eventPriority);
 			//System.out.println(gooCalEventID);
 			//task.setGID(gooCalEventID);			
 			
@@ -252,52 +274,56 @@ public class GoogleCalendarManager {
 
 	}
 	
-
+//
+//	
+//	public String getSummary(Task task) {
+//		//System.out.println("Executing getSummary:"); // For debugging
+//		return task.getTitle();
+//	}
+//	
+//	private String getDescription(Task task) {
+//		return task.getDescription();
+//	}
+//
+//	
+//	public String getStartDate(Task task) throws NullPointerException {
+//		//System.out.println("Executing getStartDate:"); // For debugging
+//		//System.out.println(task.displayStartDate());
+//		return task.displayStartDate();
+//	}
+//	
+//	public String getStartTime(Task task) throws NullPointerException {
+//		//System.out.println("Executing getStartTime:"); // For debugging
+//		//System.out.println(task.displayStartTime());
+//		return task.displayStartTime();
+//	}
+//	
+//	
+//	public String getEndDate(Task task) {
+//		//System.out.println("Executing getEndDate:"); // For debugging
+//		//System.out.println(task.displayEndDate());
+//		return task.displayEndDate();
+//	}
+//	
+//	
+//	public String getEndTime(Task task) {
+//		//System.out.println("Executing getEndTime:"); // For debugging
+//		//System.out.println(task.displayEndTime());
+//		return task.displayEndTime();
+//		
+//	}
+//	
+//	public String getGooCalEventID(Task task) {
+//		//System.out.println("Executing getEndTime:"); // For debugging
+//		//System.out.println(task.displayEndTime());
+//		return task.getGID();
+//		
+//	}
 	
-	public String getSummary(Task task) {
-		//System.out.println("Executing getSummary:"); // For debugging
-		return task.getTitle();
-	}
-	
-	private String getDescription(Task task) {
-		return task.getDescription();
-	}
-
-	
-	public String getStartDate(Task task) throws NullPointerException {
-		//System.out.println("Executing getStartDate:"); // For debugging
-		//System.out.println(task.displayStartDate());
-		return task.displayStartDate();
-	}
-	
-	public String getStartTime(Task task) throws NullPointerException {
-		//System.out.println("Executing getStartTime:"); // For debugging
-		//System.out.println(task.displayStartTime());
-		return task.displayStartTime();
-	}
-	
-	
-	public String getEndDate(Task task) {
-		//System.out.println("Executing getEndDate:"); // For debugging
-		//System.out.println(task.displayEndDate());
-		return task.displayEndDate();
-	}
-	
-	
-	public String getEndTime(Task task) {
-		//System.out.println("Executing getEndTime:"); // For debugging
-		//System.out.println(task.displayEndTime());
-		return task.displayEndTime();
-		
-	}
-	
-	public String getGooCalEventID(Task task) {
-		//System.out.println("Executing getEndTime:"); // For debugging
-		//System.out.println(task.displayEndTime());
-		return task.getGID();
-		
-	}
-	
+//	public String getPriority(Task task) {
+//		return task.getPriority();
+//	}
+//	
 	/*
 	public static void main(String[] args) throws IOException {
 		java.util.Calendar calendarInstance = java.util.Calendar.getInstance();

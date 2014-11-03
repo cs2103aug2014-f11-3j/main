@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TimeZone;
@@ -38,6 +39,8 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.ColorDefinition;
+import com.google.api.services.calendar.model.Colors;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 
@@ -48,6 +51,13 @@ public class GooCalBackend {
 	// Strings which are currently hardcoded
 
     private static final String USER_ID = "ipeech";
+    
+    // Colour codes constants
+    
+    private static final String RED_COLOR = "11";
+    private static final String YELLOW_COLOR = "5";
+    private static final String GREEN_COLOR = "10";
+    private static final String GREY_COLOR = "8";
     
     private static EventDateTime startEventAllDay;
     private static EventDateTime endEventAllDay;
@@ -247,10 +257,15 @@ public class GooCalBackend {
 		}
 	}
 
-	public String addEventToCalendar(Calendar service, String eventSummary, String eventDescription, String calendarID, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime)  {
+
+	
+	public String addEventToCalendar(Calendar service, String eventSummary, String eventDescription, String calendarID, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime, int eventPriority)  {
 		//System.out.println("Executing addEventToCalendar:"); // For debugging
-		
 		Event event = new Event();
+
+		event.setColorId(setEventColour(eventPriority));
+		
+		
 		
 		if (isAllDayEvent(eventStartTime, eventEndTime)) {
 			setEventAllDay(eventStartDate,eventEndDate);
@@ -258,6 +273,7 @@ public class GooCalBackend {
 			event.setDescription(eventDescription);
 			event.setStart(startEventAllDay);
 			event.setEnd(endEventAllDay);
+
 			//System.out.println("all day event start: " + startEventAllDay);
 			//System.out.println("all day event end: " + endEventAllDay);
 		} 
@@ -267,6 +283,7 @@ public class GooCalBackend {
 			event.setDescription(eventDescription);
 			event.setStart(startEventDateTime);
 			event.setEnd(endEventDateTime);
+
 		}
 		// Create event object, execute the insertion of this event into the google calendar
 		Event createdEvent = null;
@@ -301,10 +318,12 @@ public class GooCalBackend {
 	}
 	
 	
-	public String updateEvent(Calendar service, String eventSummary, String eventDescription, String calendarID, String gooCalEventID, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime)  {
+	public String updateEvent(Calendar service, String eventSummary, String eventDescription, String calendarID, String gooCalEventID, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime, int eventPriority)  {
 		//System.out.println("Executing addEventToCalendar:"); // For debugging
 		
 		Event event = new Event();
+		
+		event.setColorId(setEventColour(eventPriority));
 		
 		if (isAllDayEvent(eventStartTime, eventEndTime)) {
 			setEventAllDay(eventStartDate,eventEndDate);
@@ -338,6 +357,22 @@ public class GooCalBackend {
 
 	
 	
+	private String setEventColour(int eventPriority) {
+		if (eventPriority == 1) {
+			return RED_COLOR;
+		}
+		else if (eventPriority == 2) {
+			return YELLOW_COLOR;
+		}
+		else if (eventPriority == 3) {
+			return GREEN_COLOR;
+		}
+		else if (eventPriority == 4) {
+			return GREY_COLOR;
+		}
+		return YELLOW_COLOR;
+	}
+
 	private static Calendar createCalendar(String token) throws IOException {
 		//System.out.println("Executing createCalendar:"); // For debugging
 	

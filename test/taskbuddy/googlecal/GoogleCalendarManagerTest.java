@@ -80,6 +80,7 @@ public class GoogleCalendarManagerTest {
 		task1Instance.setStartTime(calendarInstance);
 		task1Instance.setEndTime("padding value", "padding value");
 		task1Instance.setDescription("LALALALALLA DESCRIBE");
+		task1Instance.setPriority(4);
 		
 		task2Instance.setStartTime(calendarInstance);
 		task2Instance.setEndTime("padding value", "padding value");
