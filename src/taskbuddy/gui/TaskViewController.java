@@ -1,5 +1,8 @@
 package taskbuddy.gui;
 
+import java.io.IOException;
+import java.text.ParseException;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -22,15 +25,25 @@ public class TaskViewController {
 	@FXML private Label taskDueTimeLabel;
 	@FXML private Label taskPriorityLabel;
 	@FXML private Label taskCompletionLabel;
-	
+
 	private MainApp mainApp;
 	
 	public TaskViewController(){}
 	
-		private ObservableList<Task> taskData = FXCollections.observableArrayList();
+	private ObservableList<Task> taskData = FXCollections.observableArrayList();
 	
 	public ObservableList<Task> getTaskData(){
 		return taskData;
 	}
 	
+	@FXML
+	private void initialize() throws IOException{
+		titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
+		dueDateColumn.setCellValueFactory(cellData -> cellData.getValue().dueDateProperty());
+	}
+	
+	public void setMainApp(MainApp mainApp){
+		this.mainApp = mainApp;
+		taskTable.setItems(mainApp.getTaskData());
+	}
 }

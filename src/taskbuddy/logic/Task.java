@@ -1,9 +1,18 @@
 package taskbuddy.logic;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 //Author: andrew
 public class Task {
@@ -23,15 +32,15 @@ public class Task {
     // @formatter:on
 
     private static String nullValue = "padding value";
-    private String __title;
-    private String __description;
-    private Calendar __startTime;
-    private Calendar __endTime;
-    private int __priorityFlag;
-    private boolean __completionFlag;
-    private boolean __floatingTask;
+    private StringProperty __title;
+    private StringProperty __description;
+    private ObjectProperty<Calendar> __startTime;
+    private ObjectProperty<Calendar> __endTime;
+    private IntegerProperty __priorityFlag;
+    private BooleanProperty __completionFlag;
+    private BooleanProperty __floatingTask;
     private String __googleID;
-    private int __taskId;
+    private IntegerProperty __taskId;
 
     // bundle strings
     private String user_description = "description";
@@ -52,37 +61,55 @@ public class Task {
     }
 
     public Task(String title) {
-        this.__title = title;
-        this.__completionFlag = false;
+        this.__title = new SimpleStringProperty(title);
+        this.__completionFlag = new SimpleBooleanProperty(false);
     }
 
     // basic accessors
     public String getTitle() {
-        return this.__title;
+        return this.__title.get();
     }
 
+    public StringProperty titleProperty(){
+    	return this.__title;
+    }
+    
     public String getDescription() {
-        return this.__description;
+        return this.__description.get();
     }
 
     public Calendar getStartTime() {
-        return this.__startTime;
+        return this.__startTime.get();
     }
 
     public Calendar getEndTime() {
-        return this.__endTime;
+        return this.__endTime.get();
     }
+    
+    public StringProperty dueDateProperty(){
+    	Calendar due = this.getEndTime();
+    	StringProperty dueDate = new SimpleStringProperty(parseDate(due));
+    	return dueDate;
+    }
+    
+    private String parseDate(Calendar cal){
+		String s = cal.getTime().toString();
+		String[] calInfo = s.split(" ");
+		String time = calInfo[3].substring(0,5);
+		String toReturn = calInfo[0] + " " + calInfo[1] + " " + calInfo[2] + ", " + time;
+		return toReturn;
+	}
 
     public int getPriority() {
-        return this.__priorityFlag;
+        return this.__priorityFlag.get();
     }
 
     public boolean getCompletionStatus() {
-        return this.__completionFlag;
+        return this.__completionFlag.get();
     }
 
     public boolean isFloatingTask() {
-        return this.__floatingTask;
+        return this.__floatingTask.get();
     }
 
     public String getGID() {
@@ -101,12 +128,12 @@ public class Task {
      * 
      */
     public int getTaskId() {
-        return __taskId;
+        return __taskId.get();
     }
 
     // basic mutators
     public void setTitle(String nextTitle) {
-        this.__title = nextTitle;
+        this.__title.set(nextTitle);
     }
 
     public void setGID(String newID) {
@@ -115,14 +142,14 @@ public class Task {
 
     public void setDescription(String nextDescription) {
         if (!nextDescription.equals(nullValue)) {
-            this.__description = nextDescription;
+            this.__description.set(nextDescription);
         } else {
-            this.__description = "nil";
+            this.__description.set("nil");
         }
     }
 
     public void setStartTime(Calendar nextStart) {
-        this.__startTime = nextStart;
+        this.__startTime.set(nextStart);
     }
 
     public void setStartTime(String startDate, String startTime) {
@@ -136,7 +163,7 @@ public class Task {
             int minute = Integer.parseInt(startTime.substring(2));
             Calendar start = Calendar.getInstance();
             start.set(year, month, date, hour, minute);
-            this.__startTime = start;
+            this.__startTime.set(start);
         } else if (!startDate.equals(nullValue)) {
             int date = Integer.parseInt(startDate.substring(0, 2));
             int month = Integer.parseInt(startDate.substring(3, 5));
@@ -144,7 +171,7 @@ public class Task {
             int year = Integer.parseInt(startDate.substring(6));
             Calendar start = Calendar.getInstance();
             start.set(year, month, date);
-            this.__startTime = start;
+            this.__startTime.set(start);
 
         } else if (!startTime.equals(nullValue)) {
             Calendar start = Calendar.getInstance();
@@ -154,16 +181,16 @@ public class Task {
             int hour = Integer.parseInt(startTime.substring(0, 2));
             int minute = Integer.parseInt(startTime.substring(2));
             start.set(year, month, date, hour, minute);
-            this.__endTime = start;
+            this.__endTime.set(start);
 
         } else {
             Calendar now = Calendar.getInstance();
-            this.__startTime = now;
+            this.__startTime.set(now);
         }
     }
 
     public void setEndTime(Calendar nextEnd) {
-        this.__endTime = nextEnd;
+        this.__endTime.set(nextEnd);
     }
 
     public void setEndTime(String endDate, String endTime) {
@@ -176,7 +203,7 @@ public class Task {
             int minute = Integer.parseInt(endTime.substring(2));
             Calendar ending = Calendar.getInstance();
             ending.set(year, month, date, hour, minute);
-            this.__endTime = ending;
+            this.__endTime.set(ending);
         } else if (!endDate.equals(nullValue)) {
             int date = Integer.parseInt(endDate.substring(0, 2));
             int month = Integer.parseInt(endDate.substring(3, 5));
@@ -186,7 +213,7 @@ public class Task {
             int minute = 59;
             Calendar ending = Calendar.getInstance();
             ending.set(year, month, date, hour, minute);
-            this.__endTime = ending;
+            this.__endTime.set(ending);
 
         } else if (!endTime.equals(nullValue)) {
             Calendar ending = Calendar.getInstance();
@@ -196,26 +223,26 @@ public class Task {
             int hour = Integer.parseInt(endTime.substring(0, 2));
             int minute = Integer.parseInt(endTime.substring(2));
             ending.set(year, month, date, hour, minute);
-            this.__endTime = ending;
+            this.__endTime.set(ending);
 
         } else {
             Calendar ending = Calendar.getInstance();
             // todo stub
             // find appropriate setting for null value
-            this.__endTime = ending;
+            this.__endTime.set(ending);
         }
     }
 
     public void setPriority(int nextPriority) {
-        this.__priorityFlag = nextPriority;
+        this.__priorityFlag.set(nextPriority);
     }
 
     public void setCompletion(boolean nextStatus) {
-        this.__completionFlag = nextStatus;
+        this.__completionFlag.set(nextStatus);
     }
 
     public void setFloating(boolean nextFloatStat) {
-        this.__floatingTask = nextFloatStat;
+        this.__floatingTask.set(nextFloatStat);
     }
 
     /**
@@ -229,7 +256,7 @@ public class Task {
      * 
      */
     public void setTaskId(int __taskId) {
-        this.__taskId = __taskId;
+        this.__taskId.set(__taskId);
     }
 
     public void checkFloating(Task task) {
@@ -243,13 +270,12 @@ public class Task {
     // other class methods
     public Bundle getTaskInfo() {
         Bundle toDisplay = new Bundle();
-        toDisplay.putString(user_title, this.__title);
-        toDisplay.putObject(user_flag, this.__completionFlag);
-        toDisplay.putString(user_endTime, this.__endTime.toString());
-        toDisplay.putString(user_description, this.__description);
-        toDisplay.putString(user_start, this.__startTime.toString());
-        toDisplay.putString(user_priority,
-                Integer.toString(this.__priorityFlag));
+        toDisplay.putString(user_title, this.getTitle());
+        toDisplay.putObject(user_flag, this.getCompletionStatus());
+        toDisplay.putString(user_endTime, this.getEndTime().toString());
+        toDisplay.putString(user_description, this.getDescription());
+        toDisplay.putString(user_start, this.getStartTime().toString());
+        toDisplay.putString(user_priority, Integer.toString(this.getPriority()));
         toDisplay.putString(user_googleID, this.__googleID);
         return toDisplay;
     }
