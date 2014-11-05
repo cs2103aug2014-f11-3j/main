@@ -43,31 +43,52 @@ import com.google.api.services.calendar.model.Events;
 
 public class GoogleCalBackwardSync {
 	private static final String CALENDAR_ID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
-	private static final ArrayList<Task> tasks = new ArrayList<Task>();
+	private static final String USER_OFFLINE_ERROR = "User is offline";
+	private static final String AUTHORIZATION_EXPIRED_ERROR = "Authorization has expired";
 	
-	public static void main(String[] args) {
-		getListFromGoogle();
-		printArrayListOfTasks(tasks);
-	}
+	
+	
+    private static final ArrayList<Task> tasks = new ArrayList<Task>();
+    
+	GooCalBackend gooCalBackend = new GooCalBackend(); 
+	GoogleCalendarAuthorizer googleCalendarAuthorizer = new GoogleCalendarAuthorizer();
+	
+	
+//	public static void main(String[] args) {
+//		getListFromGoogle();
+//		printArrayListOfTasks(tasks);
+//	}
 
-	public void getListFromGoogle() {
+	public void getListFromGoogle() throws UnknownHostException {
 		
 		GooCalBackend gooCalBackend = new GooCalBackend();
-		Calendar service = null;
 
-		if (!gooCalBackend.isUserOnline()) {
-			//return "failureNoInternet";
+//		if (!gooCalBackend.isUserOnline()) {
+//			//return "failureNoInternet";
+//		}
+//
+//		else {
+//			// This try catch blocks checks if Google's servers can be read
+//			try {
+//				service = gooCalBackend.initializeCalendar();
+//			} catch (IOException connectionProblem) {
+//				// This catch statement catches a connection problem
+//				// Exception is only caught when authentication code is valid, yet there is a failure in initializing the Google Calendar
+//			}
+
+		
+		
+		// First, check user online status.
+		if (!googleCalendarAuthorizer.isUserOnline()) {
+			throw new UnknownHostException(USER_OFFLINE_ERROR); 
 		}
-
+		
+		else if (!googleCalendarAuthorizer.isAuthenticationValid()) {
+			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
+		}
 		else {
-			// This try catch blocks checks if Google's servers can be read
-			try {
-				service = gooCalBackend.initializeCalendar();
-			} catch (IOException connectionProblem) {
-				// This catch statement catches a connection problem
-				// Exception is only caught when authentication code is valid, yet there is a failure in initializing the Google Calendar
-			}
-
+			Calendar service = googleCalendarAuthorizer.getCalendar();
+			
 			String pageToken = null;
 			do {
 				Events events = null;
