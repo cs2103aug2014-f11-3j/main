@@ -4,9 +4,9 @@ import static org.junit.Assert.*;
 
 import java.util.Scanner;
 
-import googlecalcontroller.GoogleCalendarController;
-
 import org.junit.Test;
+
+import taskbuddy.googlecalcontroller.GoogleCalendarController;
 
 public class GoogleCalendarControllerTest {
 
