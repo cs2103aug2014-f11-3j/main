@@ -13,16 +13,16 @@ public class GoogleCalRetrieveAllTest {
 
 	@Test
 	public void test() {
-		GoogleCalRetrieveAll googleCalBackwardSync = new GoogleCalRetrieveAll();
+		GoogleCalRetrieveAll googleCalRetrieveAll = new GoogleCalRetrieveAll();
 		ArrayList<Task> tasks = new ArrayList<Task>();
 		try {
-			googleCalBackwardSync.getListFromGoogle();
+			googleCalRetrieveAll.getListFromGoogle();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		tasks = googleCalBackwardSync.getTasks();
-		googleCalBackwardSync.printArrayListOfTasks(tasks);
+		tasks = googleCalRetrieveAll.getTasks();
+		googleCalRetrieveAll.printArrayListOfTasks(tasks);
 		
 		//fail("Not yet implemented");
 	}
