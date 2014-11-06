@@ -2,6 +2,7 @@ package taskbuddy.logic;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Stack;
 
 import taskbuddy.database.Database;
@@ -60,6 +61,14 @@ public class CommandParser {
 		redoStack = new Stack<UserInputBundle>();
 		redoStackTask = new Stack<Task>();
 		undoStack.push(u);
+	}
+	
+	private String parseDate(Calendar cal){
+		String s = cal.getTime().toString();
+		String[] calInfo = s.split(" ");
+		String time = calInfo[3].substring(0,5);
+		String toReturn = calInfo[0] + " " + calInfo[1] + " " + calInfo[2] + ", " + time;
+		return toReturn;
 	}
 
 	public CommandParser() throws ParseException, IOException {
