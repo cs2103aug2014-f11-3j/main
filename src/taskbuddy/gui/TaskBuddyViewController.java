@@ -58,13 +58,13 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	@FXML
 	private Label authLabel;
 	@FXML
-	private TextField userInputField;
+	protected static TextField userInputField;
 	@FXML
-	private TextField usernameField;
+	protected static TextField usernameField;
 	@FXML
-	private TextField goocalField;
+	protected static TextField goocalField;
 	@FXML
-	private TextField authField;
+	protected static TextField authField;
 
 	public TaskBuddyViewController() {
 	}
@@ -78,9 +78,6 @@ public class TaskBuddyViewController implements DatabaseObserver {
 
 	@FXML
 	private void initialize() {
-		update();
-		taskData.setAll(observedTasks);
-		taskTable.setItems(taskData);
 		titleColumn.setCellValueFactory(cellData -> cellData.getValue()
 				.titleProperty());
 		taskIDColumn.setCellValueFactory(cellData -> StringProperty
@@ -94,6 +91,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 				.selectedItemProperty()
 				.addListener(
 						(observable, oldValue, newValue) -> showTaskDetails(newValue));
+		update();
 	}
 
 	private void showTaskDetails(Task task) {
@@ -130,6 +128,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 		} else {
 			responseLabel.setText(a.getMessage());
 		}
+		update();
 	}
 
 	protected void parseUsername() {
@@ -154,5 +153,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 		} catch (Exception e) {
 			observedTasks = new ArrayList<Task>();
 		}
+		taskData.setAll(observedTasks);
+		taskTable.setItems(taskData);
 	}
 }
