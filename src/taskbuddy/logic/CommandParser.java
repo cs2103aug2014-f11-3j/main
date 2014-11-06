@@ -63,7 +63,7 @@ public class CommandParser {
 		undoStack.push(u);
 	}
 	
-	public String parseDate(Calendar cal){
+	private String parseDate(Calendar cal){
 		String s = cal.getTime().toString();
 		String[] calInfo = s.split(" ");
 		String time = calInfo[3].substring(0,5);
