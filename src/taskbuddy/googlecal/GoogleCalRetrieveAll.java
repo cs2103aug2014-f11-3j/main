@@ -41,11 +41,15 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
-public class GoogleCalBackwardSync {
+public class GoogleCalRetrieveAll {
 	private static final String CALENDAR_ID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
 	private static final String USER_OFFLINE_ERROR = "User is offline";
 	private static final String AUTHORIZATION_EXPIRED_ERROR = "Authorization has expired";
 	
+    private static final String RED_COLOR = "11";
+    private static final String YELLOW_COLOR = "5";
+    private static final String GREEN_COLOR = "10";
+    private static final String GREY_COLOR = "8";
 	
 	
     private static final ArrayList<Task> tasks = new ArrayList<Task>();
@@ -116,14 +120,20 @@ public class GoogleCalBackwardSync {
 		String eventDescription = null;
 		String eventGCalId = null;
 		
+		
 		eventStart = event.getStart();
 		eventEnd = event.getEnd();
 		eventTitle = event.getSummary();
 		eventDescription = event.getDescription();
 		eventGCalId = event.getId();
+		
 
 		newTask.setTitle(eventTitle);
 		newTask.setGID(eventGCalId);
+		newTask.setPriority(getTaskPriorityInteger(event));
+		if (getTaskPriorityInteger(event) == 4) {
+			newTask.setCompletion(true);
+		}
 
 		if (eventDescription == null ) {
 			eventDescription = "padding value";
@@ -202,6 +212,25 @@ public class GoogleCalBackwardSync {
 		}
 		System.out.println("neither");
 		return false;
+	}
+	
+	public int getTaskPriorityInteger (Event event) {
+		String eventColorId = event.getColorId();
+		if (!(eventColorId == null)) {
+			switch (eventColorId) {
+			case RED_COLOR: 
+				return 1;
+			case YELLOW_COLOR:
+				return 2;
+			case GREEN_COLOR:
+				return 3;
+			case GREY_COLOR:
+				return 4;
+			default: 
+				return 2;
+			}
+		}
+		return 2;
 	}
 		
 	public ArrayList<Task> addTaskToArraylist(Task task) {	
