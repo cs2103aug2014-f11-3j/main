@@ -32,7 +32,7 @@ public class AddCommand {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ackBundle.putFailure();
-			ackBundle.putMessage("failed to add task to database");
+			ackBundle.putMessage("failed to add task to online database");
 			ackBundle.putTask(taskToAdd);
 		}
 		return ackBundle;
