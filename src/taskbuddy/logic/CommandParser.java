@@ -1,6 +1,7 @@
 package taskbuddy.logic;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Stack;
@@ -52,7 +53,7 @@ public class CommandParser {
 			}
 		} catch (Exception e) {
 			ack.putFailure();
-			ack.putMessage("parse error");
+			ack.putMessage(e.getCause().getMessage());
 		}
 		return ack;
 	}

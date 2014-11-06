@@ -1,6 +1,8 @@
 package taskbuddy.gui;
 
+import java.awt.Desktop;
 import java.io.IOException;
+import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 
@@ -144,6 +146,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			System.err.println(a.getStatus());
 			if (status.equals(fail)) {
 				String response = status + ": " + a.getMessage();
+				System.err.println(a.getMessage());
 				responseLabel.setText(response);
 			} else {
 				responseLabel.setText(a.getMessage());
@@ -167,27 +170,35 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	@FXML
 	protected void parseAuth() {
 		String authCode = authField.getText();
-		// TODO get authentication method from goocal
+		gcCont.authorize(authCode);
 	}
 
-	protected void checkUser(){
+	protected void checkUser() {
 		String userInfo = gcCont.getDisplayStrings();
 		String none = "Username and Address empty";
 		String first = "Address empty";
 		String second = "Username empty";
-		if (userInfo.equals(none)){
+		if (userInfo.equals(none)) {
 			;
-		} else if (userInfo.equals(first)){
+		} else if (userInfo.equals(first)) {
 			goocalField.setText(userInfo);
-		} else if (userInfo.endsWith(second)){
+		} else if (userInfo.endsWith(second)) {
 			usernameField.setText(userInfo);
 		} else {
 			String[] userIn = userInfo.split(" ");
 			usernameField.setText(userIn[0]);
 			goocalField.setText(userIn[1]);
+			if (!gcCont.isCalendarAuthenticated()) {
+				String authURL = gcCont.getAuthorizationUrl();
+				try {
+					Desktop.getDesktop().browse(new URI(authURL));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
-	
+
 	@Override
 	public void update() {
 		try {
