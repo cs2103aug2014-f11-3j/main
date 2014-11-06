@@ -118,7 +118,7 @@
                   <TextField fx:id="usernameField" onAction="#parseUsername" promptText="Enter username" GridPane.columnIndex="1" />
                   <TextField fx:id="goocalField" onAction="#parseGoocal" promptText="Enter GooCal address" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <TextField fx:id="authField" onAction="#parseAuth" promptText="Copy authorization code here" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label text=" " GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Label fx:id="userAuthLabel" text=" " GridPane.columnIndex="1" GridPane.rowIndex="3" />
                </children>
             </GridPane>
          </children>

@@ -173,7 +173,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 
 	@FXML
 	protected void parseAuth() {
-		try {
+		//try {
 			String authCode = authField.getText();
 			System.err.println(authCode);
 			gcCont.authorize(authCode);
@@ -183,10 +183,10 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			} else {
 				userAuthLabel.setText("Authorization error");
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			userAuthLabel.setText("Authorization Error");
-		}
+		//} catch (Exception e) {
+		//	e.printStackTrace();
+		//	userAuthLabel.setText("Authorization Error");
+		//}
 	}
 
 	protected void checkUser() {
@@ -212,7 +212,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 					e.printStackTrace();
 				}
 			} else {
-				//userAuthLabel.setText(userIn[0] + "'s Google Calendar");
+				userAuthLabel.setText(userIn[0] + "'s Google Calendar");
 			}
 		}
 	}
