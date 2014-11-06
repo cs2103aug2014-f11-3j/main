@@ -91,7 +91,7 @@ public class DatabaseMethodsTest {
         firstTask = createTask("First", "First description.");
         secondTask = createTask("Second", "Second description.");
 
-        database = Database.getInstance();
+        database = new Database();
         myDatabaseHandler = database.databaseHandler;
 
         googleCalendarManagerStub = new GoogleCalendarManagerStub();

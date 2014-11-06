@@ -28,8 +28,7 @@ public class DatabaseInitialisationTest {
 
     String expected;
     String actual;
-    private File taskLog;
-    private ArrayList<Task> tasks;
+    File taskLog;
 
     /**
      * Deletes existing log file before running tests
@@ -68,9 +67,8 @@ public class DatabaseInitialisationTest {
         firstTask = createTask("First", "First description.");
         secondTask = createTask("Second", "Second description.");
 
-        database = Database.getInstance();
+        database = new Database();
         myDatabaseHandler = database.databaseHandler;
-        tasks = database.getTasks();
 
         googleCalendarManagerStub = new GoogleCalendarManagerStub();
         myDatabaseHandler.googleCal = googleCalendarManagerStub;
@@ -115,7 +113,8 @@ public class DatabaseInitialisationTest {
         assertTrue("Task log doesn't exist when it should.", taskLog.isFile());
         assertNull(database);
         setup();
-
+        
+        ArrayList<Task> tasks = database.getTasks();
         assertEquals("No tasks read in from log file", 2, tasks.size());
         expected = tasks.get(0).displayTask();
         actual = database.getTasks().get(0).displayTask();
@@ -129,8 +128,19 @@ public class DatabaseInitialisationTest {
 
     @Test
     public void testMultipleInstances() throws Exception {
-        setup();
-        addTasks();
+        deleteLog();
+        assertFalse("Log file exists when it shouldn't.", taskLog.isFile());
+
+        // Initialise database using getInstance
+        database = Database.getInstance();
+        myDatabaseHandler = database.databaseHandler;
+        googleCalendarManagerStub = new GoogleCalendarManagerStub();
+        myDatabaseHandler.googleCal = googleCalendarManagerStub;
+        
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
+        addTasks();        
+        ArrayList<Task> tasks = database.getTasks();
 
         Database newDatabase = Database.getInstance();
         ArrayList<Task> newTasks = newDatabase.getTasks();
@@ -138,8 +148,8 @@ public class DatabaseInitialisationTest {
         for (int i = 0; i < tasks.size(); i++) {
             assertEquals("Task " + i + " not equal to that "
                     + "of its new task counterpart, i.e. getInstance "
-                    + "method not working properly.", tasks.get(i),
-                    newTasks.get(i));
+                    + "method not working properly.", tasks.get(i).getTitle(),
+                    newTasks.get(i).getTitle());
         }
     }
 

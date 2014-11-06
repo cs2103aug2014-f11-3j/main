@@ -60,7 +60,7 @@ public class Database {
      * @throws ParseException
      *             when tasks cannot be parsed from existing log file
      */
-    private Database() throws IOException, ParseException {
+    Database() throws IOException, ParseException {
         databaseHandler = new DatabaseHandler();
     }
 
