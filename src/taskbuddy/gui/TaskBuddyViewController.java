@@ -108,11 +108,20 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			taskIDLabel.setText(String.valueOf(task.getTaskId()));
 			taskTitleLabel.setText(task.getTitle());
 			taskDescriptionLabel.setText(task.getDescription());
-			taskTypeLabel.setText(task.displayIsFloating());
+			Boolean floating = task.isFloatingTask();
+			if (floating){
+				taskTypeLabel.setText("Floating");
+			} else {
+				taskTypeLabel.setText("Timed");
+			}
 			taskStartTimeLabel.setText(task.displayStart());
 			taskDueTimeLabel.setText(task.displayEnd());
-			taskCompletionLabel.setText(String.valueOf(task
-					.getCompletionStatus()));
+			Boolean complete = task.getCompletionStatus();
+			if (complete){
+				taskCompletionLabel.setText("Completed");
+			} else {
+				taskCompletionLabel.setText("Incomplete");
+			}
 			taskPriorityLabel.setText(String.valueOf(task.getPriority()));
 		} else {
 			taskIDLabel.setText("-");
