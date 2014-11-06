@@ -26,7 +26,7 @@ import taskbuddy.logic.Task;
  * @author Soh Yong Sheng
  *
  */
-public class DatabaseTest {
+public class DatabaseMethodsTest {
     private static final String EMPTY_STRING = "";
 
     // @formatter:off
@@ -49,7 +49,7 @@ public class DatabaseTest {
     String expected;
     String actual;
 
-    private DatabaseObserverStub databaseObserverStub;
+    DatabaseObserverStub databaseObserverStub;
 
     /**
      * Deletes existing log file before running tests
@@ -91,12 +91,12 @@ public class DatabaseTest {
         firstTask = createTask("First", "First description.");
         secondTask = createTask("Second", "Second description.");
 
-        database = new Database();
+        database = Database.getInstance();
         myDatabaseHandler = database.databaseHandler;
-        
+
         googleCalendarManagerStub = new GoogleCalendarManagerStub();
         myDatabaseHandler.googleCal = googleCalendarManagerStub;
-        
+
         databaseObserverStub = new DatabaseObserverStub(database);
     }
 
@@ -230,45 +230,6 @@ public class DatabaseTest {
         }
     }
 
-    @Test
-    public void testDatabase() throws Exception {
-        assertTrue("Database not constructed with arraylist of Task objects.",
-                myDatabaseHandler.tasks instanceof ArrayList);
-        assertTrue("Database not constructed with linkedlist of DbCommands"
-                + "objects.", myDatabaseHandler.commands instanceof LinkedList);
-        assertTrue("Database not constructed with an instance of TaskLogger.",
-                myDatabaseHandler.taskLogger instanceof TaskLogger);
-        assertTrue("Database not constructed with an instance of "
-                + "GoogleCalendarManager.",
-                myDatabaseHandler.googleCal instanceof GoogleCalendarManager);
-
-        // Test for non-existing log file
-        myDatabaseHandler.taskLogger.prepareLog(logName);
-        assertTrue("Log file object not initialised with prepareLog method.",
-                myDatabaseHandler.taskLogger.log instanceof File);
-        assertTrue("Log file doesn't exist even when it's supposed to have "
-                + "been created.", myDatabaseHandler.taskLogger.getLog()
-                .exists());
-
-        // Test for preparing from existing log file
-        addTasks();
-        // Construct database again and see if it reads in from log file.
-        // Log file is read when database is constructed.
-        database = new Database();
-        myDatabaseHandler.googleCal = googleCalendarManagerStub;
-
-        ArrayList<Task> readTasks = database.getTasks();
-        assertEquals("No tasks read in from log file", 2, readTasks.size());
-        expected = readTasks.get(0).displayTask();
-        actual = database.getTasks().get(0).displayTask();
-        assertTrue("First task not read properly when preparing from "
-                + "existing log file.", expected.equals(actual));
-        expected = readTasks.get(1).displayTask();
-        actual = database.getTasks().get(1).displayTask();
-        assertTrue("Second task not read properly when preparing from "
-                + "existing log file.", expected.equals(actual));
-    }
-
     // TODO
     @Ignore
     @Test
@@ -276,13 +237,12 @@ public class DatabaseTest {
 
     }
 
-
     public void checkObservedTasksCorrectness() {
         ArrayList<Task> databaseTasks = database.getTasks();
         ArrayList<Task> observedTasks = databaseObserverStub.getObservedTasks();
         int numberOfDatabaseTasks = databaseTasks.size();
         int numberOfObservedTasks = observedTasks.size();
-        
+
         for (int i = 0; i < numberOfDatabaseTasks; i++) {
             Task aDatabaseTask = databaseTasks.get(i);
             Task anObservedTask = observedTasks.get(i);
@@ -290,7 +250,7 @@ public class DatabaseTest {
             String anObservedTitle = anObservedTask.getTitle();
             String aDatabaseDescription = aDatabaseTask.getDescription();
             String anObservedDescription = anObservedTask.getDescription();
-            
+
             assertEquals("Number of tasks in observer stub is not "
                     + "the same as that stored in database.",
                     numberOfDatabaseTasks, numberOfObservedTasks);
@@ -312,15 +272,16 @@ public class DatabaseTest {
 
         addTasks();
         checkObservedTasksCorrectness();
-        
+
         int taskIdToDelete = 1;
         database.delete(taskIdToDelete);
         checkObservedTasksCorrectness();
-        
+
         Task newTask = createTask("New Task", "New description.");
         int taskIdToEdit = 1;
         newTask.setTaskId(taskIdToEdit);
         database.edit(newTask);
         checkObservedTasksCorrectness();
     }
+
 }

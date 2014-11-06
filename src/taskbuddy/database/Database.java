@@ -20,6 +20,7 @@ import taskbuddy.logic.Task;
  *
  */
 public class Database {
+    private static Database instance = null;
     DatabaseHandler databaseHandler;
 
     /**
@@ -32,8 +33,25 @@ public class Database {
     }
 
     /**
-     * Constructor for this class. Initialises temporary and logged memory for
-     * tasks and commands.
+     * @return an instance of this class.
+     * @throws IOException
+     *             when the same circumstances in this class' private
+     *             constructor apply
+     * @throws ParseException
+     *             when the same circumstances in this class' private
+     *             constructor apply
+     */
+    public static Database getInstance() throws IOException, ParseException {
+        if (Database.instance == null) {
+            Database.instance = new Database();
+        }
+        return Database.instance;
+    }
+
+    /**
+     * Private constructor for this class that defeats instantiation by other
+     * classes. Initialises temporary and logged memory for tasks and commands
+     * through the database handler.
      * 
      * @throws IOException
      *             when log file cannot be read from, written to or created when
@@ -42,7 +60,7 @@ public class Database {
      * @throws ParseException
      *             when tasks cannot be parsed from existing log file
      */
-    public Database() throws IOException, ParseException {
+    private Database() throws IOException, ParseException {
         databaseHandler = new DatabaseHandler();
     }
 

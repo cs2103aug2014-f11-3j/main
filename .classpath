@@ -2,8 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.8.0_20"/>
 	<classpathentry kind="lib" path="libs/google-api-client-assembly-1.18.0-rc-1.18.0-rc/google-api-java-client/libs/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="libs/google-api-client-assembly-1.18.0-rc-1.18.0-rc/google-api-java-client/libs/google-api-client-1.18.0-rc.jar"/>
 	<classpathentry kind="lib" path="libs/google-api-client-assembly-1.18.0-rc-1.18.0-rc/google-api-java-client/libs/google-api-client-android-1.18.0-rc.jar"/>

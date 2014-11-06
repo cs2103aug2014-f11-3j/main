@@ -25,11 +25,11 @@ public class DatabaseHandler {
             "Search string cannot be empty.";
     // @formatter:on
 
-    ArrayList<Task> tasks;
-    LinkedList<DbCommand> commands;
-    TaskLogger taskLogger;
-    GoogleCalendarManager googleCal;
     String logName;
+    TaskLogger taskLogger;
+    ArrayList<Task> tasks;
+    GoogleCalendarManager googleCal;
+    LinkedList<GoogleCalendarCommand> googleCalendarCommands;
     ArrayList<DatabaseObserver> observerList;
 
     /**
@@ -42,16 +42,13 @@ public class DatabaseHandler {
      *             when tasks cannot be parsed from existing log file
      */
     DatabaseHandler() throws IOException, ParseException {
-        // Future versions of software may allow for user to specify name of log
-        // file
-        logName = LOG_NAME;
-        taskLogger = new TaskLogger();
-        tasks = taskLogger.prepareLog(logName);
-
-        observerList = new ArrayList<DatabaseObserver>();
-        commands = new LinkedList<DbCommand>();
-        googleCal = new GoogleCalendarManager();
-
+        this.logName = LOG_NAME;
+        this.taskLogger = new TaskLogger();
+        this.tasks = taskLogger.prepareLog(logName);
+        this.googleCal = new GoogleCalendarManager();
+        GoogleCalendarCommand.setGoogleCal(this.googleCal);
+        this.googleCalendarCommands = new LinkedList<GoogleCalendarCommand>();
+        this.observerList = new ArrayList<DatabaseObserver>();
     }
 
     /**
@@ -64,7 +61,7 @@ public class DatabaseHandler {
     }
 
     /**
-     * Set task IDs according to their arraylist index. This method is called
+     * Set task IDs in order of their arraylist indices. This method is called
      * whenever a task manipulation affects the arraylist index of a task, thus
      * making task ID allocation dynamic.
      */
@@ -95,6 +92,7 @@ public class DatabaseHandler {
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
             // TODO Add add command to command queue
+            
         } finally {
             this.setTaskIds();
             this.taskLogger.writeToLogFile(this.getTasks());
