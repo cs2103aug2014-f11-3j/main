@@ -66,6 +66,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	protected TextField goocalField = new TextField();
 	@FXML
 	protected TextField authField = new TextField();
+	protected GoogleCalendarController gcCont = new GoogleCalendarController();
 	final String fail = "Failure";
 
 	public TaskBuddyViewController() {
@@ -153,25 +154,23 @@ public class TaskBuddyViewController implements DatabaseObserver {
 
 	@FXML
 	protected void parseUsername() {
-		usernameField = new TextField();
 		String username = usernameField.getText();
-		// TODO get username method from goocal
+		gcCont.setUserName(username);
 	}
 
 	@FXML
 	protected void parseGoocal() {
-		String username = goocalField.getText();
-		// TODO get address method from goocal
+		String address = goocalField.getText();
+		gcCont.setCalAddress(address);
 	}
 
 	@FXML
 	protected void parseAuth() {
-		String username = authField.getText();
+		String authCode = authField.getText();
 		// TODO get authentication method from goocal
 	}
 
 	protected void checkUser(){
-		GoogleCalendarController gcCont = new GoogleCalendarController();
 		String userInfo = gcCont.getDisplayStrings();
 		String none = "Username and Address empty";
 		String first = "Address empty";
