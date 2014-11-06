@@ -14,6 +14,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import taskbuddy.database.Database;
 import taskbuddy.database.DatabaseObserver;
+import taskbuddy.googlecalcontroller.GoogleCalendarController;
 import taskbuddy.logic.AcknowledgeBundle;
 import taskbuddy.logic.Task;
 import taskbuddy.parser.Parser;
@@ -58,13 +59,13 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	@FXML
 	private Label authLabel;
 	@FXML
-	protected static TextField userInputField = new TextField();
+	protected TextField userInputField = new TextField();
 	@FXML
-	protected static TextField usernameField = new TextField();
+	protected TextField usernameField = new TextField();
 	@FXML
-	protected static TextField goocalField = new TextField();
+	protected TextField goocalField = new TextField();
 	@FXML
-	protected static TextField authField = new TextField();
+	protected TextField authField = new TextField();
 	final String fail = "Failure";
 
 	public TaskBuddyViewController() {
@@ -79,6 +80,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 
 	@FXML
 	private void initialize() {
+		checkUser();
 		titleColumn.setCellValueFactory(cellData -> cellData.getValue()
 				.titleProperty());
 		taskIDColumn.setCellValueFactory(cellData -> StringProperty
@@ -119,14 +121,24 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	}
 
 	@FXML
-	protected void parseInputs() throws ParseException, IOException {
+	protected void parseInputs() {
 		String inputLine = userInputField.getText();
 		System.err.println(inputLine);
 		if (inputLine.isEmpty()) {
 			responseLabel.setText("Nothing entered");
-			System.err.println("a");
 		} else {
-			AcknowledgeBundle a = Parser.userInput(inputLine);
+			AcknowledgeBundle a = new AcknowledgeBundle();
+			try {
+				a = Parser.userInput(inputLine);
+			} catch (ParseException e) {
+				a.putFailure();
+				a.putMessage("Parse error");
+				e.printStackTrace();
+			} catch (IOException e) {
+				a.putFailure();
+				a.putMessage("Input error");
+				e.printStackTrace();
+			}
 			String status = a.getStatus();
 			System.err.println(a.getStatus());
 			if (status.equals(fail)) {
@@ -139,21 +151,44 @@ public class TaskBuddyViewController implements DatabaseObserver {
 		}
 	}
 
+	@FXML
 	protected void parseUsername() {
+		usernameField = new TextField();
 		String username = usernameField.getText();
 		// TODO get username method from goocal
 	}
 
+	@FXML
 	protected void parseGoocal() {
 		String username = goocalField.getText();
 		// TODO get address method from goocal
 	}
 
+	@FXML
 	protected void parseAuth() {
 		String username = authField.getText();
 		// TODO get authentication method from goocal
 	}
 
+	protected void checkUser(){
+		GoogleCalendarController gcCont = new GoogleCalendarController();
+		String userInfo = gcCont.getDisplayStrings();
+		String none = "Username and Address empty";
+		String first = "Address empty";
+		String second = "Username empty";
+		if (userInfo.equals(none)){
+			;
+		} else if (userInfo.equals(first)){
+			goocalField.setText(userInfo);
+		} else if (userInfo.endsWith(second)){
+			usernameField.setText(userInfo);
+		} else {
+			String[] userIn = userInfo.split(" ");
+			usernameField.setText(userIn[0]);
+			goocalField.setText(userIn[1]);
+		}
+	}
+	
 	@Override
 	public void update() {
 		try {

@@ -114,7 +114,7 @@
                      <GridPane.margin>
                         <Insets left="10.0" right="10.0" />
                      </GridPane.margin></Label>
-                  <TextField fx:id="usernameField" promptText="Enter username" GridPane.columnIndex="1" />
+                  <TextField fx:id="usernameField" onAction="#parseUsername" promptText="Enter username" GridPane.columnIndex="1" />
                   <TextField fx:id="goocalField" promptText="Enter GooCal address" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <TextField fx:id="authField" promptText="Copy authorization code here" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                </children>
