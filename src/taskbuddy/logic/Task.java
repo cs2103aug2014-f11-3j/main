@@ -1,7 +1,5 @@
 package taskbuddy.logic;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -11,6 +9,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -147,7 +147,7 @@ public class Task {
 
     // basic mutators
     public void setTitle(String nextTitle) {
-        this.__title.set(nextTitle);
+        this.__title = new SimpleStringProperty(nextTitle);
     }
 
     public void setGID(String newID) {
@@ -156,14 +156,14 @@ public class Task {
 
     public void setDescription(String nextDescription) {
         if (!nextDescription.equals(nullValue)) {
-            this.__description.set(nextDescription);
+            this.__description = new SimpleStringProperty(nextDescription);
         } else {
-            this.__description.set("nil");
+            this.__description = new SimpleStringProperty("nil");
         }
     }
 
     public void setStartTime(Calendar nextStart) {
-        this.__startTime.set(nextStart);
+        this.__startTime = new SimpleObjectProperty<Calendar>(nextStart);
     }
 
     public void setStartTime(String startDate, String startTime) {
@@ -177,7 +177,7 @@ public class Task {
             int minute = Integer.parseInt(startTime.substring(2));
             Calendar start = Calendar.getInstance();
             start.set(year, month, date, hour, minute);
-            this.__startTime.set(start);
+            this.__startTime = new SimpleObjectProperty<Calendar>(start);
         } else if (!startDate.equals(nullValue)) {
             int date = Integer.parseInt(startDate.substring(0, 2));
             int month = Integer.parseInt(startDate.substring(3, 5));
@@ -185,7 +185,7 @@ public class Task {
             int year = Integer.parseInt(startDate.substring(6));
             Calendar start = Calendar.getInstance();
             start.set(year, month, date);
-            this.__startTime.set(start);
+            this.__startTime = new SimpleObjectProperty<Calendar>(start);
 
         } else if (!startTime.equals(nullValue)) {
             Calendar start = Calendar.getInstance();
@@ -195,16 +195,16 @@ public class Task {
             int hour = Integer.parseInt(startTime.substring(0, 2));
             int minute = Integer.parseInt(startTime.substring(2));
             start.set(year, month, date, hour, minute);
-            this.__endTime.set(start);
+            this.__startTime = new SimpleObjectProperty<Calendar>(start);
 
         } else {
             Calendar now = Calendar.getInstance();
-            this.__startTime.set(now);
+            this.__startTime = new SimpleObjectProperty<Calendar>(now);
         }
     }
 
     public void setEndTime(Calendar nextEnd) {
-        this.__endTime.set(nextEnd);
+        this.__endTime = new SimpleObjectProperty<Calendar>(nextEnd);
     }
 
     public void setEndTime(String endDate, String endTime) {
@@ -217,7 +217,7 @@ public class Task {
             int minute = Integer.parseInt(endTime.substring(2));
             Calendar ending = Calendar.getInstance();
             ending.set(year, month, date, hour, minute);
-            this.__endTime.set(ending);
+            this.__endTime = new SimpleObjectProperty<Calendar>(ending);
         } else if (!endDate.equals(nullValue)) {
             int date = Integer.parseInt(endDate.substring(0, 2));
             int month = Integer.parseInt(endDate.substring(3, 5));
@@ -227,7 +227,7 @@ public class Task {
             int minute = 59;
             Calendar ending = Calendar.getInstance();
             ending.set(year, month, date, hour, minute);
-            this.__endTime.set(ending);
+            this.__endTime = new SimpleObjectProperty<Calendar>(ending);
 
         } else if (!endTime.equals(nullValue)) {
             Calendar ending = Calendar.getInstance();
@@ -237,26 +237,26 @@ public class Task {
             int hour = Integer.parseInt(endTime.substring(0, 2));
             int minute = Integer.parseInt(endTime.substring(2));
             ending.set(year, month, date, hour, minute);
-            this.__endTime.set(ending);
+            this.__endTime = new SimpleObjectProperty<Calendar>(ending);
 
         } else {
             Calendar ending = Calendar.getInstance();
             // todo stub
             // find appropriate setting for null value
-            this.__endTime.set(ending);
+            this.__endTime = new SimpleObjectProperty<Calendar>(ending);
         }
     }
 
     public void setPriority(int nextPriority) {
-        this.__priorityFlag.set(nextPriority);
+        this.__priorityFlag = new SimpleIntegerProperty(nextPriority);
     }
 
     public void setCompletion(boolean nextStatus) {
-        this.__completionFlag.set(nextStatus);
+        this.__completionFlag = new SimpleBooleanProperty(nextStatus);
     }
 
     public void setFloating(boolean nextFloatStat) {
-        this.__floatingTask.set(nextFloatStat);
+        this.__floatingTask = new SimpleBooleanProperty(nextFloatStat);
     }
 
     /**
@@ -270,7 +270,7 @@ public class Task {
      * 
      */
     public void setTaskId(int __taskId) {
-        this.__taskId.set(__taskId);
+        this.__taskId = new SimpleIntegerProperty(__taskId);
     }
 
     public void checkFloating(Task task) {

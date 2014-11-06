@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -180,6 +181,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			if (gcCont.isCalendarAuthenticated()) {
 				String username = usernameField.getText();
 				userAuthLabel.setText(username + "'s Google Calendar");
+				update();
 			} else {
 				userAuthLabel.setText("Authorization error");
 			}
@@ -213,16 +215,28 @@ public class TaskBuddyViewController implements DatabaseObserver {
 				}
 			} else {
 				userAuthLabel.setText(userIn[0] + "'s Google Calendar");
+				update();
 			}
 		}
 	}
 
 	@Override
 	public void update() {
+		
 		try {
 			observedTasks = database.getTasks();
 		} catch (Exception e) {
 			observedTasks = new ArrayList<Task>();
+			Task dummy = new Task();
+			dummy.setTitle("dummy value");
+			dummy.setDescription("dummy desc");
+			dummy.setFloating(true);
+			dummy.setCompletion(false);
+			dummy.setStartTime(Calendar.getInstance());
+			dummy.setEndTime(Calendar.getInstance());
+			dummy.setPriority(1);
+			dummy.setTaskId(1);
+			observedTasks.add(dummy);
 		}
 		taskData.setAll(observedTasks);
 		taskTable.setItems(taskData);

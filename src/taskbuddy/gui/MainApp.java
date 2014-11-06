@@ -41,33 +41,5 @@ public class MainApp extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
-	/*
-	private void checkGoogleAuth() {
-
-		GooCalBackend goocalbackend = new GooCalBackend();
-		GoogleCalendarController googlecalendarcontroller = new GoogleCalendarController();
-		
-		if (googlecalendarcontroller.isCalendarAuthenticated()) {
-			String auth = "Calendar authorized";
-			TaskBuddyViewController.goocalField.setText(auth);
-		} else {
-			String url = googlecalendarcontroller.getAuthenticationUrl();
-			gooCalDisplay.setText(url);
-			try {
-				try {
-					Desktop.getDesktop().browse(new URI(url));
-				} catch (URISyntaxException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				// } catch (IOException | URISyntaxException e1) {
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
-		// TODO else case
-		googlecalendarcontroller.authenticate(stringGooCalUserInput);
-	}
-	 */
+	
 }
