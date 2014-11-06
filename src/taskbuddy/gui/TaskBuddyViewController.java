@@ -61,6 +61,8 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	@FXML
 	private Label authLabel;
 	@FXML
+	private Label userAuthLabel;
+	@FXML
 	protected TextField userInputField = new TextField();
 	@FXML
 	protected TextField usernameField = new TextField();
@@ -158,19 +160,33 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	@FXML
 	protected void parseUsername() {
 		String username = usernameField.getText();
+		System.err.println(username);
 		gcCont.setUserName(username);
 	}
 
 	@FXML
 	protected void parseGoocal() {
 		String address = goocalField.getText();
+		System.err.println(address);
 		gcCont.setCalAddress(address);
 	}
 
 	@FXML
 	protected void parseAuth() {
-		String authCode = authField.getText();
-		gcCont.authorize(authCode);
+		try {
+			String authCode = authField.getText();
+			System.err.println(authCode);
+			gcCont.authorize(authCode);
+			if (gcCont.isCalendarAuthenticated()) {
+				String username = usernameField.getText();
+				userAuthLabel.setText(username + "'s Google Calendar");
+			} else {
+				userAuthLabel.setText("Authorization error");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			userAuthLabel.setText("Authorization Error");
+		}
 	}
 
 	protected void checkUser() {
@@ -195,6 +211,8 @@ public class TaskBuddyViewController implements DatabaseObserver {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			} else {
+				//userAuthLabel.setText(userIn[0] + "'s Google Calendar");
 			}
 		}
 	}
