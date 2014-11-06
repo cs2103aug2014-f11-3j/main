@@ -5,12 +5,10 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import taskbuddy.googlecal.GoogleCalendarManager;
@@ -75,9 +73,15 @@ public class DatabaseInitialisationTest {
     }
 
     @Test
-    public void testInitialisationWithNoTaskLog() throws Exception {
+    public void testDatabase() throws Exception {
         deleteLog();
+        database = new Database();
+        assertEquals("Static variable googleCal of GoogleCalendarCommand "
+                + "not initialised properly in Database's constructor.",
+                database.databaseHandler.googleCal,
+                GoogleCalendarCommand.googleCal);
 
+        deleteLog();
         setup();
         assertEquals("Name of task log not initalised "
                 + "properly in Database's constructor.",
@@ -89,6 +93,7 @@ public class DatabaseInitialisationTest {
         assertTrue("Database not constructed with an instance of "
                 + "GoogleCalendarManager.",
                 myDatabaseHandler.googleCal instanceof GoogleCalendarManager);
+
         assertTrue("Database not constructed with linkedlist "
                 + "of GoogleCalendarCommand objects.",
                 myDatabaseHandler.googleCalendarCommands instanceof LinkedList);
@@ -104,16 +109,11 @@ public class DatabaseInitialisationTest {
                 .exists());
 
         // Populate task log first in preparation for next test
-        addTasks();
-    }
-
-    @Test
-    public void testInitialisationWithExistingTaskLog() throws Exception {
+        addTasks();    
         taskLog = new File(DatabaseHandler.LOG_NAME);
         assertTrue("Task log doesn't exist when it should.", taskLog.isFile());
-        assertNull(database);
-        setup();
         
+        setup();
         ArrayList<Task> tasks = database.getTasks();
         assertEquals("No tasks read in from log file", 2, tasks.size());
         expected = tasks.get(0).displayTask();
@@ -136,10 +136,10 @@ public class DatabaseInitialisationTest {
         myDatabaseHandler = database.databaseHandler;
         googleCalendarManagerStub = new GoogleCalendarManagerStub();
         myDatabaseHandler.googleCal = googleCalendarManagerStub;
-        
+
         firstTask = createTask("First", "First description.");
         secondTask = createTask("Second", "Second description.");
-        addTasks();        
+        addTasks();
         ArrayList<Task> tasks = database.getTasks();
 
         Database newDatabase = Database.getInstance();
