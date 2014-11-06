@@ -1,64 +1,40 @@
 package taskbuddy.gui;
 
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URI;
-import java.text.ParseException;
-import java.util.ArrayList;
+
+import java.net.URL;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import taskbuddy.database.Database;
-import taskbuddy.database.DatabaseObserver;
-import taskbuddy.logic.Task;
 
 public class MainApp extends Application{
 
 	private Stage primaryStage;
-	private BorderPane rootLayout;
-	private ObservableList<Task> taskData;
+	private BorderPane taskBuddyView;
 	
 	public void start(Stage primaryStage) {
 		this.primaryStage = primaryStage;
 		this.primaryStage.setTitle("TaskBuddy!");
-
-		initRootLayout();
-
-		showTaskOverview();
+		initView();
 	}
-
-	public void initRootLayout() {
-		try {
+	
+	public void initView(){
+		try{
 			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(MainApp.class.getResource("view/RootLayout.fxml"));
-			rootLayout = (BorderPane) loader.load();
-			Scene scene = new Scene(rootLayout);
+			URL location = this.getClass().getResource("TaskBuddyView.fxml");
+			loader.setLocation(location);
+			taskBuddyView = loader.load();
+			Scene scene = new Scene(taskBuddyView);
 			primaryStage.setScene(scene);
 			primaryStage.show();
-		} catch (IOException e) {
+			System.err.println("opening gui");
+		} catch (Exception e){
 			e.printStackTrace();
 		}
 	}
 
-	public void showTaskOverview() {
-		try {
-			// Load person overview.
-			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(MainApp.class.getResource("view/TaskOverview.fxml"));
-			AnchorPane taskOverview = (AnchorPane) loader.load();
-
-			// Set person overview into the center of root layout.
-			rootLayout.setCenter(taskOverview);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public Stage getPrimaryStage() {
 		return primaryStage;
@@ -67,10 +43,6 @@ public class MainApp extends Application{
 	public static void main(String[] args) {
 		launch(args);
 		
-	}
-	
-	public ObservableList<Task> getTaskData(){
-		return taskData;
 	}
 	
 	//TODO STUB Desktop.getDesktop().browse(new URI(url)); OPEN CAL

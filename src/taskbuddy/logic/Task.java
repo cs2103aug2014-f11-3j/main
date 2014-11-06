@@ -77,6 +77,10 @@ public class Task {
     public String getDescription() {
         return this.__description.get();
     }
+    
+    public StringProperty descriptionProperty(){
+    	return this.__description;
+    }
 
     public Calendar getStartTime() {
         return this.__startTime.get();
@@ -84,6 +88,12 @@ public class Task {
 
     public Calendar getEndTime() {
         return this.__endTime.get();
+    }
+    
+    public StringProperty startDateProperty(){
+    	Calendar start = this.getStartTime();
+    	StringProperty startDate = new SimpleStringProperty(parseDate(start));
+    	return startDate;
     }
     
     public StringProperty dueDateProperty(){
@@ -129,6 +139,10 @@ public class Task {
      */
     public int getTaskId() {
         return __taskId.get();
+    }
+    
+    public IntegerProperty idProperty(){
+    	return this.__taskId;
     }
 
     // basic mutators
