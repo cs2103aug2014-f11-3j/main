@@ -179,4 +179,19 @@ public class Database {
         databaseHandler.addObserver(databaseObserver);
     }
 
+    /**
+     * Synchronises tasks that are manipulated in database but not in Google
+     * Calendar when user is offline forward to Google Calendar Manager. This is
+     * achieved by executing the commands in the command queue. The reversed
+     * synchronisation from Google Calendar to database is called backward
+     * synchronisation.
+     * 
+     * @throws UnknownHostException
+     *             when user is still offline and synchronisation cannot be
+     *             performed.
+     */
+    public void forwardSync() throws UnknownHostException {
+        databaseHandler.forwardSync();
+    }
+
 }

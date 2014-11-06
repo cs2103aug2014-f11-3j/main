@@ -14,12 +14,12 @@ import taskbuddy.logic.Task;
  *
  */
 abstract class GoogleCalendarCommand {
+    // @formatter:off
+    static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = 
+            "Cannot synchronise tasks to Google Calendar.";
+    // @formatter:on
     static GoogleCalendarManager googleCal;
     Task task;
-
-    public static void setGoogleCal(GoogleCalendarManager googleCal) {
-        GoogleCalendarCommand.googleCal = googleCal;
-    }
 
     /**
      * Constructor for this class, which initialises the task to be manipulated

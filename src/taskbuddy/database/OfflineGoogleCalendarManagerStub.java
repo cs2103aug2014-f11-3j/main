@@ -14,7 +14,7 @@ import taskbuddy.logic.Task;
  *
  */
 public class OfflineGoogleCalendarManagerStub extends GoogleCalendarManager {
-    private static final String ERROR_USER_OFFLINE = "User is offline";
+    static final String ERROR_USER_OFFLINE = "User is offline";
 
     public void add(Task task) throws UnknownHostException {
         throw new UnknownHostException(ERROR_USER_OFFLINE);

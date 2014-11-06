@@ -233,6 +233,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	public void update() {
 		
 		try {
+			database = Database.getInstance();
 			observedTasks = database.getTasks();
 		} catch (Exception e) {
 			observedTasks = new ArrayList<Task>();

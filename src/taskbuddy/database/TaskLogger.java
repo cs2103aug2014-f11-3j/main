@@ -53,8 +53,8 @@ public class TaskLogger {
     private static final String TASKS = " tasks:";
 
     File log;
-    BufferedWriter writer;
-    BufferedReader reader;
+    BufferedWriter writer = null;
+    BufferedReader reader = null;
 
     /**
      * Returns the <code>File</code> object representing the log file. Used
@@ -137,7 +137,9 @@ public class TaskLogger {
             writer.write(this.tasksToString(tasks));
             writer.flush();
         } finally {
-            writer.close();
+            if (writer != null) {
+                writer.close();
+            }
         }
     }
 

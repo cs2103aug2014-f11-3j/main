@@ -13,6 +13,8 @@ import taskbuddy.logic.Task;
  *
  */
 public class GoogleCalendarManagerStub extends GoogleCalendarManager {
+    // These flags will turn true if add, delete and update methods are
+    // executed.
     public String googleCalendarId = "11111";
 
     public void add(Task task) throws UnknownHostException {

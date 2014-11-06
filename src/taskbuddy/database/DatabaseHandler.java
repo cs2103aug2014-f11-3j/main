@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
+import org.junit.Assert;
+
 import taskbuddy.googlecal.GoogleCalendarManager;
 import taskbuddy.logic.Task;
 
@@ -46,7 +48,7 @@ public class DatabaseHandler {
         this.taskLogger = new TaskLogger();
         this.tasks = taskLogger.prepareLog(logName);
         this.googleCal = new GoogleCalendarManager();
-        GoogleCalendarCommand.setGoogleCal(this.googleCal);
+        GoogleCalendarCommand.googleCal = this.googleCal;
         this.googleCalendarCommands = new LinkedList<GoogleCalendarCommand>();
         this.observerList = new ArrayList<DatabaseObserver>();
     }
@@ -58,6 +60,15 @@ public class DatabaseHandler {
      */
     ArrayList<Task> getTasks() {
         return this.tasks;
+    }
+
+    /**
+     * Retrieves command queue for Google Calendar commands.
+     * 
+     * @return command queue for Google Calendar commands
+     */
+    public LinkedList<GoogleCalendarCommand> getGoogleCalendarCommands() {
+        return googleCalendarCommands;
     }
 
     /**
@@ -89,10 +100,11 @@ public class DatabaseHandler {
         try {
             googleCal.add(task);
         } catch (UnknownHostException e) {
+            // TODO Add add command to command queue
+            assert GoogleCalendarCommand.googleCal != null;
+            this.googleCalendarCommands.add(new GoogleCalendarAdd(task));
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
-            // TODO Add add command to command queue
-            
         } finally {
             this.setTaskIds();
             this.taskLogger.writeToLogFile(this.getTasks());
@@ -172,9 +184,12 @@ public class DatabaseHandler {
         try {
             googleCal.delete(gCalIdToDelete);
         } catch (UnknownHostException e) {
+            // TODO Add delete command to command queue
+            assert GoogleCalendarCommand.googleCal != null;
+            this.googleCalendarCommands.add(new GoogleCalendarDelete(
+                    taskToDelete));
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
-            // TODO Add delete command to command queue
         } finally {
             this.setTaskIds();
             this.taskLogger.writeToLogFile(this.getTasks());
@@ -298,9 +313,11 @@ public class DatabaseHandler {
         try {
             googleCal.update(newTask);
         } catch (UnknownHostException e) {
+            // TODO Add edit command to command queue
+            assert GoogleCalendarCommand.googleCal != null;
+            this.googleCalendarCommands.add(new GoogleCalendarUpdate(newTask));
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
-            // TODO Add edit command to command queue
         } finally {
             this.setTaskIds();
             this.taskLogger.writeToLogFile(this.getTasks());
@@ -328,4 +345,27 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+     * Synchronises tasks that are manipulated in database but not in Google
+     * Calendar when user is offline forward to Google Calendar Manager. This is
+     * achieved by executing the commands in the command queue. The reversed
+     * synchronisation from Google Calendar to database is called backward
+     * synchronisation.
+     * 
+     * @throws UnknownHostException
+     *             when user is still offline and synchronisation cannot be
+     *             performed.
+     */
+    void forwardSync() throws UnknownHostException {
+        LinkedList<GoogleCalendarCommand> myGoogleCalendarCommands = this
+                .getGoogleCalendarCommands();
+        while (!myGoogleCalendarCommands.isEmpty()) {
+            GoogleCalendarCommand nextCommand = myGoogleCalendarCommands.peek();
+            nextCommand.execute();
+            // If execution is unsuccessful due to user still being offline, the
+            // following code will not be executed and the command that has just
+            // failed to be executed will remain in the command queue.
+            myGoogleCalendarCommands.remove();
+        }
+    }
 }
