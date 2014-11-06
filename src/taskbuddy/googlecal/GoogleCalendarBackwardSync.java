@@ -2,6 +2,7 @@ package taskbuddy.googlecal;
 
 import java.util.ArrayList;
 
+import sun.security.jca.GetInstance;
 import taskbuddy.database.Database;
 import taskbuddy.logic.Task;
 
@@ -11,7 +12,9 @@ public class GoogleCalendarBackwardSync {
 	ArrayList<Task> tasksFromGoogleCal = new ArrayList<Task>();
 	ArrayList<Task> tasksToAddToDb = new ArrayList<Task>();
 	ArrayList<Task> tasksToRemoveFromDb = new ArrayList<Task>();
-	Database db;
+	Database db = Database.getInstance();
+
+	
 
 	public void getTasksFromDatabase() {
 		tasksFromDatabase = db.getTasks();
