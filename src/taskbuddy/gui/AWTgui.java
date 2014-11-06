@@ -23,10 +23,9 @@ import javax.swing.text.DefaultCaret;
 
 import taskbuddy.googlecal.GooCalBackend;
 import taskbuddy.logic.CommandParser;
-import taskbuddy.logic.GoogleCalendarController;
 import taskbuddy.parser.Parser;
 
-public class AWTgui extends Frame implements ActionListener, WindowListener{
+public class AWTgui extends Frame implements ActionListener, WindowListener{ 
 	private static final long serialVersionUID = -8401665365520669252L;
 	
 	// Command
@@ -62,7 +61,6 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 		setLayout(new FlowLayout());
 
 		GooCalBackend goocalbackend = new GooCalBackend();
-		GoogleCalendarController googlecalendarcontroller = new GoogleCalendarController();
 		
 		
 		
@@ -194,10 +192,10 @@ public class AWTgui extends Frame implements ActionListener, WindowListener{
 	}
 
 	/** The entry main() method */
-	public static void main(String[] args) {
+//	public static void main(String[] args) {
 		// Invoke the constructor to setup the GUI, by allocating an instance
-		AWTgui app = new AWTgui();
-	}
+	//	AWTgui app = new AWTgui();
+//	}
 
 	
 	public static void appendToDisplay(String toAppend) {

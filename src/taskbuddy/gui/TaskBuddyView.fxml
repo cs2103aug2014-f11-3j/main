@@ -32,14 +32,14 @@
                   <Label layoutX="85.0" layoutY="247.0" text="Task Type" AnchorPane.leftAnchor="75.0" AnchorPane.topAnchor="225.0" />
                   <Label layoutX="79.0" layoutY="423.0" text="Priority" AnchorPane.leftAnchor="75.0" AnchorPane.topAnchor="375.0" />
                   <Label layoutX="79.0" layoutY="477.0" text="Status" AnchorPane.leftAnchor="75.0" AnchorPane.topAnchor="425.0" />
-                  <Label fx:id="taskTitleLabel" layoutX="213.0" layoutY="75.0" text="Label" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="75.0" />
-                  <Label fx:id="taskIDLabel" layoutX="213.0" layoutY="125.0" text="Label" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="125.0" />
-                  <Label fx:id="taskDescriptionLabel" layoutX="213.0" layoutY="175.0" text="Label" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="175.0" />
-                  <Label fx:id="taskTypeLabel" layoutX="213.0" layoutY="225.0" text="Label" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="225.0" />
-                  <Label fx:id="taskStartTimeLabel" layoutX="213.0" layoutY="275.0" text="Label" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="275.0" />
-                  <Label fx:id="taskDueTimeLabel" layoutX="213.0" layoutY="325.0" text="Label" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="325.0" />
-                  <Label fx:id="taskPriorityLabel" layoutX="213.0" layoutY="375.0" text="Label" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="375.0" />
-                  <Label fx:id="taskCompletionLabel" layoutX="213.0" layoutY="425.0" text="Label" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="425.0" />
+                  <Label fx:id="taskTitleLabel" layoutX="213.0" layoutY="75.0" text="-" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="75.0" />
+                  <Label fx:id="taskIDLabel" layoutX="213.0" layoutY="125.0" text="-" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="125.0" />
+                  <Label fx:id="taskDescriptionLabel" layoutX="213.0" layoutY="175.0" text="-" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="175.0" />
+                  <Label fx:id="taskTypeLabel" layoutX="213.0" layoutY="225.0" text="-" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="225.0" />
+                  <Label fx:id="taskStartTimeLabel" layoutX="213.0" layoutY="275.0" text="-" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="275.0" />
+                  <Label fx:id="taskDueTimeLabel" layoutX="213.0" layoutY="325.0" text="-" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="325.0" />
+                  <Label fx:id="taskPriorityLabel" layoutX="213.0" layoutY="375.0" text="-" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="375.0" />
+                  <Label fx:id="taskCompletionLabel" layoutX="213.0" layoutY="425.0" text="-" AnchorPane.leftAnchor="175.0" AnchorPane.topAnchor="425.0" />
                </children></AnchorPane>
         </items>
       </SplitPane>
@@ -84,7 +84,7 @@
                 <RowConstraints maxHeight="154.0" minHeight="10.0" prefHeight="103.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label fx:id="responseLabel" text="Label">
+                  <Label fx:id="responseLabel">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>

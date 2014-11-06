@@ -58,13 +58,14 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	@FXML
 	private Label authLabel;
 	@FXML
-	protected static TextField userInputField;
+	protected static TextField userInputField = new TextField();
 	@FXML
-	protected static TextField usernameField;
+	protected static TextField usernameField = new TextField();
 	@FXML
-	protected static TextField goocalField;
+	protected static TextField goocalField = new TextField();
 	@FXML
-	protected static TextField authField;
+	protected static TextField authField = new TextField();
+	final String fail = "Failure";
 
 	public TaskBuddyViewController() {
 	}
@@ -120,15 +121,22 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	@FXML
 	protected void parseInputs() throws ParseException, IOException {
 		String inputLine = userInputField.getText();
-		AcknowledgeBundle a = Parser.userInput(inputLine);
-		String status = a.getStatus();
-		if (status.equals("failure")) {
-			String response = status + ": " + a.getMessage();
-			responseLabel.setText(response);
+		System.err.println(inputLine);
+		if (inputLine.isEmpty()) {
+			responseLabel.setText("Nothing entered");
+			System.err.println("a");
 		} else {
-			responseLabel.setText(a.getMessage());
+			AcknowledgeBundle a = Parser.userInput(inputLine);
+			String status = a.getStatus();
+			System.err.println(a.getStatus());
+			if (status.equals(fail)) {
+				String response = status + ": " + a.getMessage();
+				responseLabel.setText(response);
+			} else {
+				responseLabel.setText(a.getMessage());
+			}
+			update();
 		}
-		update();
 	}
 
 	protected void parseUsername() {
@@ -156,4 +164,5 @@ public class TaskBuddyViewController implements DatabaseObserver {
 		taskData.setAll(observedTasks);
 		taskTable.setItems(taskData);
 	}
+
 }

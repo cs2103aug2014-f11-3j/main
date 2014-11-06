@@ -72,7 +72,7 @@ public class CommandParser {
 	}
 
 	public CommandParser() throws ParseException, IOException {
-		database = new Database();
+		database = Database.getInstance();
 		undoStack = new Stack<UserInputBundle>();
 		undoStackTask = new Stack<Task>();
 		redoStack = new Stack<UserInputBundle>();
