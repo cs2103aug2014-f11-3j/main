@@ -12,26 +12,26 @@ public class GoogleCalendarBackwardSync {
 	ArrayList<Task> tasksFromGoogleCal = new ArrayList<Task>();
 	ArrayList<Task> tasksToAddToDb = new ArrayList<Task>();
 	ArrayList<Task> tasksToRemoveFromDb = new ArrayList<Task>();
-	Database db = Database.getInstance();
+	//Database db = Database.getInstance();
 
 	
-
-	public void getTasksFromDatabase() {
-		tasksFromDatabase = db.getTasks();
-	}
+//
+//	public void getTasksFromDatabase() {
+//		tasksFromDatabase = db.getTasks();
+//	}
 	
 	public void getTasksFromGCal() {
 		tasksFromGoogleCal = googleCalRetrieveAll.getTasks();
 	}
 	
-	public void removeFloatingTasks() {
-	// Floating tasks are removed because they are not synced to Google Calendar
-		for (Task task : tasksFromDatabase) {
-			if (task.isFloatingTask()) {
-				tasksFromDatabase.remove(task);
-			}
-		}
-	}
+//	public void removeFloatingTasks() {
+//	// Floating tasks are removed because they are not synced to Google Calendar
+//		for (Task task : tasksFromDatabase) {
+//			if (task.isFloatingTask()) {
+//				tasksFromDatabase.remove(task);
+//			}
+//		}
+//	}
 	
 	public void setTaskIdsZero() {
 		for (Task task: tasksFromDatabase) {
