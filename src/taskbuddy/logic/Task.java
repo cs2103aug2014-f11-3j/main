@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -142,6 +143,7 @@ public class Task {
 	// basic mutators
 	public void setTitle(String nextTitle) {
 		this.__title = nextTitle;
+		this.__titleProperty = new SimpleStringProperty(nextTitle);
 	}
 
 	public void setGID(String newID) {
@@ -265,8 +267,9 @@ public class Task {
 	 * @author Soh Yong Sheng
 	 * 
 	 */
-	public void setTaskId(int __taskId) {
-		this.__taskId = __taskId;
+	public void setTaskId(int taskId) {
+		this.__taskId = taskId;
+		this.__taskIdProperty = new SimpleIntegerProperty(taskId);
 	}
 
 	public void checkFloating(Task task) {

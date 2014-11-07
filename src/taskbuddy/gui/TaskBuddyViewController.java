@@ -25,7 +25,8 @@ import taskbuddy.parser.Parser;
 public class TaskBuddyViewController implements DatabaseObserver {
 
 	Database database;
-	ArrayList<Task> observedTasks;
+	ArrayList<Task> listTasks;
+	
 	private ObservableList<Task> taskData = FXCollections.observableArrayList();
 	@FXML
 	private TableView<Task> taskTable;
@@ -79,7 +80,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 
 	public TaskBuddyViewController(Database database) throws IOException,
 			ParseException {
-		observedTasks = new ArrayList<Task>();
+		listTasks = new ArrayList<Task>();
 		this.database = database;
 		database.addObserver(this);
 	}
@@ -88,7 +89,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	private void initialize() {
 		checkUser();
 		this.database = database;
-        database.addObserver(this);
+		database.addObserver(this);
 		titleColumn.setCellValueFactory(cellData -> cellData.getValue()
 				.titleProperty());
 		taskIDColumn.setCellValueFactory(cellData -> StringProperty
@@ -233,12 +234,15 @@ public class TaskBuddyViewController implements DatabaseObserver {
 		}
 	}
 
+	@Override
 	public void update() {
 		try {
 			database = Database.getInstance();
-			observedTasks = database.getTasks();
+			listTasks = database.getTasks();
+			System.err.println("copied db");
 		} catch (Exception e) {
-			observedTasks = new ArrayList<Task>();
+			listTasks = new ArrayList<Task>();
+			System.err.println("copy db fail");
 			Task dummy = new Task();
 			dummy.setTitle("dummy value");
 			dummy.setDescription("dummy desc");
@@ -248,9 +252,9 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			dummy.setEndTime(Calendar.getInstance());
 			dummy.setPriority(1);
 			dummy.setTaskId(1);
-			observedTasks.add(dummy);
+			listTasks.add(dummy);
 		}
-		taskData.setAll(observedTasks);
+		taskData.setAll(listTasks);
 		taskTable.setItems(taskData);
 	}
 
