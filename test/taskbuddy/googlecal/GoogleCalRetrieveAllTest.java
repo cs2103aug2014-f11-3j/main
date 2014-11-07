@@ -22,7 +22,7 @@ public class GoogleCalRetrieveAllTest {
 			e.printStackTrace();
 		}
 		tasks = googleCalRetrieveAll.getTasks();
-		googleCalRetrieveAll.printArrayListOfTasks(tasks);
+		//googleCalRetrieveAll.printArrayListOfTasks(tasks);
 		
 		//fail("Not yet implemented");
 	}

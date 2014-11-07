@@ -15,7 +15,8 @@ public class GoogleCalendarSetUsernameAddressTest {
 
 	@Test
 	public void testSetCalAddress() {
-		googleCalendarPreferenceLogger.createAndAddToAddressFile("i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com");
+		//googleCalendarPreferenceLogger.createAndAddToAddressFile("i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com");
+		googleCalendarPreferenceLogger.createAndAddToAddressFile("o5nh8ih7pitouclqvil28mtfho@group.calendar.google.com");
 		//fail("Not yet implemented");
 		assertEquals("Fail", "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com", googleCalendarPreferenceLogger.readAddressFile());
 	}
