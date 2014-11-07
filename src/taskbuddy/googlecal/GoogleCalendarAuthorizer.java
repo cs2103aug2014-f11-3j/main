@@ -87,7 +87,7 @@ public class GoogleCalendarAuthorizer {
 
 		if (googleCalendarPreferenceLogger.isTokenFileEmpty()) {			
 			try {
-				service = createCalendar(googleCalendarPreferenceLogger.readTokenFile(), googleCalendarPreferenceLogger.readUsernameFile());
+				//service = createCalendar(googleCalendarPreferenceLogger.readTokenFile(), googleCalendarPreferenceLogger.readUsernameFile());
 				checkCalendar(createCalendar(googleCalendarPreferenceLogger.readTokenFile(), googleCalendarPreferenceLogger.readUsernameFile()));
 			} catch (IOException unauthorized) {
 				// TODO Auto-generated catch block
@@ -99,7 +99,7 @@ public class GoogleCalendarAuthorizer {
 		else {
 			try {
 				// Check if authentication key is valid. If it is invalid, IOException unauthorized will be caught.
-				service = createCalendar(googleCalendarPreferenceLogger.readTokenFile(), googleCalendarPreferenceLogger.readUsernameFile());
+				//service = createCalendar(googleCalendarPreferenceLogger.readTokenFile(), googleCalendarPreferenceLogger.readUsernameFile());
 				checkCalendar(createCalendar(googleCalendarPreferenceLogger.readTokenFile(), googleCalendarPreferenceLogger.readUsernameFile()));
 			} catch (IOException unauthorized) {
 				// An IOException is thrown by the createCalendar method, if the calendar fails to be created due to an invalid authorization token.
