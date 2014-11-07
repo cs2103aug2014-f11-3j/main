@@ -111,11 +111,13 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			Boolean floating = task.isFloatingTask();
 			if (floating){
 				taskTypeLabel.setText("Floating");
+				taskStartTimeLabel.setText("-");
+				taskDueTimeLabel.setText("-");
 			} else {
 				taskTypeLabel.setText("Timed");
+				taskStartTimeLabel.setText(task.displayStart());
+				taskDueTimeLabel.setText(task.displayEnd());
 			}
-			taskStartTimeLabel.setText(task.displayStart());
-			taskDueTimeLabel.setText(task.displayEnd());
 			Boolean complete = task.getCompletionStatus();
 			if (complete){
 				taskCompletionLabel.setText("Completed");
