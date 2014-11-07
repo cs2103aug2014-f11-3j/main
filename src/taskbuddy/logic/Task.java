@@ -5,546 +5,537 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 //Author: andrew
 public class Task {
 
-    // @formatter:off
-    private static final String EMPTY_STRING        = "";
-    private static final String DELIMITER           = " | ";
-    private static final String TASK_ID             = "Task ID: ";
-    private static final String TITLE               = "Title: ";
-    private static final String DESCRIPTION         = "Description: ";
-    private static final String START               = "Start: ";
-    private static final String END                 = "End: ";
-    private static final String PRIORITY            = "Priority: ";
-    private static final String IS_COMPLETE         = "Completed: ";
-    private static final String IS_FLOATING         = "Floating task: ";
-    private static final String GOOGLE_CALENDAR_ID  = "Google Calendar ID: ";
-    // @formatter:on
+	// @formatter:off
+	private static final String EMPTY_STRING = "";
+	private static final String DELIMITER = " | ";
+	private static final String TASK_ID = "Task ID: ";
+	private static final String TITLE = "Title: ";
+	private static final String DESCRIPTION = "Description: ";
+	private static final String START = "Start: ";
+	private static final String END = "End: ";
+	private static final String PRIORITY = "Priority: ";
+	private static final String IS_COMPLETE = "Completed: ";
+	private static final String IS_FLOATING = "Floating task: ";
+	private static final String GOOGLE_CALENDAR_ID = "Google Calendar ID: ";
+	// @formatter:on
 
-    private static String nullValue = "padding value";
-    private String __title;
-    private String __description;
-    private Calendar __startTime;
-    private Calendar __endTime;
-    private Integer __priorityFlag;
-    private Boolean __completionFlag;
-    private Boolean __floatingTask;
-    private String __googleID;
-    private Integer __taskId;
-    
-    private StringProperty __titleProperty;
-    private StringProperty __startTimeProperty;
-    private StringProperty __endTimeProperty;
-    private IntegerProperty __taskIdProperty;
+	private static String nullValue = "padding value";
+	private String __title;
+	private String __description;
+	private Calendar __startTime;
+	private Calendar __endTime;
+	private int __priorityFlag;
+	private boolean __completionFlag;
+	private boolean __floatingTask;
+	private String __googleID;
+	private int __taskId;
 
-    // bundle strings
-    private String user_description = "description";
-    private String user_endDate = "endDate";
-    private String user_start = "startTime";
-    private String user_endTime = "endTime";
-    private String user_title = "title";
-    private String user_flag = "flag";
-    private String user_priority = "priority";
-    private String user_googleID = "GoogleID";
+	// Properties
+	private StringProperty __titleProperty;
+	private StringProperty __startTimeProperty;
+	private StringProperty __endTimeProperty;
+	private IntegerProperty __taskIdProperty;
 
-    public SimpleDateFormat formatter;
-    public static final String DATABASE_DATE_TIME_FORMATTER = "d-M-yyyy 'at' "
-            + "HH:mm";
+	// bundle strings
+	private String user_description = "description";
+	private String user_endDate = "endDate";
+	private String user_start = "startTime";
+	private String user_endTime = "endTime";
+	private String user_title = "title";
+	private String user_flag = "flag";
+	private String user_priority = "priority";
+	private String user_googleID = "GoogleID";
 
-    // basic constructors
-    public Task() {
-    }
+	public SimpleDateFormat formatter;
+	public static final String DATABASE_DATE_TIME_FORMATTER = "d-M-yyyy 'at' "
+			+ "HH:mm";
 
-    public Task(String title) {
-    	this.__title = title;
-        this.__titleProperty = new SimpleStringProperty(title);
-        this.__completionFlag = (false);
-    }
+	// basic constructors
+	public Task() {
+	}
 
-    // basic accessors
-    public String getTitle() {
-        return this.__title;
-    }
+	public Task(String title) {
+		this.__title = title;
+		this.__completionFlag = false;
+	}
 
-    public StringProperty titleProperty(){
-    	return this.__titleProperty;
-    }
-    
-    public String getDescription() {
-        return this.__description;
-    }
-    
-    public Calendar getStartTime() {
-        return this.__startTime;
-    }
+	// basic accessors
+	public String getTitle() {
+		return this.__title;
+	}
 
-    public Calendar getEndTime() {
-        return this.__endTime;
-    }
-    
-    public StringProperty startDateProperty(){
-    	Calendar start = this.getStartTime();
-    	StringProperty startDate = new SimpleStringProperty(parseDate(start));
-    	return startDate;
-    }
-    
-    public StringProperty dueDateProperty(){
-    	Calendar due = this.getEndTime();
-    	StringProperty dueDate = new SimpleStringProperty(parseDate(due));
-    	return dueDate;
-    }
-    
-    private String parseDate(Calendar cal){
+	public StringProperty titleProperty() {
+		return this.__titleProperty;
+	}
+
+	public String getDescription() {
+		return this.__description;
+	}
+
+	public Calendar getStartTime() {
+		return this.__startTime;
+	}
+
+	public Calendar getEndTime() {
+		return this.__endTime;
+	}
+
+	public StringProperty startDateProperty() {
+		return this.__startTimeProperty;
+	}
+
+	public StringProperty dueDateProperty() {
+		return this.__endTimeProperty;
+	}
+
+	private String parseDate(Calendar cal) {
 		String s = cal.getTime().toString();
 		String[] calInfo = s.split(" ");
-		String time = calInfo[3].substring(0,5);
-		String toReturn = calInfo[0] + " " + calInfo[1] + " " + calInfo[2] + ", " + time;
+		String time = calInfo[3].substring(0, 5);
+		String toReturn = calInfo[0] + " " + calInfo[1] + " " + calInfo[2]
+				+ ", " + time;
 		return toReturn;
 	}
 
-    public int getPriority() {
-        return this.__priorityFlag;
-    }
+	public int getPriority() {
+		return this.__priorityFlag;
+	}
 
-    public boolean getCompletionStatus() {
-        return this.__completionFlag;
-    }
+	public boolean getCompletionStatus() {
+		return this.__completionFlag;
+	}
 
-    public boolean isFloatingTask() {
-        return this.__floatingTask;
-    }
+	public boolean isFloatingTask() {
+		return this.__floatingTask;
+	}
 
-    public String getGID() {
-        return this.__googleID;
-    }
+	public String getGID() {
+		return this.__googleID;
+	}
 
-    /**
-     * Gets the task ID, which is the unique identifier of a task. The task ID
-     * is used for task manipulation such as task addition and deletion. For
-     * example <code>delete(int taskId):void</code> deletes a task given a
-     * specified, valid task ID.
-     * 
-     * @return the task ID
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public int getTaskId() {
-        return __taskId;
-    }
-    
-    public IntegerProperty idProperty(){
-    	return __taskIdProperty;
-    }
-    
-    // basic mutators
-    public void setTitle(String nextTitle) {
-        this.__title = nextTitle;
-        this.__titleProperty = new SimpleStringProperty(nextTitle);
-    }
+	/**
+	 * Gets the task ID, which is the unique identifier of a task. The task ID
+	 * is used for task manipulation such as task addition and deletion. For
+	 * example <code>delete(int taskId):void</code> deletes a task given a
+	 * specified, valid task ID.
+	 * 
+	 * @return the task ID
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public int getTaskId() {
+		return __taskId;
+	}
 
-    public void setGID(String newID) {
-        this.__googleID = newID;
-    }
+	public IntegerProperty idProperty() {
+		return __taskIdProperty;
+	}
 
-    public void setDescription(String nextDescription) {
-        if (!nextDescription.equals(nullValue)) {
-            this.__description = nextDescription;
-        } else {
-            this.__description = "nil";
-        }
-    }
+	// basic mutators
+	public void setTitle(String nextTitle) {
+		this.__title = nextTitle;
+	}
 
-    public void setStartTime(Calendar nextStart) {
-    	this.__startTime = nextStart;
-    	String date = parseDate(nextStart);
-        this.__startTimeProperty = new SimpleStringProperty(date);
-    }
+	public void setGID(String newID) {
+		this.__googleID = newID;
+	}
 
-    public void setStartTime(String startDate, String startTime) {
+	public void setDescription(String nextDescription) {
+		if (!nextDescription.equals(nullValue)) {
+			this.__description = nextDescription;
+		} else {
+			this.__description = "nil";
+		}
+	}
 
-        if (!startDate.equals(nullValue) && !startTime.equals(nullValue)) {
-            int date = Integer.parseInt(startDate.substring(0, 2));
-            int month = Integer.parseInt(startDate.substring(3, 5));
-            month--;
-            int year = Integer.parseInt(startDate.substring(6));
-            int hour = Integer.parseInt(startTime.substring(0, 2));
-            int minute = Integer.parseInt(startTime.substring(2));
-            Calendar start = Calendar.getInstance();
-            start.set(year, month, date, hour, minute);
-            this.setStartTime(start);
-        } else if (!startDate.equals(nullValue)) {
-            int date = Integer.parseInt(startDate.substring(0, 2));
-            int month = Integer.parseInt(startDate.substring(3, 5));
-            month--;
-            int year = Integer.parseInt(startDate.substring(6));
-            Calendar start = Calendar.getInstance();
-            start.set(year, month, date);
-            this.setStartTime(start);
+	public void setStartTime(Calendar nextStart) {
+		this.__startTime = nextStart;
+		String date = parseDate(nextStart);
+		this.__startTimeProperty = new SimpleStringProperty(date);
+	}
 
-        } else if (!startTime.equals(nullValue)) {
-            Calendar start = Calendar.getInstance();
-            int year = start.get(Calendar.YEAR);
-            int month = start.get(Calendar.MONTH);
-            int date = start.get(Calendar.DATE);
-            int hour = Integer.parseInt(startTime.substring(0, 2));
-            int minute = Integer.parseInt(startTime.substring(2));
-            start.set(year, month, date, hour, minute);
-            this.setStartTime(start);
+	public void setStartTime(String startDate, String startTime) {
 
-        } else {
-            Calendar now = Calendar.getInstance();
-            this.setStartTime(now);
-        }
-    }
+		if (!startDate.equals(nullValue) && !startTime.equals(nullValue)) {
+			int date = Integer.parseInt(startDate.substring(0, 2));
+			int month = Integer.parseInt(startDate.substring(3, 5));
+			month--;
+			int year = Integer.parseInt(startDate.substring(6));
+			int hour = Integer.parseInt(startTime.substring(0, 2));
+			int minute = Integer.parseInt(startTime.substring(2));
+			Calendar start = Calendar.getInstance();
+			start.set(year, month, date, hour, minute);
+			this.setStartTime(start);
+		} else if (!startDate.equals(nullValue)) {
+			int date = Integer.parseInt(startDate.substring(0, 2));
+			int month = Integer.parseInt(startDate.substring(3, 5));
+			month--;
+			int year = Integer.parseInt(startDate.substring(6));
+			Calendar start = Calendar.getInstance();
+			start.set(year, month, date);
+			this.setStartTime(start);
 
-    public void setEndTime(Calendar nextEnd) {
-    	this.__endTime = nextEnd;
-    	String date = parseDate(nextEnd);
-        this.__endTimeProperty = new SimpleStringProperty(date);
-    }
+		} else if (!startTime.equals(nullValue)) {
+			Calendar start = Calendar.getInstance();
+			int year = start.get(Calendar.YEAR);
+			int month = start.get(Calendar.MONTH);
+			int date = start.get(Calendar.DATE);
+			int hour = Integer.parseInt(startTime.substring(0, 2));
+			int minute = Integer.parseInt(startTime.substring(2));
+			start.set(year, month, date, hour, minute);
+			this.setStartTime(start);
 
-    public void setEndTime(String endDate, String endTime) {
-        if (!endDate.equals(nullValue) && !endTime.equals(nullValue)) {
-            int date = Integer.parseInt(endDate.substring(0, 2));
-            int month = Integer.parseInt(endDate.substring(3, 5));
-            month--;
-            int year = Integer.parseInt(endDate.substring(6));
-            int hour = Integer.parseInt(endTime.substring(0, 2));
-            int minute = Integer.parseInt(endTime.substring(2));
-            Calendar ending = Calendar.getInstance();
-            ending.set(year, month, date, hour, minute);
-            this.setEndTime(ending);
-        } else if (!endDate.equals(nullValue)) {
-            int date = Integer.parseInt(endDate.substring(0, 2));
-            int month = Integer.parseInt(endDate.substring(3, 5));
-            month--;
-            int year = Integer.parseInt(endDate.substring(6));
-            int hour = 23;
-            int minute = 59;
-            Calendar ending = Calendar.getInstance();
-            ending.set(year, month, date, hour, minute);
-            this.setEndTime(ending);
+		} else {
+			Calendar now = Calendar.getInstance();
+			this.setStartTime(now);
+		}
+	}
 
-        } else if (!endTime.equals(nullValue)) {
-            Calendar ending = Calendar.getInstance();
-            int year = ending.get(Calendar.YEAR);
-            int month = ending.get(Calendar.MONTH);
-            int date = ending.get(Calendar.DATE);
-            int hour = Integer.parseInt(endTime.substring(0, 2));
-            int minute = Integer.parseInt(endTime.substring(2));
-            ending.set(year, month, date, hour, minute);
-            this.setEndTime(ending);
+	public void setEndTime(Calendar nextEnd) {
+		this.__endTime = nextEnd;
+		String date = parseDate(nextEnd);
+		this.__endTimeProperty = new SimpleStringProperty(date);
+	}
 
-        } else {
-            Calendar ending = Calendar.getInstance();
-            this.setEndTime(ending);
-        }
-    }
+	public void setEndTime(String endDate, String endTime) {
+		if (!endDate.equals(nullValue) && !endTime.equals(nullValue)) {
+			int date = Integer.parseInt(endDate.substring(0, 2));
+			int month = Integer.parseInt(endDate.substring(3, 5));
+			month--;
+			int year = Integer.parseInt(endDate.substring(6));
+			int hour = Integer.parseInt(endTime.substring(0, 2));
+			int minute = Integer.parseInt(endTime.substring(2));
+			Calendar ending = Calendar.getInstance();
+			ending.set(year, month, date, hour, minute);
+			this.setEndTime(ending);
+		} else if (!endDate.equals(nullValue)) {
+			int date = Integer.parseInt(endDate.substring(0, 2));
+			int month = Integer.parseInt(endDate.substring(3, 5));
+			month--;
+			int year = Integer.parseInt(endDate.substring(6));
+			int hour = 23;
+			int minute = 59;
+			Calendar ending = Calendar.getInstance();
+			ending.set(year, month, date, hour, minute);
+			this.setEndTime(ending);
 
-    public void setPriority(int nextPriority) {
-        this.__priorityFlag = (nextPriority);
-    }
+		} else if (!endTime.equals(nullValue)) {
+			Calendar ending = Calendar.getInstance();
+			int year = ending.get(Calendar.YEAR);
+			int month = ending.get(Calendar.MONTH);
+			int date = ending.get(Calendar.DATE);
+			int hour = Integer.parseInt(endTime.substring(0, 2));
+			int minute = Integer.parseInt(endTime.substring(2));
+			ending.set(year, month, date, hour, minute);
+			this.setEndTime(ending);
 
-    public void setCompletion(boolean nextStatus) {
-        this.__completionFlag = (nextStatus);
-    }
+		} else {
+			Calendar ending = Calendar.getInstance();
+			this.setEndTime(ending);
+		}
+	}
 
-    public void setFloating(boolean nextFloatStat) {
-        this.__floatingTask = (nextFloatStat);
-    }
+	public void setPriority(int nextPriority) {
+		this.__priorityFlag = nextPriority;
+	}
 
-    /**
-     * Sets a unique task ID for every task. Unique task ID is used for task
-     * manipulation.
-     * 
-     * @param __taskId
-     *            task ID
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public void setTaskId(int taskId) {
-    	this.__taskId = taskId;
-        this.__taskIdProperty = new SimpleIntegerProperty(taskId);
-    }
+	public void setCompletion(boolean nextStatus) {
+		this.__completionFlag = nextStatus;
+	}
 
-    public void checkFloating(Task task) {
-        if (task.getEndTime() == null) {
-            task.setFloating(true);
-        } else {
-            task.setFloating(false);
-        }
-    }
+	public void setFloating(boolean nextFloatStat) {
+		this.__floatingTask = nextFloatStat;
+	}
 
-    // other class methods
-    public Bundle getTaskInfo() {
-        Bundle toDisplay = new Bundle();
-        toDisplay.putString(user_title, this.getTitle());
-        toDisplay.putObject(user_flag, this.getCompletionStatus());
-        toDisplay.putString(user_endTime, this.getEndTime().toString());
-        toDisplay.putString(user_description, this.getDescription());
-        toDisplay.putString(user_start, this.getStartTime().toString());
-        toDisplay.putString(user_priority, Integer.toString(this.getPriority()));
-        toDisplay.putString(user_googleID, this.__googleID);
-        return toDisplay;
-    }
+	/**
+	 * Sets a unique task ID for every task. Unique task ID is used for task
+	 * manipulation.
+	 * 
+	 * @param __taskId
+	 *            task ID
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public void setTaskId(int __taskId) {
+		this.__taskId = __taskId;
+	}
 
-    /**
-     * Returns a string showing the date and time of the argument
-     * <code>Calendar</code> object. For example, the date returned may be
-     * "1-1-1 at 1:1", as opposed to having leading zeroes like 01-01-0001 at
-     * 01:01.
-     * 
-     * @param cal
-     *            the <code>Calendar</code> object to be converted into a string
-     * @return a string showing the date and time of the argument
-     *         <code>Calendar</code> object.
-     */
-    public String displayDateTime(Calendar cal) {
-        Date date = cal.getTime();
+	public void checkFloating(Task task) {
+		if (task.getEndTime() == null) {
+			task.setFloating(true);
+		} else {
+			task.setFloating(false);
+		}
+	}
 
-        // Do not change this formatter - this is for Database's log file. You
-        // need to at least tell me how you've changed it if you want to change
-        // it, or write your method for your own formatter.
-        formatter = new SimpleDateFormat(DATABASE_DATE_TIME_FORMATTER);
-        return formatter.format(date);
-    }
+	// other class methods
+	public Bundle getTaskInfo() {
+		Bundle toDisplay = new Bundle();
+		toDisplay.putString(user_title, this.__title);
+		toDisplay.putObject(user_flag, this.__completionFlag);
+		toDisplay.putString(user_endTime, this.__endTime.toString());
+		toDisplay.putString(user_description, this.__description);
+		toDisplay.putString(user_start, this.__startTime.toString());
+		toDisplay.putString(user_priority,
+				Integer.toString(this.__priorityFlag));
+		toDisplay.putString(user_googleID, this.__googleID);
+		return toDisplay;
+	}
 
-    /**
-     * Returns a string showing the date of the argument <code>Calendar</code>
-     * object. For example, the date returned may be "1-1-1", as opposed to
-     * having leading zeroes like 01-01-0001 at 01:01.
-     * 
-     * @param cal
-     *            the <code>Calendar</code> object to be converted into a string
-     * @return a string showing the date and time of the argument
-     *         <code>Calendar</code> object.
-     * 
-     * @author Pee Choon Hian
-     */
-    public String displayDate(Calendar cal) {
-        Date date = cal.getTime();
+	/**
+	 * Returns a string showing the date and time of the argument
+	 * <code>Calendar</code> object. For example, the date returned may be
+	 * "1-1-1 at 1:1", as opposed to having leading zeroes like 01-01-0001 at
+	 * 01:01.
+	 * 
+	 * @param cal
+	 *            the <code>Calendar</code> object to be converted into a string
+	 * @return a string showing the date and time of the argument
+	 *         <code>Calendar</code> object.
+	 */
+	public String displayDateTime(Calendar cal) {
+		Date date = cal.getTime();
 
-        // Do not change this formatter - this is for GoogleCalendarManager. You
-        // need to at least tell me how you've changed it if you want to change
-        // it, or write your method for your own formatter.
-        formatter = new SimpleDateFormat("d/M/yyyy");
-        return formatter.format(date);
-    }
+		// Do not change this formatter - this is for Database's log file. You
+		// need to at least tell me how you've changed it if you want to change
+		// it, or write your method for your own formatter.
+		formatter = new SimpleDateFormat(DATABASE_DATE_TIME_FORMATTER);
+		return formatter.format(date);
+	}
 
-    /**
-     * Returns a string showing the time of the argument <code>Calendar</code>
-     * object.
-     * 
-     * @param cal
-     *            the <code>Calendar</code> object to be converted into a string
-     * @return a string showing the date and time of the argument
-     *         <code>Calendar</code> object.
-     * 
-     * @author Pee Choon Hian
-     */
-    public String displayTime(Calendar cal) {
-        Date date = cal.getTime();
+	/**
+	 * Returns a string showing the date of the argument <code>Calendar</code>
+	 * object. For example, the date returned may be "1-1-1", as opposed to
+	 * having leading zeroes like 01-01-0001 at 01:01.
+	 * 
+	 * @param cal
+	 *            the <code>Calendar</code> object to be converted into a string
+	 * @return a string showing the date and time of the argument
+	 *         <code>Calendar</code> object.
+	 * 
+	 * @author Pee Choon Hian
+	 */
+	public String displayDate(Calendar cal) {
+		Date date = cal.getTime();
 
-        // Do not change this formatter - this is for GoogleCalendarManager. You
-        // need to at least tell me how you've changed it if you want to change
-        // it, or write your method for your own formatter.
-        formatter = new SimpleDateFormat("HH:mm");
-        return formatter.format(date);
-    }
+		// Do not change this formatter - this is for GoogleCalendarManager. You
+		// need to at least tell me how you've changed it if you want to change
+		// it, or write your method for your own formatter.
+		formatter = new SimpleDateFormat("d/M/yyyy");
+		return formatter.format(date);
+	}
 
-    /**
-     * @return a list of all string-ified fields of this task
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public ArrayList<String> taskFields() {
-        ArrayList<String> taskFields = new ArrayList<String>();
+	/**
+	 * Returns a string showing the time of the argument <code>Calendar</code>
+	 * object.
+	 * 
+	 * @param cal
+	 *            the <code>Calendar</code> object to be converted into a string
+	 * @return a string showing the date and time of the argument
+	 *         <code>Calendar</code> object.
+	 * 
+	 * @author Pee Choon Hian
+	 */
+	public String displayTime(Calendar cal) {
+		Date date = cal.getTime();
 
-        // Do not change this string conversion format - this is for Database's
-        // log file. You need to at least tell me how you've changed it if you
-        // want to change it, or write your method for your own formatter.
-        taskFields.add(this.displayTaskId());
-        taskFields.add(this.displayTitle());
-        taskFields.add(this.displayDescription());
-        taskFields.add(this.displayStart());
-        taskFields.add(this.displayEnd());
-        taskFields.add(this.displayPriority());
-        taskFields.add(this.displayIsComplete());
-        taskFields.add(this.displayIsFloating());
-        taskFields.add(this.displayGoogleId());
+		// Do not change this formatter - this is for GoogleCalendarManager. You
+		// need to at least tell me how you've changed it if you want to change
+		// it, or write your method for your own formatter.
+		formatter = new SimpleDateFormat("HH:mm");
+		return formatter.format(date);
+	}
 
-        return taskFields;
-    }
+	/**
+	 * @return a list of all string-ified fields of this task
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public ArrayList<String> taskFields() {
+		ArrayList<String> taskFields = new ArrayList<String>();
 
-    /**
-     * Converts a <code>Task</code> object and its attributes to a string for
-     * logging into a text file.
-     * 
-     * @return a string containing all the information of a <code>Task</code>
-     *         object.
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public String displayTask() {
+		// Do not change this string conversion format - this is for Database's
+		// log file. You need to at least tell me how you've changed it if you
+		// want to change it, or write your method for your own formatter.
+		taskFields.add(this.displayTaskId());
+		taskFields.add(this.displayTitle());
+		taskFields.add(this.displayDescription());
+		taskFields.add(this.displayStart());
+		taskFields.add(this.displayEnd());
+		taskFields.add(this.displayPriority());
+		taskFields.add(this.displayIsComplete());
+		taskFields.add(this.displayIsFloating());
+		taskFields.add(this.displayGoogleId());
 
-        String result = EMPTY_STRING;
-        for (String aField : this.taskFields()) {
-            int lastFieldIndex = this.taskFields().size() - 1;
-            if (this.taskFields().indexOf(aField) == lastFieldIndex) {
-                result = result + aField;
-            } else {
-                result = result + aField + DELIMITER;
-            }
-        }
-        return result;
-    }
+		return taskFields;
+	}
 
-    /**
-     * @return Google ID of this task as a string
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public String displayGoogleId() {
-        return GOOGLE_CALENDAR_ID + this.getGID();
-    }
+	/**
+	 * Converts a <code>Task</code> object and its attributes to a string for
+	 * logging into a text file.
+	 * 
+	 * @return a string containing all the information of a <code>Task</code>
+	 *         object.
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public String displayTask() {
 
-    /**
-     * @return "true" if this task is floating, "false" otherwise
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public String displayIsFloating() {
-        return IS_FLOATING + Boolean.toString(this.isFloatingTask());
-    }
+		String result = EMPTY_STRING;
+		for (String aField : this.taskFields()) {
+			int lastFieldIndex = this.taskFields().size() - 1;
+			if (this.taskFields().indexOf(aField) == lastFieldIndex) {
+				result = result + aField;
+			} else {
+				result = result + aField + DELIMITER;
+			}
+		}
+		return result;
+	}
 
-    /**
-     * @return "true" if this task is completed, "false" otherwise
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public String displayIsComplete() {
-        return IS_COMPLETE + Boolean.toString(this.getCompletionStatus());
-    }
+	/**
+	 * @return Google ID of this task as a string
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public String displayGoogleId() {
+		return GOOGLE_CALENDAR_ID + this.getGID();
+	}
 
-    /**
-     * @return a non-zero integer ranking the priority of this task
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public String displayPriority() {
-        return PRIORITY + Integer.toString(this.getPriority());
-    }
+	/**
+	 * @return "true" if this task is floating, "false" otherwise
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public String displayIsFloating() {
+		return IS_FLOATING + Boolean.toString(this.isFloatingTask());
+	}
 
-    /**
-     * @return the end date and time of this task
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public String displayEnd() {
-        String displayEnd = END + this.displayDateTime(this.getEndTime());
-        return displayEnd;
-    }
+	/**
+	 * @return "true" if this task is completed, "false" otherwise
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public String displayIsComplete() {
+		return IS_COMPLETE + Boolean.toString(this.getCompletionStatus());
+	}
 
-    /**
-     * @return the end date of this task. This method is used by
-     *         GooglCalendarManager, please do not change.
-     * 
-     * @author Pee Choon Hian
-     * 
-     */
-    public String displayEndDate() {
-        return this.displayDate(this.getEndTime());
-    }
+	/**
+	 * @return a non-zero integer ranking the priority of this task
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public String displayPriority() {
+		return PRIORITY + Integer.toString(this.getPriority());
+	}
 
-    /**
-     * @return the end time of this task. This method is used by
-     *         GooglCalendarManager, please do not change.
-     * 
-     * @author Pee Choon Hian
-     * 
-     */
-    public String displayEndTime() {
-        return this.displayTime(this.getEndTime());
-    }
+	/**
+	 * @return the end date and time of this task
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public String displayEnd() {
+		String displayEnd = END + this.displayDateTime(this.getEndTime());
+		return displayEnd;
+	}
 
-    /**
-     * @return the start date and time of this task
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public String displayStart() {
-        return START + this.displayDateTime(this.getStartTime());
-    }
+	/**
+	 * @return the end date of this task. This method is used by
+	 *         GooglCalendarManager, please do not change.
+	 * 
+	 * @author Pee Choon Hian
+	 * 
+	 */
+	public String displayEndDate() {
+		return this.displayDate(this.getEndTime());
+	}
 
-    /**
-     * @return the start date of this task. This method is used by
-     *         GooglCalendarManager, please do not change.
-     * 
-     * @author Pee Choon Hian
-     * 
-     */
-    public String displayStartDate() {
-        return this.displayDate(this.getStartTime());
-    }
+	/**
+	 * @return the end time of this task. This method is used by
+	 *         GooglCalendarManager, please do not change.
+	 * 
+	 * @author Pee Choon Hian
+	 * 
+	 */
+	public String displayEndTime() {
+		return this.displayTime(this.getEndTime());
+	}
 
-    /**
-     * @return the start time of this task. This method is used by
-     *         GooglCalendarManager, please do not change.
-     * 
-     * @author Pee Choon Hian
-     * 
-     */
-    public String displayStartTime() {
-        return this.displayTime(this.getStartTime());
-    }
+	/**
+	 * @return the start date and time of this task
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public String displayStart() {
+		return START + this.displayDateTime(this.getStartTime());
+	}
 
-    /**
-     * @return the description of this task
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public String displayDescription() {
-        return DESCRIPTION + this.__description;
-    }
+	/**
+	 * @return the start date of this task. This method is used by
+	 *         GooglCalendarManager, please do not change.
+	 * 
+	 * @author Pee Choon Hian
+	 * 
+	 */
+	public String displayStartDate() {
+		return this.displayDate(this.getStartTime());
+	}
 
-    /**
-     * @return the title of this task
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public String displayTitle() {
-        return TITLE + this.__title;
-    }
+	/**
+	 * @return the start time of this task. This method is used by
+	 *         GooglCalendarManager, please do not change.
+	 * 
+	 * @author Pee Choon Hian
+	 * 
+	 */
+	public String displayStartTime() {
+		return this.displayTime(this.getStartTime());
+	}
 
-    /**
-     * @return the task ID
-     * 
-     * @author Soh Yong Sheng
-     * 
-     */
-    public String displayTaskId() {
-        return TASK_ID + this.__taskId;
-    }
+	/**
+	 * @return the description of this task
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public String displayDescription() {
+		return DESCRIPTION + this.__description;
+	}
+
+	/**
+	 * @return the title of this task
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public String displayTitle() {
+		return TITLE + this.__title;
+	}
+
+	/**
+	 * @return the task ID
+	 * 
+	 * @author Soh Yong Sheng
+	 * 
+	 */
+	public String displayTaskId() {
+		return TASK_ID + this.__taskId;
+	}
 }

@@ -87,6 +87,8 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	@FXML
 	private void initialize() {
 		checkUser();
+		this.database = database;
+        database.addObserver(this);
 		titleColumn.setCellValueFactory(cellData -> cellData.getValue()
 				.titleProperty());
 		taskIDColumn.setCellValueFactory(cellData -> StringProperty
@@ -231,9 +233,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 		}
 	}
 
-	@Override
 	public void update() {
-		
 		try {
 			database = Database.getInstance();
 			observedTasks = database.getTasks();
