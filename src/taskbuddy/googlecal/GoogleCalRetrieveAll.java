@@ -165,12 +165,9 @@ public class GoogleCalRetrieveAll {
 
 			newTask.setStartTime(eventStartCalendarObject);
 			newTask.setEndTime(eventEndCalendarObject);	
-			if (isEventFloating(eventStart, eventEnd)) {
-				newTask.setFloating(true);
-			}
-			else {
+	
 				newTask.setFloating(false);
-			}
+			
 			
 			addTaskToArraylist(newTask);
 		}
