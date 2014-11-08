@@ -93,6 +93,6 @@ public class UserInputBundle extends Bundle {
 	}
 	
 	public boolean getCompletionStatus(){
-		return (boolean) this.getCompletionStatus();
+		return (boolean) this.getItem(user_comp);
 	}
 }

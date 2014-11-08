@@ -66,7 +66,7 @@ public class EditCommand {
 				cal.set(Calendar.MINUTE, m);
 				toEdit.setEndTime(cal);
 			}
-			try{
+			try {
 				Boolean completion = extras.getCompletionStatus();
 				toEdit.setCompletion(completion);
 			} catch (Exception e){
