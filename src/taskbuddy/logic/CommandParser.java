@@ -47,6 +47,8 @@ public class CommandParser {
 				ack = UndoCommand.undo(undoStack, redoStack, undoStackTask, redoStackTask, database);
 			} else if (commandType.equals("redo")){
 				ack = RedoCommand.redo(undoStack, redoStack, undoStackTask, redoStackTask, database);
+			} else if (commandType.equals("sync")){
+				ack = SyncCommand.SyncCalendars(database);
 			} else {
 				ack.putFailure();
 				ack.putMessage("invalid command");

@@ -113,7 +113,6 @@ public class Parser2 {
 			e.printStackTrace();
 		}
 		return acks;
-		return acks;
 	}
 
 	protected AcknowledgeBundle runCommands(UserInputBundle bundle) {
