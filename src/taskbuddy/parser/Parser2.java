@@ -6,14 +6,14 @@ import taskbuddy.logic.UserInputBundle;
 
 //@Author: andrew
 public class Parser2 {
-	private final String commandSync = "sync";
-	private final String commandDone = "done";
-	private final String commandRevert = "revert";
-	private final String commandEdit = "edit";
-	private final String nullValue = "padding value";
-	private CommandParser cp;
+	private final static String commandSync = "sync";
+	private final static String commandDone = "done";
+	private final static String commandRevert = "revert";
+	private final static String commandEdit = "edit";
+	private final static String nullValue = "padding value";
+	private static CommandParser cp;
 
-	public AcknowledgeBundle parseOtherCommands(String userInputLine) {
+	public static AcknowledgeBundle parseOtherCommands(String userInputLine) {
 		UserInputBundle inputs = new UserInputBundle();
 		AcknowledgeBundle aBundle = new AcknowledgeBundle();
 		String[] tokens = userInputLine.split(" ");
@@ -27,7 +27,7 @@ public class Parser2 {
 		return aBundle;
 	}
 
-	protected AcknowledgeBundle performCommand(String[] line, UserInputBundle bundle){
+	protected static AcknowledgeBundle performCommand(String[] line, UserInputBundle bundle){
 		AcknowledgeBundle acks = new AcknowledgeBundle();
 		boolean containsSync = (searchTokens(commandSync, line) != -1);
 		boolean containsDone = (searchTokens(commandDone, line) != -1);
@@ -45,7 +45,7 @@ public class Parser2 {
 		return acks;
 	}
 	
-	protected AcknowledgeBundle syncCmd(String[] line, UserInputBundle bundle) {
+	protected static AcknowledgeBundle syncCmd(String[] line, UserInputBundle bundle) {
 		int position = searchTokens(commandSync, line);
 		AcknowledgeBundle acks = new AcknowledgeBundle();
 		try {
@@ -59,7 +59,7 @@ public class Parser2 {
 		return acks;
 	}
 
-	protected AcknowledgeBundle doneCmd(String[] line, UserInputBundle bundle) {
+	protected static AcknowledgeBundle doneCmd(String[] line, UserInputBundle bundle) {
 		AcknowledgeBundle acks = new AcknowledgeBundle();
 		try {
 			cp = new CommandParser();
@@ -87,7 +87,7 @@ public class Parser2 {
 		return acks;
 	}
 
-	protected AcknowledgeBundle revertCmd(String[] line, UserInputBundle bundle) {
+	protected static AcknowledgeBundle revertCmd(String[] line, UserInputBundle bundle) {
 		AcknowledgeBundle acks = new AcknowledgeBundle();
 		try {
 			cp = new CommandParser();
@@ -127,7 +127,7 @@ public class Parser2 {
 		return a;
 	}
 
-	protected int searchTokens(String searchItem, String[] list) {
+	protected static int searchTokens(String searchItem, String[] list) {
 		for (int i = 0; i < list.length; i++) {
 			String token = list[i];
 			if (searchItem.equals(token)) {

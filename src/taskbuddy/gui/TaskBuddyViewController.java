@@ -21,6 +21,7 @@ import taskbuddy.googlecalcontroller.GoogleCalendarController;
 import taskbuddy.logic.AcknowledgeBundle;
 import taskbuddy.logic.Task;
 import taskbuddy.parser.Parser;
+import taskbuddy.parser.Parser2;
 
 public class TaskBuddyViewController implements DatabaseObserver {
 
@@ -146,12 +147,17 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	protected void parseInputs() {
 		String inputLine = userInputField.getText();
 		System.err.println(inputLine);
+		boolean useParser2 = checkParser(inputLine);
 		if (inputLine.isEmpty()) {
 			responseLabel.setText("Nothing entered");
 		} else {
 			AcknowledgeBundle a = new AcknowledgeBundle();
 			try {
-				a = Parser.userInput(inputLine);
+				if (useParser2){
+					a = Parser2.parseOtherCommands(inputLine);
+				} else {
+					a = Parser.userInput(inputLine);
+				}
 			} catch (ParseException e) {
 				a.putFailure();
 				a.putMessage("Parse error");
@@ -172,6 +178,17 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			}
 			update();
 		}
+	}
+	
+	protected boolean checkParser(String s){
+		String[] tokens = s.split(" ");
+		for (int i=0; i<tokens.length; i++){
+			String word = tokens[i];
+			if (word.equals("sync") || word.equals("done") || word.equals("revert")){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@FXML
