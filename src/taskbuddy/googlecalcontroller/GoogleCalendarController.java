@@ -1,8 +1,17 @@
+//@author A0108411W
 package taskbuddy.googlecalcontroller;
 
 import taskbuddy.googlecal.GooCalBackend;
 import taskbuddy.googlecal.GoogleCalendarAuthorizerStatus;
 import taskbuddy.googlecal.GoogleCalendarPreferenceLogger;
+
+/**
+ * This class sits in the package which GUI interfaces directly with. 
+ * Its main aim is to facilitate authorization of the google calendar, and also
+ * to obtain the user's Username and Google Calendar Address.
+ *  
+ */
+
 
 public class GoogleCalendarController {
 
