@@ -134,9 +134,9 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 						flagEditRequired = false;
 					}
 				}
-			}
-			if (flagEditRequired) {
-				tasksToEdit.add(task);
+				if (flagEditRequired) {
+					tasksToEdit.add(tasksInGCal_ScanForEdits.get(i));
+				}
 			}
 		}
 	}
@@ -205,9 +205,36 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 //	}
 	
 	
+	public void executeCommandCreator() {
+//		System.out.println("tasks to add");
+		//printArrayListOfTasks(tasksToAddToDb);
+		BackwardSyncAddCommand backwardSyncAddCommand = new BackwardSyncAddCommand(tasksToAddToDb);
+//		backwardSyncAddCommand.printTasks();
+		
+//		System.out.println("tasks to delete");
+//		printArrayListOfTasks(tasksToDeleteFromDb);
+		BackwardSyncDeleteCommand backwardSyncDeleteCommand = new BackwardSyncDeleteCommand(tasksToDeleteFromDb);
+//		backwardSyncDeleteCommand.printTasks();
+		
+//		System.out.println("tasks to edit");
+//		printArrayListOfTasks(tasksToEdit);
+		BackwardSyncEditCommand backwardSyncEditCommand = new BackwardSyncEditCommand(tasksToEdit);
+//		backwardSyncEditCommand.printTasks();
+		
+		GoogleCalendarBackwardSyncCommandQueue commandQueueAdd = new GoogleCalendarBackwardSyncCommandQueue(backwardSyncAddCommand);
+		commandQueueAdd.executeCommands();
+		GoogleCalendarBackwardSyncCommandQueue commandQueueDelete = new GoogleCalendarBackwardSyncCommandQueue(backwardSyncDeleteCommand);
+		commandQueueDelete.executeCommands();
+		GoogleCalendarBackwardSyncCommandQueue commandQueueEdit = new GoogleCalendarBackwardSyncCommandQueue(backwardSyncEditCommand);
+		commandQueueEdit.executeCommands();
+	}
 	
-
-	
-
-	
+	public void executeBackwardSync() {
+		getTasksFromDatabase();
+		getTasksFromGCal();
+		generateArrayListToAddToDatabase();
+		generateArrayListToDeleteFromDatabase();
+		generateArrayListOfEdits();
+		executeCommandCreator();
+	}
 }
