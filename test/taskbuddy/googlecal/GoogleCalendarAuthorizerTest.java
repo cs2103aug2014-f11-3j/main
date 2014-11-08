@@ -7,10 +7,11 @@ import java.util.Scanner;
 import org.junit.Test;
 
 public class GoogleCalendarAuthorizerTest {
-	GoogleCalendarAuthorizer googleCalendarAuthorizer = new GoogleCalendarAuthorizer();
+	GoogleCalendarAuthorizerStatus googleCalendarAuthorizer = new GoogleCalendarAuthorizerStatus();
+	GoogleCalendarStatus googleCalendarStatus = new GoogleCalendarStatus();
 	@Test
 	public void testIsUserOnline() {
-		assertTrue("Failed. User is offline", googleCalendarAuthorizer.isUserOnline());	
+		assertTrue("Failed. User is offline", googleCalendarStatus.isUserOnline());	
 	}
 	
 	@Test
@@ -18,7 +19,7 @@ public class GoogleCalendarAuthorizerTest {
 		Scanner sc = new Scanner(System.in);
 		
 		
-		if (googleCalendarAuthorizer.isAuthenticationValid()) {
+		if (googleCalendarStatus.isAuthenticationValid()) {
 			System.out.println("valid");
 		}
 		else {

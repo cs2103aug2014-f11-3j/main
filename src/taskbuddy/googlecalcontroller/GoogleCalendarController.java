@@ -1,12 +1,12 @@
 package taskbuddy.googlecalcontroller;
 
 import taskbuddy.googlecal.GooCalBackend;
-import taskbuddy.googlecal.GoogleCalendarAuthorizer;
+import taskbuddy.googlecal.GoogleCalendarAuthorizerStatus;
 import taskbuddy.googlecal.GoogleCalendarPreferenceLogger;
 
 public class GoogleCalendarController {
 
-	GoogleCalendarAuthorizer googleCalendarAuthorizer = new GoogleCalendarAuthorizer();
+	GoogleCalendarAuthorizerStatus googleCalendarAuthorizer = new GoogleCalendarAuthorizerStatus();
 	GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
 
 

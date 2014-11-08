@@ -22,6 +22,7 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 	ArrayList<Task> tasksToEdit = new ArrayList<Task>();
 	
 	public void getTasksFromDatabase() {
+		
 		Database db = null;
 		try {
 			db = db.getInstance();
@@ -35,6 +36,7 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 	}
 	
 	public void getTasksFromGCal() throws UnknownHostException {
+		
 		googleCalRetrieveAll.getListFromGoogle();
 		tasksFromGoogleCal = googleCalRetrieveAll.getTasks();		
 	}
@@ -48,6 +50,7 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 //	}
 //	
 	public void generateArrayListToAddToDatabase() {
+		
 		boolean flagTaskAlreadyInDb;
 		for (Task task: tasksFromGoogleCal) {
 			flagTaskAlreadyInDb = false;

@@ -1,72 +1,50 @@
 package taskbuddy.googlecal;
 
-
-//import java.io.FileInputStream;
-//import java.io.FileOutputStream;
 import java.io.IOException;
-//import java.io.ObjectInputStream;
-//import java.io.ObjectOutputStream;
-//import java.net.Socket;
 import java.net.UnknownHostException;
-//import java.text.DateFormat;
-//import java.text.ParseException;
-//import java.text.SimpleDateFormat;
-//import java.util.Collections;
-//import java.util.Date;
-//import java.util.Scanner;
-//import java.util.Set;
-//import java.util.TimeZone;
-
-//import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
-//import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
-//import com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest;
-//import com.google.api.client.auth.oauth2.Credential;
-//import com.google.api.client.auth.oauth2.TokenResponse;
-//import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-//import com.google.api.client.http.HttpRequestInitializer;
-//import com.google.api.client.http.HttpTransport;
-//import com.google.api.client.http.javanet.NetHttpTransport;
-//import com.google.api.client.json.JsonFactory;
-//import com.google.api.client.json.jackson.JacksonFactory;
-//import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
-//import com.google.api.services.calendar.CalendarScopes;
-//import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.Event;
-//import com.google.api.services.calendar.model.EventDateTime;
+
+/**
+ * 
+ * Performs back-end functionality for 
+ * communicating with Google Calendar Servers
+ * Handles retrieve features. 
+ * 
+ * @author Pee Choon Hian, A0108411W
+ *
+ */
+
 
 public class GooCalRetriever {
-	//private static final String USER_ID = "ipeech";
   
     private static final String USER_OFFLINE_ERROR = "User is offline";
     private static final String AUTHORIZATION_EXPIRED_ERROR = "Authorization has expired";
     
-	// Attributes
 	private String retrievedSummary;
 	private String retrievedDescription;
 	private String retrievedStart;
 	private String retrievedEnd;
-//	private java.util.Calendar retrievedStartCalendar;
-//	private java.util.Calendar retrievedEndCalendar;
 	
 	GooCalBackend gooCalBackend = new GooCalBackend();
-	GoogleCalendarAuthorizer googleCalendarAuthorizer = new GoogleCalendarAuthorizer();
+	GoogleCalendarAuthorizerStatus googleCalendarAuthorizer = new GoogleCalendarAuthorizerStatus();
 	GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
 	
 	public void retrieve(String eventId) throws UnknownHostException{
+		// Check user online status, throws exception if offline
 		if (!googleCalendarAuthorizer.isUserOnline()) {
 			throw new UnknownHostException(USER_OFFLINE_ERROR); 
 		}
+		// Check calendar authorization status, throws exception if unauthorized/expired
 		else if (!googleCalendarAuthorizer.isAuthenticationValid()) {
 			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
 		}
+		// Google Calendar Services working
 		else {
 			Calendar service = googleCalendarAuthorizer.getCalendar();
 			retriever(service, eventId);
 		}	
 	}
-	
-	
 	
 	
 	public void retriever(Calendar service,  String eventId) {
@@ -82,7 +60,6 @@ public class GooCalRetriever {
 		setRetrievedStart(event.getStart().toString());
 		setRetrievedEnd(event.getEnd().toString());
 		setRetrievedDescription(event.getDescription());
-		
 	}
 
 

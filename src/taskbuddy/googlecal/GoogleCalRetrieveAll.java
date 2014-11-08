@@ -55,7 +55,7 @@ public class GoogleCalRetrieveAll {
     private static final ArrayList<Task> tasks = new ArrayList<Task>();
     
 	GooCalBackend gooCalBackend = new GooCalBackend(); 
-	GoogleCalendarAuthorizer googleCalendarAuthorizer = new GoogleCalendarAuthorizer();
+	GoogleCalendarAuthorizerStatus googleCalendarAuthorizer = new GoogleCalendarAuthorizerStatus();
 	GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
 	
 	
@@ -65,21 +65,8 @@ public class GoogleCalRetrieveAll {
 //	}
 
 	public void getListFromGoogle() throws UnknownHostException {
-		
 		GooCalBackend gooCalBackend = new GooCalBackend();
 
-//		if (!gooCalBackend.isUserOnline()) {
-//			//return "failureNoInternet";
-//		}
-//
-//		else {
-//			// This try catch blocks checks if Google's servers can be read
-//			try {
-//				service = gooCalBackend.initializeCalendar();
-//			} catch (IOException connectionProblem) {
-//				// This catch statement catches a connection problem
-//				// Exception is only caught when authentication code is valid, yet there is a failure in initializing the Google Calendar
-//			}
 
 		
 		
@@ -92,8 +79,8 @@ public class GoogleCalRetrieveAll {
 			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
 		}
 		else {
-			Calendar service = googleCalendarAuthorizer.getCalendar();
 			
+			Calendar service = googleCalendarAuthorizer.getCalendar();
 			String pageToken = null;
 			do {
 				Events events = null;
@@ -271,6 +258,7 @@ public class GoogleCalRetrieveAll {
 //		for (Task task : tasks) {
 //			System.out.println(task.displayTask());
 //		}
+		
 		return tasks;
 	}
 }
