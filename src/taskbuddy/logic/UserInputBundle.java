@@ -11,6 +11,7 @@ public class UserInputBundle extends Bundle {
 	private String user_title = "title";
 	private String user_id = "task ID";
 	private String user_float = "floatingTask";
+	private String user_comp = "completion";
 
 	//Setter methods
 	
@@ -50,6 +51,9 @@ public class UserInputBundle extends Bundle {
 		this.putObject(user_float, flt);
 	}
 	
+	public void putCompletion(boolean comp){
+		this.putObject(user_comp, comp);
+	}
 	//Access methods
 	
 	public String getTitle() {
@@ -86,5 +90,9 @@ public class UserInputBundle extends Bundle {
 	
 	public boolean getFloatingStatus(){
 		return (boolean) this.getItem(user_float);
+	}
+	
+	public boolean getCompletionStatus(){
+		return (boolean) this.getCompletionStatus();
 	}
 }
