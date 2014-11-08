@@ -1,5 +1,8 @@
 package taskbuddy.parser;
 
+import java.io.IOException;
+import java.text.ParseException;
+
 import taskbuddy.logic.AcknowledgeBundle;
 import taskbuddy.logic.CommandParser;
 import taskbuddy.logic.UserInputBundle;
@@ -14,9 +17,10 @@ public class Parser2 {
 	private final static String nullValue = "padding value";
 	private static CommandParser cp;
 
-	public static AcknowledgeBundle parseOtherCommands(String userInputLine) {
+	public static AcknowledgeBundle parseOtherCommands(String userInputLine) throws ParseException, IOException {
 		UserInputBundle inputs = new UserInputBundle();
 		AcknowledgeBundle aBundle = new AcknowledgeBundle();
+		cp = CommandParser.getInstance();
 		String[] tokens = userInputLine.split(" ");
 		try {
 			aBundle = performCommand(tokens, inputs);
@@ -53,7 +57,6 @@ public class Parser2 {
 		int position = searchTokens(commandSync, line);
 		AcknowledgeBundle acks = new AcknowledgeBundle();
 		try {
-			cp = new CommandParser();
 			String sync = line[position];
 			bundle.putCommand(sync);
 			cp.parseUserInputs(bundle);
@@ -66,7 +69,6 @@ public class Parser2 {
 	protected static AcknowledgeBundle doneCmd(String[] line, UserInputBundle bundle) {
 		AcknowledgeBundle acks = new AcknowledgeBundle();
 		try {
-			cp = new CommandParser();
 			bundle.putCommand(commandEdit);
 			if (line.length != 2){
 				acks.putFailure();
@@ -94,7 +96,6 @@ public class Parser2 {
 	protected static AcknowledgeBundle revertCmd(String[] line, UserInputBundle bundle) {
 		AcknowledgeBundle acks = new AcknowledgeBundle();
 		try {
-			cp = new CommandParser();
 			bundle.putCommand(commandEdit);
 			if (line.length != 2){
 				acks.putFailure();
@@ -122,7 +123,6 @@ public class Parser2 {
 	protected static AcknowledgeBundle priorityCmd(String[] line, UserInputBundle bundle){
 		AcknowledgeBundle acks = new AcknowledgeBundle();
 		try {
-			cp = new CommandParser();
 			bundle.putCommand(commandEdit);
 			if (line.length != 3){
 				acks.putFailure();
@@ -145,7 +145,6 @@ public class Parser2 {
 	protected AcknowledgeBundle runCommands(UserInputBundle bundle) {
 		AcknowledgeBundle a = new AcknowledgeBundle();
 		try {
-			cp = new CommandParser();
 			a = cp.parseUserInputs(bundle);
 		} catch (Exception e) {
 			a.putMessage(e.getMessage());

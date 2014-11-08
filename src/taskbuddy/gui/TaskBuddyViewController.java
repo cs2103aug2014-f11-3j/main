@@ -169,6 +169,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			}
 			String status = a.getStatus();
 			System.err.println(a.getStatus());
+			System.err.println(a.getMessage());
 			if (status.equals(fail)) {
 				String response = status + ": " + a.getMessage();
 				System.err.println(a.getMessage());

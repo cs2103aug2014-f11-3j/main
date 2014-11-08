@@ -11,11 +11,14 @@ import taskbuddy.database.Database;
 //Author: andrew
 
 public class CommandParser {
-	private Database database;
-	private Stack<UserInputBundle> undoStack;
-	private Stack<Task> undoStackTask;
-	private Stack<UserInputBundle> redoStack;
-	private Stack<Task> redoStackTask;
+	
+	private static CommandParser instance;
+	
+	private static Database database;
+	private static Stack<UserInputBundle> undoStack;
+	private static Stack<Task> undoStackTask;
+	private static Stack<UserInputBundle> redoStack;
+	private static Stack<Task> redoStackTask;
 
 	public AcknowledgeBundle parseUserInputs(UserInputBundle userIn) {
 		AcknowledgeBundle ack = new AcknowledgeBundle();
@@ -74,7 +77,8 @@ public class CommandParser {
 		return toReturn;
 	}
 
-	public CommandParser() throws ParseException, IOException {
+	//deprecated
+	protected CommandParser() throws ParseException, IOException {
 		database = Database.getInstance();
 		undoStack = new Stack<UserInputBundle>();
 		undoStackTask = new Stack<Task>();
@@ -82,6 +86,18 @@ public class CommandParser {
 		redoStackTask = new Stack<Task>();
 	}
 
+	public static CommandParser getInstance() throws ParseException, IOException{
+		if (instance == null){
+			instance = new CommandParser();
+			database = Database.getInstance();
+			undoStack = new Stack<UserInputBundle>();
+			undoStackTask = new Stack<Task>();
+			redoStack = new Stack<UserInputBundle>();
+			redoStackTask = new Stack<Task>();
+		}
+		return instance;
+	}
+	
 	public Database getDatabase() {
 		return database;
 	}

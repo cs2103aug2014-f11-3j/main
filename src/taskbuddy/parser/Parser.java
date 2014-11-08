@@ -57,7 +57,7 @@ public class Parser {
 
 	public static AcknowledgeBundle userInput(String command)
 			throws ParseException, IOException {
-		CommandParser commandParser = new CommandParser();
+		CommandParser commandParser = CommandParser.getInstance();
 		// boolean continueLoop = true;
 		// while (continueLoop) {
 		System.out.print("command:");
