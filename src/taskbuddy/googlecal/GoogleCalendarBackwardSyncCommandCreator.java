@@ -9,6 +9,22 @@ import java.util.ArrayList;
 import taskbuddy.database.Database;
 import taskbuddy.logic.Task;
 
+
+/**
+ * This class is part of the BackwardSync capabilities of the Google Calendar Sync.
+ * Following the implementation of the Command pattern taught in CS2103, this class acts
+ * as the command creator class. It creates the command objects BackwardSyncAddCommand,
+ * BackwardSyncDeleteCommand and BackwardSyncEditCommand. 
+ * 
+ * This class scans the tasks stored in the dabatase, and the tasks currently on Google Calendar.
+ * It generates arraylists of task objects for the necessary required functionalities of backward sync,
+ * including Add, Delete and Edit functionality.
+ * 
+ * @author Pee Choon Hian, A0108411W
+ *
+ */
+
+
 public class GoogleCalendarBackwardSyncCommandCreator {
 	GoogleCalRetrieveAll googleCalRetrieveAll = new GoogleCalRetrieveAll();
 	ArrayList<Task> tasksFromDatabase = new ArrayList<Task>();
@@ -43,14 +59,7 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 	
 
 	
-//	public void setTaskIdsZero() {
-//		for (Task task: tasksFromDatabase) {
-//			task.setTaskId(0);
-//		}
-//	}
-//	
 	public void generateArrayListToAddToDatabase() {
-		
 		boolean flagTaskAlreadyInDb;
 		for (Task task: tasksFromGoogleCal) {
 			flagTaskAlreadyInDb = false;
@@ -96,16 +105,10 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 				if (task.getGID().equals(tasksInGCal_ScanForEdits.get(i).getGID())) {
 					if (!(task.getTitle().equals(tasksInGCal_ScanForEdits.get(i).getTitle()))) {
 						System.out.println("title");
-//						System.out.println("title is:" + task.getTitle());
-//						System.out.println("title is:" + tasksInGCal_ScanForEdits.get(i).getTitle());
-//						System.out.println(task.getTitle().equals(tasksInGCal_ScanForEdits.get(i).getTitle()));
 						flagEditRequired = true;
 					}		
 					else if (!(task.getDescription().equals(tasksInGCal_ScanForEdits.get(i).getDescription()))) {
 						System.out.println("description");
-//						System.out.println("description is:" + task.getDescription());
-//						System.out.println("description is:" + tasksInGCal_ScanForEdits.get(i).getDescription());
-//						System.out.println(task.getDescription().equals(tasksInGCal_ScanForEdits.get(i).getCompletionStatus()));
 						flagEditRequired = true;
 					}				
 					else if (!(task.getStartTime().equals(tasksInGCal_ScanForEdits.get(i).getStartTime()))) {
@@ -141,7 +144,6 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 
 	
 	public void printArrayListOfTasks(ArrayList<Task> tasks) {
-		//System.out.println("Tasks from db");
 		for (Task task: tasks) {
 			System.out.println(task.displayTask());
 		}
@@ -197,26 +199,12 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 			System.out.println(task4.displayTask());
 		}
 	}
-//	public void executeBackwardSync() {
-//		db.addTask(task)
-//	}
 	
 	
 	public void executeCommandCreator() {
-//		System.out.println("tasks to add");
-		//printArrayListOfTasks(tasksToAddToDb);
 		BackwardSyncAddCommand backwardSyncAddCommand = new BackwardSyncAddCommand(tasksToAddToDb);
-//		backwardSyncAddCommand.printTasks();
-		
-//		System.out.println("tasks to delete");
-//		printArrayListOfTasks(tasksToDeleteFromDb);
 		BackwardSyncDeleteCommand backwardSyncDeleteCommand = new BackwardSyncDeleteCommand(tasksToDeleteFromDb);
-//		backwardSyncDeleteCommand.printTasks();
-		
-//		System.out.println("tasks to edit");
-//		printArrayListOfTasks(tasksToEdit);
 		BackwardSyncEditCommand backwardSyncEditCommand = new BackwardSyncEditCommand(tasksToEdit);
-//		backwardSyncEditCommand.printTasks();
 		
 		GoogleCalendarBackwardSyncCommandQueue commandQueueAdd = new GoogleCalendarBackwardSyncCommandQueue(backwardSyncAddCommand);
 		commandQueueAdd.executeCommands();

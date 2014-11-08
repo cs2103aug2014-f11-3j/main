@@ -13,6 +13,9 @@ import com.google.api.services.calendar.Calendar;
  * when performing forward syncing  - from the local database
  * to the Google Calendar Servers. 
  * 
+ * This class acts as the Facade class to the Backend class, GoogleCalBackend.java, and follows the 
+ * implementations of the Facade pattern taught in CS2103. 
+ * 
  * @author Pee Choon Hian, A0108411W
  *
  */

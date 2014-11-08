@@ -1,8 +1,16 @@
 package taskbuddy.googlecal;
 
-import java.util.ArrayList;
+/**
+ * This class is part of the BackwardSync capabilities of the Google Calendar Sync.
+ * Following the implementation of the Command pattern taught in CS2103, this class acts
+ * as the command queue class. It executes the commands, without knowing what the functionalities
+ * of the commands are.  
+ * 
+ * 
+ * @author Pee Choon Hian, A0108411W
+ *
+ */
 
-import taskbuddy.logic.Task;
 
 public class GoogleCalendarBackwardSyncCommandQueue {
 	
@@ -13,7 +21,6 @@ public class GoogleCalendarBackwardSyncCommandQueue {
 		
 	
 	//Constructors 
-	
 	public GoogleCalendarBackwardSyncCommandQueue(BackwardSyncAddCommand backwardSyncAddCommand) {
 		addCommand = backwardSyncAddCommand;
 	}
@@ -26,12 +33,10 @@ public class GoogleCalendarBackwardSyncCommandQueue {
 		editCommand = backwardSyncEditCommand;
 	}
 	
-	// Execute
-	
+	// Execution 
 	public void executeCommands() {
 		if (addCommand != null) {
 			addCommand.executeAdd();
-//			addCommand.printTasks();
 		}
 		else if (deleteCommand != null) {
 			deleteCommand.executeDelete();
@@ -40,9 +45,4 @@ public class GoogleCalendarBackwardSyncCommandQueue {
 			editCommand.executeEdit();
 		}
 	}
-	
-
-	
-	
-	
 }

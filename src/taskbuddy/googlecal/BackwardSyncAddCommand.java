@@ -7,6 +7,17 @@ import java.util.ArrayList;
 import taskbuddy.database.Database;
 import taskbuddy.logic.Task;
 
+/**
+ * This class is part of the BackwardSync capabilities of the Google Calendar Sync.
+ * Following the implementation of the Command pattern taught in CS2103, 
+ * this class is the command class for the add command.
+ * It calls the database, and performs adding of tasks to the database. 
+ * 
+ * 
+ * @author Pee Choon Hian, A0108411W
+ *
+ */
+
 public class BackwardSyncAddCommand {
 	//private Task taskToAdd = new Task();
 	private ArrayList<Task> tasksToAdd = new ArrayList<Task>();

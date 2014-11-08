@@ -1,16 +1,11 @@
 package taskbuddy.googlecal;
 
-
-
-
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Set;
-
-
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
@@ -27,12 +22,11 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarList;
 
-
-
 /**
  * Handles all back-end authorization functions of Google Calendar.
  * Some of the methods are called by GoogleCalendarController (in the googlecalendarcontroller package).
- * Some methods like isUserOnline and 
+ * Methods like isUserOnline and isAuthenticatonValid provide the online and active status of the connected Google Calendar.
+ *  
  * 
  * @author Pee Choon Hian, A0108411W
  *
