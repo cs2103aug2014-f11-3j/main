@@ -41,8 +41,17 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
+/**
+ * 
+ * This class allows for the conversion of all existing events on Google Calendar into Task objects used in the local database.
+ * 
+ * @author Pee Choon Hian, A0108411W
+ *
+ */
+
+
+
 public class GoogleCalRetrieveAll {
-	//private static final String CALENDAR_ID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
 	private static final String USER_OFFLINE_ERROR = "User is offline";
 	private static final String AUTHORIZATION_EXPIRED_ERROR = "Authorization has expired";
 	
@@ -59,27 +68,23 @@ public class GoogleCalRetrieveAll {
 	GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
 	
 	
-//	public static void main(String[] args) {
-//		getListFromGoogle();
-//		printArrayListOfTasks(tasks);
-//	}
 
 	public void getListFromGoogle() throws UnknownHostException {
 		GooCalBackend gooCalBackend = new GooCalBackend();
 
-
 		
-		
-		// First, check user online status.
+		// Check user online status, throws exception if offline
 		if (!googleCalendarAuthorizer.isUserOnline()) {
 			throw new UnknownHostException(USER_OFFLINE_ERROR); 
 		}
 		
+		// Check calendar authorization status, throws exception if unauthorized/expired
 		else if (!googleCalendarAuthorizer.isAuthenticationValid()) {
 			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
 		}
+		
+		// Google Calendar Services working
 		else {
-			
 			Calendar service = googleCalendarAuthorizer.getCalendar();
 			String pageToken = null;
 			do {
@@ -255,9 +260,6 @@ public class GoogleCalRetrieveAll {
 	}
 	
 	public ArrayList<Task> getTasks() {
-//		for (Task task : tasks) {
-//			System.out.println(task.displayTask());
-//		}
 		
 		return tasks;
 	}
