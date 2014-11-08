@@ -11,8 +11,12 @@ public class GoogleCalendarBackwardSyncTest {
 		googleCalendarBackwardSync.getTasksFromDatabase();
 		googleCalendarBackwardSync.getTasksFromGCal();
 		googleCalendarBackwardSync.setTaskIdsZero();
-		googleCalendarBackwardSync.compareLists();
-		googleCalendarBackwardSync.printArrayListOfTasks();
+		googleCalendarBackwardSync.generateArrayListToAddToDatabase();
+//		googleCalendarBackwardSync.generateArrayListToDeleteFromDatabase();
+		//googleCalendarBackwardSync.compareLists();
+		googleCalendarBackwardSync.printArrayListOfTasks1();
+		googleCalendarBackwardSync.printArrayListOfTasks2();
+		googleCalendarBackwardSync.printArrayListOfTasks3();
 		
 		
 		

@@ -42,7 +42,7 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
 public class GoogleCalRetrieveAll {
-	private static final String CALENDAR_ID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
+	//private static final String CALENDAR_ID = "i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com";
 	private static final String USER_OFFLINE_ERROR = "User is offline";
 	private static final String AUTHORIZATION_EXPIRED_ERROR = "Authorization has expired";
 	
@@ -56,6 +56,7 @@ public class GoogleCalRetrieveAll {
     
 	GooCalBackend gooCalBackend = new GooCalBackend(); 
 	GoogleCalendarAuthorizer googleCalendarAuthorizer = new GoogleCalendarAuthorizer();
+	GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
 	
 	
 //	public static void main(String[] args) {
@@ -97,7 +98,7 @@ public class GoogleCalRetrieveAll {
 			do {
 				Events events = null;
 				try {
-					events = service.events().list(CALENDAR_ID).setPageToken(pageToken).execute();
+					events = service.events().list(googleCalendarPreferenceLogger.readAddressFile()).setPageToken(pageToken).execute();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -134,6 +135,9 @@ public class GoogleCalRetrieveAll {
 		if (getTaskPriorityInteger(event) == 4) {
 			newTask.setCompletion(true);
 		}
+		else if (getTaskPriorityInteger(event) == 2) {
+			newTask.setPriority(0);
+		}
 
 		if (eventDescription == null ) {
 			eventDescription = "padding value";
@@ -160,7 +164,14 @@ public class GoogleCalRetrieveAll {
 			eventEndCalendarObject.set(yearEnd, monthEnd, dateEnd, 23, 59, 0);
 
 			newTask.setStartTime(eventStartCalendarObject);
-			newTask.setEndTime(eventEndCalendarObject);			
+			newTask.setEndTime(eventEndCalendarObject);	
+			if (isEventFloating(eventStart, eventEnd)) {
+				newTask.setFloating(true);
+			}
+			else {
+				newTask.setFloating(false);
+			}
+			
 			addTaskToArraylist(newTask);
 		}
 		else {
@@ -175,6 +186,14 @@ public class GoogleCalRetrieveAll {
 
 			newTask.setStartTime(eventStartCalendarObject);
 			newTask.setEndTime(eventEndCalendarObject);		
+			
+			if (isEventFloating(eventStart, eventEnd)) {
+				newTask.setFloating(true);
+			}
+			else {
+				newTask.setFloating(false);
+			}
+			
 			addTaskToArraylist(newTask);
 		}
 	}
@@ -214,6 +233,13 @@ public class GoogleCalRetrieveAll {
 		return false;
 	}
 	
+	public boolean isEventFloating(EventDateTime eventStart, EventDateTime eventEnd) {
+		if (eventStart.getDateTime().toString().equals(eventEnd.getDateTime().toString())) {
+			return true;
+		}
+		else return false;
+	}
+	
 	public int getTaskPriorityInteger (Event event) {
 		String eventColorId = event.getColorId();
 		if (!(eventColorId == null)) {
@@ -245,6 +271,9 @@ public class GoogleCalRetrieveAll {
 	}
 	
 	public ArrayList<Task> getTasks() {
+//		for (Task task : tasks) {
+//			System.out.println(task.displayTask());
+//		}
 		return tasks;
 	}
 }
