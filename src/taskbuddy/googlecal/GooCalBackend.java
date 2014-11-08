@@ -1,3 +1,4 @@
+//@author A0108411W
 package taskbuddy.googlecal;
 
 
@@ -22,8 +23,6 @@ import com.google.api.services.calendar.model.EventDateTime;
  * Handles all the CRUD (Create, Update and Delete) features 
  * when performing forward syncing  - from the local database
  * to the Google Calendar Servers. 
- * 
- * @author Pee Choon Hian, A0108411W
  *
  */
 

@@ -1,3 +1,4 @@
+//@author A0108411W
 package taskbuddy.googlecal;
 
 import java.io.IOException;
@@ -20,7 +21,6 @@ import taskbuddy.logic.Task;
  * It generates arraylists of task objects for the necessary required functionalities of backward sync,
  * including Add, Delete and Edit functionality.
  * 
- * @author Pee Choon Hian, A0108411W
  *
  */
 

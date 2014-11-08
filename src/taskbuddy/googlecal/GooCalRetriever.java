@@ -1,3 +1,4 @@
+//@author A0108411W
 package taskbuddy.googlecal;
 
 import java.io.IOException;
@@ -11,7 +12,6 @@ import com.google.api.services.calendar.model.Event;
  * communicating with Google Calendar Servers
  * Handles retrieve features. 
  * 
- * @author Pee Choon Hian, A0108411W
  *
  */
 

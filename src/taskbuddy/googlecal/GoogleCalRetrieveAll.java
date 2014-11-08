@@ -1,3 +1,4 @@
+//@author A0108411W
 package taskbuddy.googlecal;
 
 import java.io.FileInputStream;
@@ -45,7 +46,6 @@ import com.google.api.services.calendar.model.Events;
  * 
  * This class allows for the conversion of all existing events on Google Calendar into Task objects used in the local database.
  * 
- * @author Pee Choon Hian, A0108411W
  *
  */
 

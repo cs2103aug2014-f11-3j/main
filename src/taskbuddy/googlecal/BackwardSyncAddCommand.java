@@ -1,3 +1,4 @@
+//@author A0108411W
 package taskbuddy.googlecal;
 
 import java.io.IOException;
@@ -13,8 +14,6 @@ import taskbuddy.logic.Task;
  * this class is the command class for the add command.
  * It calls the database, and performs adding of tasks to the database. 
  * 
- * 
- * @author Pee Choon Hian, A0108411W
  *
  */
 
