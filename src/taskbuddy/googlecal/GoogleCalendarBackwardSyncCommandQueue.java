@@ -1,3 +1,4 @@
+//@author A0108411W
 package taskbuddy.googlecal;
 
 /**
@@ -6,8 +7,6 @@ package taskbuddy.googlecal;
  * as the command queue class. It executes the commands, without knowing what the functionalities
  * of the commands are.  
  * 
- * 
- * @author Pee Choon Hian, A0108411W
  *
  */
 

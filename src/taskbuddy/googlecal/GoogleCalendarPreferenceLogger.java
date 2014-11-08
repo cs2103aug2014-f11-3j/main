@@ -1,14 +1,10 @@
+//@author A0108411W
 package taskbuddy.googlecal;
-
-
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
-
-
 
 
 
@@ -18,7 +14,6 @@ import java.io.ObjectOutputStream;
  * User preferences include the user's username, the user's Google Calendar Address, as well as the authorization token
  * provided by Google Calendar.
  * 
- * @author Pee Choon Hian, A0108411W
  *
  */
 

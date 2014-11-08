@@ -1,3 +1,4 @@
+//@author A0108411W
 package taskbuddy.googlecal;
 
 import java.io.File;
@@ -27,9 +28,6 @@ import com.google.api.services.calendar.model.CalendarList;
  * Some of the methods are called by GoogleCalendarController (in the googlecalendarcontroller package).
  * Methods like isUserOnline and isAuthenticatonValid provide the online and active status of the connected Google Calendar.
  *  
- * 
- * @author Pee Choon Hian, A0108411W
- *
  */
 
 

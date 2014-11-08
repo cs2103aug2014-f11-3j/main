@@ -1,3 +1,4 @@
+//@author A0108411W
 package taskbuddy.googlecal;
 
 import taskbuddy.logic.Task;
@@ -15,8 +16,6 @@ import com.google.api.services.calendar.Calendar;
  * 
  * This class acts as the Facade class to the Backend class, GoogleCalBackend.java, and follows the 
  * implementations of the Facade pattern taught in CS2103. 
- * 
- * @author Pee Choon Hian, A0108411W
  *
  */
 

@@ -315,6 +315,8 @@ public class Task {
 		return formatter.format(date);
 	}
 
+	
+	//@author A0108411W
 	/**
 	 * Returns a string showing the date of the argument <code>Calendar</code>
 	 * object. For example, the date returned may be "1-1-1", as opposed to
@@ -325,7 +327,7 @@ public class Task {
 	 * @return a string showing the date and time of the argument
 	 *         <code>Calendar</code> object.
 	 * 
-	 * @author Pee Choon Hian
+	 * 
 	 */
 	public String displayDate(Calendar cal) {
 		Date date = cal.getTime();
@@ -336,7 +338,8 @@ public class Task {
 		formatter = new SimpleDateFormat("d/M/yyyy");
 		return formatter.format(date);
 	}
-
+	
+	//@author A0108411W
 	/**
 	 * Returns a string showing the time of the argument <code>Calendar</code>
 	 * object.
@@ -346,7 +349,7 @@ public class Task {
 	 * @return a string showing the date and time of the argument
 	 *         <code>Calendar</code> object.
 	 * 
-	 * @author Pee Choon Hian
+	 * 
 	 */
 	public String displayTime(Calendar cal) {
 		Date date = cal.getTime();
