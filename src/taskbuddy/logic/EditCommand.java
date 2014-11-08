@@ -66,7 +66,8 @@ public class EditCommand {
 				cal.set(Calendar.MINUTE, m);
 				toEdit.setEndTime(cal);
 			}
-
+			Boolean completion = extras.getCompletionStatus();
+			toEdit.setCompletion(completion);
 			db.edit(toEdit);
 			ack.putSuccess();
 			ack.putMessage("task edited");
