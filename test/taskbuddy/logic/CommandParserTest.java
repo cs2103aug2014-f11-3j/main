@@ -19,7 +19,7 @@ public class CommandParserTest {
 	@Test
 	public void testAddFloating() throws ParseException, IOException {
 		try {
-			cp = new CommandParser();
+			CommandParser cp = CommandParser.getInstance();
 			UserInputBundle uf = new UserInputBundle();
 			AcknowledgeBundle bf = new AcknowledgeBundle();
 			uf.putTitle("task floating");
@@ -42,7 +42,7 @@ public class CommandParserTest {
 	@Test
 	public void testAddNormal() throws ParseException, IOException {
 		try {
-			cp = new CommandParser();
+			CommandParser cp = CommandParser.getInstance();
 			UserInputBundle uf = new UserInputBundle();
 			AcknowledgeBundle bf = new AcknowledgeBundle();
 			uf.putTitle("task normal");
@@ -65,7 +65,7 @@ public class CommandParserTest {
 	@Test
 	public void testAddDeadline() throws ParseException, IOException {
 		try {
-			cp = new CommandParser();
+			CommandParser cp = CommandParser.getInstance();
 			UserInputBundle uf = new UserInputBundle();
 			AcknowledgeBundle bf = new AcknowledgeBundle();
 			uf.putTitle("task deadline today");
@@ -88,7 +88,7 @@ public class CommandParserTest {
 	@Test
 	public void testEdit() throws Exception {
 		try {
-			cp = new CommandParser();
+			CommandParser cp = CommandParser.getInstance();
 			UserInputBundle et = new UserInputBundle();
 			AcknowledgeBundle eb = new AcknowledgeBundle();
 			et.putCommand("edit");
@@ -110,7 +110,7 @@ public class CommandParserTest {
 	@Test
 	public void testSearch() throws Exception {
 		try {
-			cp = new CommandParser();
+			CommandParser cp = CommandParser.getInstance();
 			UserInputBundle st = new UserInputBundle();
 			AcknowledgeBundle sb = new AcknowledgeBundle();
 			st.putCommand("search");
