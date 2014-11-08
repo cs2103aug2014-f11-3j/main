@@ -24,8 +24,8 @@ import taskbuddy.parser.Parser;
 
 public class TaskBuddyViewController implements DatabaseObserver {
 
-	Database database;
-	ArrayList<Task> listTasks;
+	protected Database database;
+	protected ArrayList<Task> listTasks;
 	
 	private ObservableList<Task> taskData = FXCollections.observableArrayList();
 	@FXML
@@ -88,8 +88,6 @@ public class TaskBuddyViewController implements DatabaseObserver {
 	@FXML
 	private void initialize() {
 		checkUser();
-		this.database = database;
-		database.addObserver(this);
 		titleColumn.setCellValueFactory(cellData -> cellData.getValue()
 				.titleProperty());
 		taskIDColumn.setCellValueFactory(cellData -> StringProperty
@@ -118,8 +116,12 @@ public class TaskBuddyViewController implements DatabaseObserver {
 				taskDueTimeLabel.setText("-");
 			} else {
 				taskTypeLabel.setText("Timed");
-				taskStartTimeLabel.setText(task.displayStart());
-				taskDueTimeLabel.setText(task.displayEnd());
+				String starT = task.displayStart();
+				String enD = task.displayEnd();
+				String start = starT.substring(7);
+				String end = enD.substring(5);
+				taskStartTimeLabel.setText(start);
+				taskDueTimeLabel.setText(end);
 			}
 			Boolean complete = task.getCompletionStatus();
 			if (complete){

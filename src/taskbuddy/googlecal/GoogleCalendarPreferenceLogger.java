@@ -88,7 +88,7 @@ public class GoogleCalendarPreferenceLogger {
 			ois.close();
 			return accessToken;
 		} catch (Exception ex) {
-			System.err.println("file not found");
+			System.err.println("token not found");
 			//ex.printStackTrace;
 			return "";
 		}

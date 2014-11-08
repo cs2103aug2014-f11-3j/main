@@ -41,7 +41,6 @@ import com.google.api.services.calendar.model.CalendarList;
 //import com.google.api.services.calendar.model.EventDateTime;
 
 
-
 public class GoogleCalendarAuthorizer {
 	
 	GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
