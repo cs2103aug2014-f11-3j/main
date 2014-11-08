@@ -106,8 +106,6 @@ public class Parser {
 			a.putMessage("parse error, invalid command");
 			return a;
 		}
-		
-		return null;
 	}
 
 	public static UserInputBundle getUserInput() {

@@ -72,6 +72,12 @@ public class EditCommand {
 			} catch (Exception e){
 				;
 			}
+			try {
+				Integer priority = Integer.parseInt(extras.getPriority());
+				toEdit.setPriority(priority);
+			} catch (Exception e){
+				;
+			}
 			db.edit(toEdit);
 			ack.putSuccess();
 			ack.putMessage("task edited");

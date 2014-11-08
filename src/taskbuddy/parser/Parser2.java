@@ -41,7 +41,7 @@ public class Parser2 {
 		} else if (containsRevert){
 			acks = revertCmd(line, bundle);
 		} else if (containsPriority){
-			
+			acks = priorityCmd(line, bundle);
 		} else {
 			acks.putFailure();
 			acks.putMessage("wrong parser");
@@ -112,6 +112,29 @@ public class Parser2 {
 				bundle.putStartDate(nullValue);
 				bundle.putStartTime(nullValue);
 				bundle.putCompletion(false);
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		return acks;
+	}
+	
+	protected static AcknowledgeBundle priorityCmd(String[] line, UserInputBundle bundle){
+		AcknowledgeBundle acks = new AcknowledgeBundle();
+		try {
+			cp = new CommandParser();
+			bundle.putCommand(commandEdit);
+			if (line.length != 3){
+				acks.putFailure();
+				acks.putMessage("invalid number of args");
+			} else {
+				bundle.putID(line[1]);
+				bundle.putPriority(line[2]);
+				bundle.putDescription(nullValue);
+				bundle.putEndDate(nullValue);
+				bundle.putEndTime(nullValue);
+				bundle.putStartDate(nullValue);
+				bundle.putStartTime(nullValue);
 			}
 		} catch (Exception e){
 			e.printStackTrace();
