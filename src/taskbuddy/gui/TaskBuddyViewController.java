@@ -184,7 +184,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 		String[] tokens = s.split(" ");
 		for (int i=0; i<tokens.length; i++){
 			String word = tokens[i];
-			if (word.equals("sync") || word.equals("done") || word.equals("revert")){
+			if (word.equals("sync") || word.equals("done") || word.equals("revert") || word.equals("priority")){
 				return true;
 			}
 		}

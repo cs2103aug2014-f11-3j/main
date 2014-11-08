@@ -10,6 +10,7 @@ public class Parser2 {
 	private final static String commandDone = "done";
 	private final static String commandRevert = "revert";
 	private final static String commandEdit = "edit";
+	private final static String commandPriority = "priority";
 	private final static String nullValue = "padding value";
 	private static CommandParser cp;
 
@@ -32,12 +33,15 @@ public class Parser2 {
 		boolean containsSync = (searchTokens(commandSync, line) != -1);
 		boolean containsDone = (searchTokens(commandDone, line) != -1);
 		boolean containsRevert = (searchTokens(commandRevert, line) != -1);
+		boolean containsPriority = (searchTokens(commandPriority, line) != -1);
 		if (containsSync){
 			acks = syncCmd(line, bundle);
 		} else  if (containsDone){
 			acks = doneCmd(line, bundle);
 		} else if (containsRevert){
 			acks = revertCmd(line, bundle);
+		} else if (containsPriority){
+			
 		} else {
 			acks.putFailure();
 			acks.putMessage("wrong parser");

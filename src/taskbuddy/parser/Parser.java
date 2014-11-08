@@ -68,12 +68,14 @@ public class Parser {
 
 		if (isUndoType(commandType)) {
 			undoDataPadding(userInputs, commandType);
-			commandParser.parseUserInputs(userInputs);
+			AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
+			return a;
 
 		} else if (isRedoType(commandType)) {
 			redoDataPadding(userInputs, commandType);
-			commandParser.parseUserInputs(userInputs);
-
+			AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
+			return a;
+			
 		} else if (isAddType(commandType)) {
 			addDataPadding(userInputs, commandType, userCommand);
 			AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
