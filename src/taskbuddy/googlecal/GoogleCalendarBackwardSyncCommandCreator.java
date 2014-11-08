@@ -34,14 +34,8 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 //		printArrayListOfTasks(tasksFromDatabase);
 	}
 	
-	public void getTasksFromGCal() {
-		try {
-			googleCalRetrieveAll.getListFromGoogle();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+	public void getTasksFromGCal() throws UnknownHostException {
+		googleCalRetrieveAll.getListFromGoogle();
 		tasksFromGoogleCal = googleCalRetrieveAll.getTasks();		
 	}
 	
@@ -229,7 +223,7 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 		commandQueueEdit.executeCommands();
 	}
 	
-	public void executeBackwardSync() {
+	public void executeBackwardSync() throws UnknownHostException {
 		getTasksFromDatabase();
 		getTasksFromGCal();
 		generateArrayListToAddToDatabase();

@@ -37,24 +37,16 @@ public class GoogleCalendarManager {
 	GoogleCalendarAuthorizer googleCalendarAuthorizer = new GoogleCalendarAuthorizer();
    
 	public void add(Task task) throws UnknownHostException  {
-		// Assertion Tests
-		//assert (task.getGID() != null): MISSING_GOOGLE_ID_ERROR;
-		assert (task.getTitle() != null): MISSING_TITLE_ERROR;
-		// assert (task.getTaskId() != 0): MISSING_TASK_ID_ERROR;  // To be uncommented once database is correctly implemented
-		
-		
-		// Adds task to Google Calendar
-		// Returns true if task has successfully been added to Google Calendar
-		// Returns false if task has not been successfully added to Google Calendar (Eg: When user is offline)
-		
-		//String calendarID = CALENDAR_ID;   // CURRENTLY HARDCODED
 		String gooCalEventID;
+		// Assertion Tests
+		assert (task.getTitle() != null): MISSING_TITLE_ERROR;
 
-		// First, check user online status.
+		// Check user online status, throws exception if offline
 		if (!googleCalendarAuthorizer.isUserOnline()) {
 			throw new UnknownHostException(USER_OFFLINE_ERROR); 
 		}
 		
+		// Check calendar authorization status, throws exception if offline
 		else if (!googleCalendarAuthorizer.isAuthenticationValid()) {
 			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
 		}
