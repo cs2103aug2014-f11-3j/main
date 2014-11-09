@@ -106,9 +106,7 @@ public class DatabaseHandler {
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
         } finally {
-            this.setTaskIds();
-            this.taskLogger.writeToLogFile(this.getTasks());
-            this.notifyObservers();
+            followUpOnEdit();
         }
     }
 
@@ -241,9 +239,7 @@ public class DatabaseHandler {
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
         } finally {
-            this.setTaskIds();
-            this.taskLogger.writeToLogFile(this.getTasks());
-            this.notifyObservers();
+            followUpOnEdit();
         }
     }
 
@@ -337,6 +333,61 @@ public class DatabaseHandler {
     }
 
     /**
+     * Replaces task to edit with this new task, based on the assumption that
+     * this new task has the same task ID set as the task to edit and replace.
+     * 
+     * @param newTask
+     *            New task to replace task to edit
+     * @throws IllegalAccessException
+     *             when there are no tasks stored currently and hence there is
+     *             no task to edit
+     */
+    public void replaceTaskToEdit(Task newTask) throws IllegalAccessException {
+        int taskIdToEdit = newTask.getTaskId();
+        Task oldTask = this.read(taskIdToEdit);
+        int oldTaskIndex = this.getTasks().indexOf(oldTask);
+        this.getTasks().set(oldTaskIndex, newTask);
+    }
+
+    /**
+     * Executes follow up actions when attempt to update Google Calendar about
+     * task edit fails, such as adding the update command to the command queue
+     * and adding information to the exception message thrown by Google Calendar
+     * Manager during the update failure.
+     * 
+     * @param newTask
+     *            new task to replace task to edit
+     * @param e
+     *            exception thrown by Google Calendar manager when user is
+     *            offline
+     * @throws UnknownHostException
+     *             when user is offline and attempt to update Google Calendar
+     *             fails
+     */
+    public void followUpGoogleCalendarUpdateFailure(Task newTask,
+            UnknownHostException e) throws UnknownHostException {
+        assert GoogleCalendarCommand.googleCal != null;
+        this.commandQueue.add(new GoogleCalendarUpdate(newTask));
+        throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
+                + e.getMessage());
+    }
+
+    /**
+     * Executes actions to follow up after task to edit has been replaced by new
+     * task in <code>replaceTaskToEdit</code> method, such as re-setting task
+     * IDs, writing tasks to the task log and notifying observers of this
+     * object.
+     * 
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void followUpOnEdit() throws IOException {
+        this.setTaskIds();
+        this.taskLogger.writeToLogFile(this.getTasks());
+        this.notifyObservers();
+    }
+
+    /**
      * Edits a task with task ID of argument <code>newTask</code> by replacing
      * the old task with the new task from the argument of this method.
      * 
@@ -355,23 +406,13 @@ public class DatabaseHandler {
      */
     void edit(Task newTask) throws IllegalAccessException,
             NoSuchElementException, IOException {
-        int taskIdToEdit = newTask.getTaskId();
-        Task oldTask = this.read(taskIdToEdit);
-        int oldTaskIndex = this.getTasks().indexOf(oldTask);
-        this.getTasks().set(oldTaskIndex, newTask);
-
+        replaceTaskToEdit(newTask);
         try {
             googleCal.update(newTask);
         } catch (UnknownHostException e) {
-            // TODO Add edit command to command queue
-            assert GoogleCalendarCommand.googleCal != null;
-            this.commandQueue.add(new GoogleCalendarUpdate(newTask));
-            throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
-                    + e.getMessage());
+            followUpGoogleCalendarUpdateFailure(newTask, e);
         } finally {
-            this.setTaskIds();
-            this.taskLogger.writeToLogFile(this.getTasks());
-            this.notifyObservers();
+            followUpOnEdit();
         }
 
     }
@@ -431,9 +472,7 @@ public class DatabaseHandler {
      */
     public void addBackwardSync(Task task) throws IOException {
         this.tasks.add(task);
-        this.setTaskIds();
-        this.taskLogger.writeToLogFile(this.getTasks());
-        this.notifyObservers();
+        followUpOnEdit();
     }
 
     /**
@@ -455,11 +494,45 @@ public class DatabaseHandler {
             throws IllegalAccessException, NoSuchElementException, IOException {
         Task taskToDelete = this.read(googleId);
         assert !this.getTasks().isEmpty() && taskToDelete != null;
-        
+
         this.tasks.remove(taskToDelete);
-        this.setTaskIds();
-        this.taskLogger.writeToLogFile(this.getTasks());
-        this.notifyObservers();
+        followUpOnEdit();
 
     }
+
+    /**
+     * Replaces task to edit with this new task, where the task to edit is
+     * specified by a given Google Calendar ID.
+     * 
+     * @param googleIdToEdit
+     *            Google Calendar ID of task to edit and replace.
+     * @param newTask
+     *            New task to replace task to edit
+     * @throws IllegalAccessException
+     *             when there are no tasks stored currently and hence there is
+     *             no task to edit
+     */
+    public void replaceTaskToEdit(String googleIdToEdit, Task newTask)
+            throws IllegalAccessException {
+        Task oldTask = this.read(googleIdToEdit);
+        int oldTaskIndex = this.tasks.indexOf(oldTask);
+        this.tasks.set(oldTaskIndex, newTask);
+    }
+
+    /**
+     * Edits a task from database like the <code>edit</code> method, except
+     * without updating this task to Google Calendar. This method is the edit
+     * variant of the <code>addBackwardSync</code> method.
+     * 
+     * @param googleIdToEdit
+     *            Google Calendar ID of task to edit
+     * @param newTask
+     *            new task to replace task to be edited
+     */
+    public void editBackwardSync(String googleIdToEdit, Task newTask)
+            throws IllegalAccessException, NoSuchElementException, IOException {
+        replaceTaskToEdit(googleIdToEdit, newTask);
+        followUpOnEdit();
+    }
+
 }
