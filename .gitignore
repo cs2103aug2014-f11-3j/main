@@ -52,3 +52,5 @@ local.properties
 .cproject
 # PDT-specific
 .buildpath
+log
+GoogleCalAuthenticationToken_New
