@@ -251,4 +251,21 @@ public class Database {
         databaseHandler.deleteBackwardSync(googleId);
     }
 
+    /**
+     * Edits a task from database like the <code>edit</code> method, except
+     * without updating this task to Google Calendar. This method is the edit
+     * variant of the <code>addBackwardSync</code> method.
+     * 
+     * @param googleIdToEdit
+     *            Google Calendar ID of task to edit
+     * @param newTask
+     *            new task to replace task to be edited
+     */
+    public void editBackwardSync(String googleIdToEdit, Task newTask)
+            throws IllegalAccessException, NoSuchElementException, IOException {
+        // TODO Auto-generated method stub
+        databaseHandler.editBackwardSync(googleIdToEdit, newTask);
+
+    }
+
 }

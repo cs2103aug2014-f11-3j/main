@@ -51,6 +51,7 @@ public class DatabaseMethodsTest {
         }
     }
 
+    // These added tasks do not have set Google Calendar IDs.
     public void addTasks() throws IOException, UnknownHostException {
         database.addTask(firstTask);
         database.addTask(secondTask);
@@ -361,10 +362,24 @@ public class DatabaseMethodsTest {
         }
     }
 
-    @Ignore
     @Test
     public void testEditBackwardSync() throws Exception {
+        addTasks();
+        setGoogleIds();
+        assertEquals("Number of tasks is not two", 2, database.getTasks()
+                .size());
+        Task newTask = createTask("New", "New description.");
+        newTask.setGID("3333");
 
+        database.editBackwardSync("1111", newTask);
+        assertEquals("First task is not replaced properly by new task",
+                newTask, database.getTasks().get(0));
+        assertEquals("Number of tasks is not two", 2, database.getTasks()
+                .size());
+        assertEquals("Second task is wrongly edited.", secondTask, database
+                .getTasks().get(1));
+        checkTaskLogCorrectness();
+        checkObservedTasksCorrectness();
     }
 
 }
