@@ -43,7 +43,9 @@ public class UndoCommand {
 
 				} else if (commandType.equals("edit")) {
 					Task afterEdit = cp.getUndoTask();
+					System.err.println(afterEdit.getTitle() + " after");
 					Task beforeEdit = cp.getUndoTask();
+					System.err.println(beforeEdit.getTitle() + " before");
 					cp.pushRedoTask(beforeEdit);
 					cp.pushRedoTask(afterEdit);
 					db.edit(beforeEdit);

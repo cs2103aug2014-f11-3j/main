@@ -1,5 +1,6 @@
 package taskbuddy.logic;
 
+import java.net.UnknownHostException;
 import java.util.Calendar;
 
 import taskbuddy.database.Database;
@@ -14,7 +15,10 @@ public class EditCommand {
 		int taskID = Integer.parseInt(extras.getTaskID());
 		try {
 			toEdit = db.read(taskID);
-			ack.putOldTask(toEdit);
+			CommandParser cp = CommandParser.getInstance();
+			Task dup = duplicateTask(toEdit);
+			cp.pushUndoTask(dup);
+			System.err.println(dup.getTitle() + "++ pushing");
 			String title = extras.getTitle();
 			if (!title.equals(nullValue)) {
 				toEdit.setTitle(title);
@@ -78,17 +82,37 @@ public class EditCommand {
 			} catch (Exception e){
 				;
 			}
-			db.edit(toEdit);
-			ack.putSuccess();
-			ack.putMessage("task edited");
-			ack.putTask(toEdit);
-			CommandParser cp = CommandParser.getInstance();
-			cp.pushUndo(extras);
-			cp.pushUndoTask(toEdit);
+			try {
+				db.edit(toEdit);
+				ack.putSuccess();
+				ack.putMessage("task edited");
+				ack.putTask(toEdit);
+				cp.pushUndo(extras);
+				cp.pushUndoTask(toEdit);
+			} catch (UnknownHostException e){
+				ack.putSuccess();
+				ack.putMessage("task edited locally");
+				ack.putTask(toEdit);
+				cp.pushUndo(extras);
+				cp.pushUndoTask(toEdit);
+			}
 		} catch (Exception e) {
 			ack.putFailure();
 			ack.putMessage("Unable to find task in DB");
 		}
 		return ack;
+	}
+	
+	protected static Task duplicateTask(Task toDup){
+		Task t = new Task();
+		t.setTaskId(toDup.getTaskId());
+		t.setCompletion(toDup.getCompletionStatus());
+		t.setDescription(toDup.getDescription());
+		t.setEndTime(toDup.getEndTime());
+		t.setGID(toDup.getGID());
+		t.setTitle(toDup.getTitle());
+		t.setStartTime(toDup.getStartTime());
+		t.setPriority(toDup.getPriority());
+		return t;
 	}
 }
