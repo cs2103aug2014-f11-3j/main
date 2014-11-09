@@ -21,8 +21,7 @@ public class RedoCommand {
 					ack = AddCommand.addTask(commandToRedo, db);
 					ack.putMessage("add redid");
 				} else if (commandType.equals("delete")){
-					int id = Integer.parseInt(commandToRedo.getTaskID());
-					ack = DeleteCommand.deleteTask(id, db);
+					ack = DeleteCommand.deleteTask(commandToRedo, db);
 					ack.putMessage("delete redid");
 				} else if (commandType.equals("edit")){
 					Task afterEdit = redoStackTask.pop();

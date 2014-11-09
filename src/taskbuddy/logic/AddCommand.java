@@ -29,6 +29,10 @@ public class AddCommand {
 			ackBundle.putSuccess();
 			ackBundle.putMessage("added task to database with no errors");
 			ackBundle.putTask(taskToAdd);
+			CommandParser cp = CommandParser.getInstance();
+			cp.initRedo();
+			cp.pushUndo(extras);
+			cp.pushUndoTask(taskToAdd);
 		} catch (Exception e) {
 			e.printStackTrace();
 			ackBundle.putFailure();

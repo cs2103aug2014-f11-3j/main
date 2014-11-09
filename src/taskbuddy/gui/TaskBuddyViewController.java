@@ -27,7 +27,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 
 	protected Database database;
 	protected ArrayList<Task> listTasks;
-	
+
 	private ObservableList<Task> taskData = FXCollections.observableArrayList();
 	@FXML
 	private TableView<Task> taskTable;
@@ -111,7 +111,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			taskTitleLabel.setText(task.getTitle());
 			taskDescriptionLabel.setText(task.getDescription());
 			Boolean floating = task.isFloatingTask();
-			if (floating){
+			if (floating) {
 				taskTypeLabel.setText("Floating");
 				taskStartTimeLabel.setText("-");
 				taskDueTimeLabel.setText("-");
@@ -125,7 +125,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 				taskDueTimeLabel.setText(end);
 			}
 			Boolean complete = task.getCompletionStatus();
-			if (complete){
+			if (complete) {
 				taskCompletionLabel.setText("Completed");
 			} else {
 				taskCompletionLabel.setText("Incomplete");
@@ -153,7 +153,7 @@ public class TaskBuddyViewController implements DatabaseObserver {
 		} else {
 			AcknowledgeBundle a = new AcknowledgeBundle();
 			try {
-				if (useParser2){
+				if (useParser2) {
 					a = Parser2.parseOtherCommands(inputLine);
 				} else {
 					a = Parser.userInput(inputLine);
@@ -180,14 +180,13 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			update();
 		}
 	}
-	
-	protected boolean checkParser(String s){
+
+	protected boolean checkParser(String s) {
 		String[] tokens = s.split(" ");
-		for (int i=0; i<tokens.length; i++){
-			String word = tokens[i];
-			if (word.equals("sync") || word.equals("done") || word.equals("revert") || word.equals("priority")){
-				return true;
-			}
+		String word = tokens[0];
+		if (word.equals("sync") || word.equals("done") || word.equals("revert")
+				|| word.equals("priority") || word.equals("undo")) {
+			return true;
 		}
 		return false;
 	}
@@ -208,21 +207,21 @@ public class TaskBuddyViewController implements DatabaseObserver {
 
 	@FXML
 	protected void parseAuth() {
-		//try {
-			String authCode = authField.getText();
-			System.err.println(authCode);
-			gcCont.authorize(authCode);
-			if (gcCont.isCalendarAuthenticated()) {
-				String username = usernameField.getText();
-				userAuthLabel.setText(username + "'s Google Calendar");
-				update();
-			} else {
-				userAuthLabel.setText("Authorization error");
-			}
-		//} catch (Exception e) {
-		//	e.printStackTrace();
-		//	userAuthLabel.setText("Authorization Error");
-		//}
+		// try {
+		String authCode = authField.getText();
+		System.err.println(authCode);
+		gcCont.authorize(authCode);
+		if (gcCont.isCalendarAuthenticated()) {
+			String username = usernameField.getText();
+			userAuthLabel.setText(username + "'s Google Calendar");
+			update();
+		} else {
+			userAuthLabel.setText("Authorization error");
+		}
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// userAuthLabel.setText("Authorization Error");
+		// }
 	}
 
 	protected void checkUser() {

@@ -14,40 +14,36 @@ public class CommandParser {
 	
 	private static CommandParser instance;
 	
-	private static Database database;
-	private static Stack<UserInputBundle> undoStack;
-	private static Stack<Task> undoStackTask;
-	private static Stack<UserInputBundle> redoStack;
-	private static Stack<Task> redoStackTask;
+	protected static Database database;
+	protected static Stack<UserInputBundle> undoStack;
+	protected static Stack<Task> undoStackTask;
+	protected static Stack<UserInputBundle> redoStack;
+	protected static Stack<Task> redoStackTask;
 
 	public AcknowledgeBundle parseUserInputs(UserInputBundle userIn) {
 		AcknowledgeBundle ack = new AcknowledgeBundle();
 		try {
+		} catch (Exception e){ System.err.println("nothing");}
+		try {
 			String commandType = userIn.getCommand();
 			if (commandType.equals("add")) {
-				preProcess(userIn);
 				ack = AddCommand.addTask(userIn, database);
-				Task t = ack.getTask();
-				undoStackTask.push(t);
 			} else if (commandType.equals("delete")) {
-				preProcess(userIn);
-				int id = Integer.parseInt(userIn.getTaskID());
-				ack = DeleteCommand.deleteTask(id, database);
+				ack = DeleteCommand.deleteTask(userIn, database);
 				Task t = ack.getTask();
-				undoStackTask.push(t);
+				this.pushUndoTask(t);
 			} else if (commandType.equals("edit")) {
-				preProcess(userIn);
 				ack = EditCommand.editTask(userIn, database);
 				Task oldt = ack.getOldTask();
 				Task newt = ack.getTask();
-				undoStackTask.push(oldt);
-				undoStackTask.push(newt);
+				this.pushUndoTask(oldt);
+				this.pushUndoTask(newt);
 			} else if (commandType.equals("display")) {
 				ack = DisplayCommand.displayAllTasks(database);
 			} else if (commandType.equals("search")) {
 				ack = SearchCommand.searchForTasks(userIn, database);
 			} else if (commandType.equals("undo")){
-				ack = UndoCommand.undo(undoStack, redoStack, undoStackTask, redoStackTask, database);
+				ack = UndoCommand.undo();
 			} else if (commandType.equals("redo")){
 				ack = RedoCommand.redo(undoStack, redoStack, undoStackTask, redoStackTask, database);
 			} else if (commandType.equals("sync")){
@@ -58,11 +54,12 @@ public class CommandParser {
 			}
 		} catch (Exception e) {
 			ack.putFailure();
-			ack.putMessage(e.getCause().getMessage());
+			ack.putMessage(e.getMessage());
 		}
 		return ack;
 	}
 
+	//deprecated
 	private void preProcess(UserInputBundle u) {
 		redoStack = new Stack<UserInputBundle>();
 		redoStackTask = new Stack<Task>();
@@ -86,6 +83,46 @@ public class CommandParser {
 		redoStackTask = new Stack<Task>();
 	}
 
+	protected void pushUndo(UserInputBundle command){
+		undoStack.push(command);
+	}
+	
+	protected void pushUndoTask(Task item){
+		undoStackTask.push(item);
+	}
+	
+	protected void pushRedo(UserInputBundle command){
+		redoStack.push(command);
+	}
+	
+	protected void pushRedoTask(Task item){
+		redoStackTask.push(item);
+	}
+	
+	protected void initRedo(){
+		redoStack = new Stack<UserInputBundle>();
+		redoStackTask = new Stack<Task>();
+	}
+	
+	protected UserInputBundle getUndo(){
+		return undoStack.pop();
+	}
+	
+	protected UserInputBundle getRedo(){
+		return redoStack.pop();
+	}
+	
+	protected Task getUndoTask(){
+		return undoStackTask.pop();
+	}
+	
+	protected Task getRedoTask(){
+		return redoStackTask.pop();
+	}
+	
+	protected UserInputBundle peekUndo(){
+		return undoStack.peek();
+	}
 	public static CommandParser getInstance() throws ParseException, IOException{
 		if (instance == null){
 			instance = new CommandParser();

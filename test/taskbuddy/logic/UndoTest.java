@@ -9,7 +9,7 @@ import taskbuddy.database.Database;
 public class UndoTest {
 
 	@Test
-	public void testUndo() throws Exception {
+	public void testAdd() throws Exception {
 		try {
 			CommandParser cp = CommandParser.getInstance();
 			UserInputBundle uf = new UserInputBundle();
@@ -26,20 +26,24 @@ public class UndoTest {
 			db.printTasks();
 			String status = bf.getStatus();
 			assertEquals("Success", status);
-			
-			UserInputBundle undo = new UserInputBundle();
-			undo.putCommand("undo");
-			
-			try {
-				cp = CommandParser.getInstance();
-				bf = cp.parseUserInputs(undo);
-				db.printTasks();
-				assertEquals("Success", bf.getStatus());
-			} catch (Exception e){
-				e.printStackTrace();
-			}
 		} catch (Exception e) {
 			// e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testUndo() throws Exception {
+		CommandParser cp = CommandParser.getInstance();
+		UserInputBundle undo = new UserInputBundle();
+		undo.putCommand("undo");
+		AcknowledgeBundle b = new AcknowledgeBundle();
+		Database db = cp.getDatabase();
+		try {
+			b = cp.parseUserInputs(undo);
+			db.printTasks();
+			assertEquals("Success", b.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

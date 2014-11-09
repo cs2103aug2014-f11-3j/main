@@ -82,6 +82,9 @@ public class EditCommand {
 			ack.putSuccess();
 			ack.putMessage("task edited");
 			ack.putTask(toEdit);
+			CommandParser cp = CommandParser.getInstance();
+			cp.pushUndo(extras);
+			cp.pushUndoTask(toEdit);
 		} catch (Exception e) {
 			ack.putFailure();
 			ack.putMessage("Unable to find task in DB");

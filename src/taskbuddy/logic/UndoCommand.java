@@ -1,5 +1,7 @@
 package taskbuddy.logic;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -7,55 +9,62 @@ import taskbuddy.database.Database;
 
 public class UndoCommand {
 
-	public static AcknowledgeBundle undo(Stack<UserInputBundle> undoStack,
-			Stack<UserInputBundle> redoStack, Stack<Task> undoStackTask,
-			Stack<Task> redoStackTask, Database db) {
-
+	public static AcknowledgeBundle undo() throws ParseException, IOException {
+		CommandParser cp = CommandParser.getInstance();
+		Database db = cp.getDatabase();
 		AcknowledgeBundle ack = new AcknowledgeBundle();
 		try {
-			UserInputBundle previousCommand = undoStack.pop();
-			redoStack.push(previousCommand);
+			UserInputBundle previousCommand = cp.getUndo();
+			try{
+				System.err.println(previousCommand.getCommand() + "command type");
+			} catch (Exception e){
+				;
+			}
+			cp.pushRedo(previousCommand);
 			String commandType = previousCommand.getCommand();
 			try {
 				if (commandType.equals("add")) {
-					Task added = undoStackTask.pop();
-					redoStackTask.push(added);
+					Task added = cp.getUndoTask();
+					cp.pushRedoTask(added);
 					ArrayList<Task> allTasks = db.getTasks();
 					int size = allTasks.size();
-					db.delete((size-1));
+					db.delete((size));
 					ack.putSuccess();
 					ack.putMessage("add reverted");
 					ack.putTask(added);
 					
 				} else if (commandType.equals("delete")) {
-					Task deleted = undoStackTask.pop();
-					redoStackTask.push(deleted);
+					Task deleted = cp.getUndoTask();
+					cp.pushRedoTask(deleted);;
 					db.addTask(deleted);
 					ack.putSuccess();
 					ack.putMessage("delete reverted");
 					ack.putTask(deleted);
 
 				} else if (commandType.equals("edit")) {
-					Task afterEdit = undoStackTask.pop();
-					Task beforeEdit = undoStackTask.pop();
-					redoStackTask.push(beforeEdit);
-					redoStackTask.push(afterEdit);
+					Task afterEdit = cp.getUndoTask();
+					Task beforeEdit = cp.getUndoTask();
+					cp.pushRedoTask(beforeEdit);
+					cp.pushRedoTask(afterEdit);
 					db.edit(beforeEdit);
 					ack.putSuccess();
 					ack.putMessage("edit reverted");
 					ack.putOldTask(afterEdit);
 					ack.putTask(beforeEdit);
-					
+				} else {
+					ack.putFailure();
+					ack.putMessage(previousCommand.getCommand() + " not recognized");
 				}
 			} catch (Exception e) {
-				undoStackTask.push(redoStackTask.pop());
+				Task t = cp.getRedoTask();
+				cp.pushUndoTask(t);
 				ack.putFailure();
 				ack.putMessage("undo failure");
 			}
 
 		} catch (Exception e) {
 			ack.putFailure();
-			ack.putMessage("undo stack empty");
+			ack.putMessage("no previous commands found");
 		}
 		return ack;
 	}
