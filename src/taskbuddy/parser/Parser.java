@@ -66,6 +66,7 @@ public class Parser {
 
 		String commandType = getFirstWord(userCommand);
 
+		//DEPRECATED, USER PARSER2
 		if (isUndoType(commandType)) {
 			undoDataPadding(userInputs, commandType);
 			AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);

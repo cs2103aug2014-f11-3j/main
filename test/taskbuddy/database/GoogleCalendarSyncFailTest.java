@@ -82,7 +82,7 @@ public class GoogleCalendarSyncFailTest {
     @Test
     public void testAdd() throws Exception {
         LinkedList<GoogleCalendarCommand> googleCalendarCommands = myDatabaseHandler
-                .getGoogleCalendarCommands();
+                .getCommandQueue();
         ArrayList<Task> tasks = database.getTasks();
 
         try {

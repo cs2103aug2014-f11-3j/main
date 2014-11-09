@@ -110,6 +110,27 @@ public class Database {
     }
 
     /**
+     * Searches for and returns a task based on its Google Calendar ID from an
+     * empty or non-empty stored list of tasks.
+     * 
+     * @param googleId
+     *            Google Calendar ID of task to retrieve
+     * @return task whose Google Calendar ID matches given Google Calendar ID,
+     *         null if stored list of task is empty or if no Google Calendar ID
+     *         match is found.
+     * @throws IllegalAccessException
+     *             when this method tries to read from an empty list of tasks
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to the given
+     *             Google Calendar ID.
+     * 
+     */
+    public Task read(String googleId) throws IllegalAccessException,
+            NoSuchElementException {
+        return databaseHandler.read(googleId);
+    }
+
+    /**
      * Deletes a task from temporary and logged memory, as well as Google
      * Calendar, based on its task ID from an empty or non-empty stored list of
      * tasks.
@@ -192,6 +213,42 @@ public class Database {
      */
     public void forwardSync() throws UnknownHostException {
         databaseHandler.forwardSync();
+    }
+
+    /**
+     * Adds a task to database like the <code>addTask</code> method, except
+     * without adding the this task to Google Calendar. This method is used when
+     * Google Calendar manager needs to add a task to database to synchronise
+     * tasks between Google Calendar manager and database, which is also known
+     * as backward sync.
+     * 
+     * @param task
+     *            task to be added
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void addBackwardSync(Task task) throws IOException {
+        databaseHandler.addBackwardSync(task);
+    }
+
+    /**
+     * Deletes a task from database like the <code>delete</code> method, except
+     * without deleting this task from Google Calendar. This method is the
+     * delete variant of the <code>addBackwardSync</code> method.
+     *
+     * @param googleId
+     *            Google Calendar ID of task to be deleted
+     * @throws IllegalAccessException
+     *             when list of tasks is empty and there is no task for this
+     *             method to delete
+     * @throws NoSuchElementException
+     *             when no matching task to given Google Calendar ID is found
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void deleteBackwardSync(String googleId)
+            throws IllegalAccessException, NoSuchElementException, IOException {
+        databaseHandler.deleteBackwardSync(googleId);
     }
 
 }

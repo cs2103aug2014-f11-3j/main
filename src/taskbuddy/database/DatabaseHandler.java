@@ -7,23 +7,23 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
-import org.junit.Assert;
-
 import taskbuddy.googlecal.GoogleCalendarManager;
 import taskbuddy.logic.Task;
 
 public class DatabaseHandler {
     static final String LOG_NAME = "log";
-    private static final String EMPTY_STRING = "";
+    static final String EMPTY_STRING = "";
 
     // @formatter:off
-    private static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = 
+    static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = 
             "Changes made to database and task log but not Google Calendar. ";
-    private static final String ERR_NO_TASKS = 
+    static final String ERR_NO_TASKS = 
             "Cannot read from empty list of tasks.";
-    private static final String ERR_NO_SUCH_TASK_ID = 
+    static final String ERR_NO_SUCH_TASK_ID = 
             "No such task ID";
-    private static final String ERR_MSG_SEARCH_STRING_EMPTY = 
+    static final String ERR_NO_SUCH_GOOGLE_ID = 
+            "No such Google Calendar ID";
+    static final String ERR_MSG_SEARCH_STRING_EMPTY = 
             "Search string cannot be empty.";
     // @formatter:on
 
@@ -31,7 +31,7 @@ public class DatabaseHandler {
     TaskLogger taskLogger;
     ArrayList<Task> tasks;
     GoogleCalendarManager googleCal;
-    LinkedList<GoogleCalendarCommand> googleCalendarCommands;
+    LinkedList<GoogleCalendarCommand> commandQueue;
     ArrayList<DatabaseObserver> observerList;
 
     /**
@@ -49,7 +49,7 @@ public class DatabaseHandler {
         this.tasks = taskLogger.prepareLog(logName);
         this.googleCal = new GoogleCalendarManager();
         GoogleCalendarCommand.googleCal = this.googleCal;
-        this.googleCalendarCommands = new LinkedList<GoogleCalendarCommand>();
+        this.commandQueue = new LinkedList<GoogleCalendarCommand>();
         this.observerList = new ArrayList<DatabaseObserver>();
     }
 
@@ -67,8 +67,8 @@ public class DatabaseHandler {
      * 
      * @return command queue for Google Calendar commands
      */
-    public LinkedList<GoogleCalendarCommand> getGoogleCalendarCommands() {
-        return googleCalendarCommands;
+    public LinkedList<GoogleCalendarCommand> getCommandQueue() {
+        return commandQueue;
     }
 
     /**
@@ -102,7 +102,7 @@ public class DatabaseHandler {
         } catch (UnknownHostException e) {
             // TODO Add add command to command queue
             assert GoogleCalendarCommand.googleCal != null;
-            this.googleCalendarCommands.add(new GoogleCalendarAdd(task));
+            this.commandQueue.add(new GoogleCalendarAdd(task));
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
         } finally {
@@ -130,13 +130,31 @@ public class DatabaseHandler {
     }
 
     /**
+     * Finds the task whose Google Calendar ID matches a given task Google
+     * Calendar ID.
+     * 
+     * @param googleId
+     *            Google Calendar ID to search
+     * @return task with matching Google Calendar ID
+     */
+    public Task findMatchingTask(String googleId) {
+        Task result = null;
+        for (Task aTask : this.getTasks()) {
+            if (aTask.getGID().equals(googleId)) {
+                result = aTask;
+            }
+        }
+        return result;
+    }
+
+    /**
      * Searches for and returns a task based on its task ID from an empty or
      * non-empty stored list of tasks.
      * 
      * @param taskId
      *            title of task to retrieve
-     * @return task whose title matches search string, null if stored list of
-     *         task is empty or if no title match found.
+     * @return task whose task ID matches given task ID, null if stored list of
+     *         task is empty or if no task ID match is found.
      * @throws IllegalAccessException
      *             when this method tries to read from an empty list of tasks
      * @throws NoSuchElementException
@@ -155,6 +173,39 @@ public class DatabaseHandler {
             throw new NoSuchElementException(ERR_NO_SUCH_TASK_ID);
         }
 
+        assert result != null;
+        return result;
+    }
+
+    /**
+     * Searches for and returns a task based on its Google Calendar ID from an
+     * empty or non-empty stored list of tasks.
+     * 
+     * @param googleId
+     *            Google Calendar ID of task to retrieve
+     * @return task whose Google Calendar ID matches given Google Calendar ID,
+     *         null if stored list of task is empty or if no Google Calendar ID
+     *         match is found.
+     * @throws IllegalAccessException
+     *             when this method tries to read from an empty list of tasks
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to the given
+     *             Google Calendar ID.
+     * 
+     */
+    Task read(String googleId) throws IllegalAccessException,
+            NoSuchElementException {
+        if (this.getTasks().isEmpty()) {
+            throw new IllegalAccessException(ERR_NO_TASKS);
+        }
+
+        assert !this.getTasks().isEmpty();
+        Task result = findMatchingTask(googleId);
+        if (result == null) {
+            throw new NoSuchElementException(ERR_NO_SUCH_GOOGLE_ID);
+        }
+
+        // If result is null, it means the above exception was not thrown.
         assert result != null;
         return result;
     }
@@ -186,8 +237,7 @@ public class DatabaseHandler {
         } catch (UnknownHostException e) {
             // TODO Add delete command to command queue
             assert GoogleCalendarCommand.googleCal != null;
-            this.googleCalendarCommands.add(new GoogleCalendarDelete(
-                    taskToDelete));
+            this.commandQueue.add(new GoogleCalendarDelete(taskToDelete));
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
         } finally {
@@ -315,7 +365,7 @@ public class DatabaseHandler {
         } catch (UnknownHostException e) {
             // TODO Add edit command to command queue
             assert GoogleCalendarCommand.googleCal != null;
-            this.googleCalendarCommands.add(new GoogleCalendarUpdate(newTask));
+            this.commandQueue.add(new GoogleCalendarUpdate(newTask));
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
         } finally {
@@ -357,15 +407,59 @@ public class DatabaseHandler {
      *             performed.
      */
     void forwardSync() throws UnknownHostException {
-        LinkedList<GoogleCalendarCommand> myGoogleCalendarCommands = this
-                .getGoogleCalendarCommands();
-        while (!myGoogleCalendarCommands.isEmpty()) {
-            GoogleCalendarCommand nextCommand = myGoogleCalendarCommands.peek();
+        while (!this.getCommandQueue().isEmpty()) {
+            GoogleCalendarCommand nextCommand = this.getCommandQueue().peek();
             nextCommand.execute();
             // If execution is unsuccessful due to user still being offline, the
             // following code will not be executed and the command that has just
             // failed to be executed will remain in the command queue.
-            myGoogleCalendarCommands.remove();
+            this.getCommandQueue().remove();
         }
+    }
+
+    /**
+     * Adds a task to database like the <code>addTask</code> method, except
+     * without synchronisation to Google Calendar. This method is used when
+     * Google Calendar manager needs to add a task to database to synchronise
+     * tasks between Google Calendar manager and database, which is also known
+     * as backward sync.
+     * 
+     * @param task
+     *            task to be added
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void addBackwardSync(Task task) throws IOException {
+        this.tasks.add(task);
+        this.setTaskIds();
+        this.taskLogger.writeToLogFile(this.getTasks());
+        this.notifyObservers();
+    }
+
+    /**
+     * Deletes a task from database like the <code>delete</code> method, except
+     * without deleting this task from Google Calendar. This method is the
+     * delete variant of the <code>addBackwardSync</code> method.
+     *
+     * @param googleId
+     *            Google Calendar ID of task to be deleted
+     * @throws IllegalAccessException
+     *             when list of tasks is empty and there is no task for this
+     *             method to delete
+     * @throws NoSuchElementException
+     *             when no matching task to given Google Calendar ID is found
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void deleteBackwardSync(String googleId)
+            throws IllegalAccessException, NoSuchElementException, IOException {
+        Task taskToDelete = this.read(googleId);
+        assert !this.getTasks().isEmpty() && taskToDelete != null;
+        
+        this.tasks.remove(taskToDelete);
+        this.setTaskIds();
+        this.taskLogger.writeToLogFile(this.getTasks());
+        this.notifyObservers();
+
     }
 }

@@ -96,7 +96,7 @@ public class DatabaseInitialisationTest {
 
         assertTrue("Database not constructed with linkedlist "
                 + "of GoogleCalendarCommand objects.",
-                myDatabaseHandler.googleCalendarCommands instanceof LinkedList);
+                myDatabaseHandler.commandQueue instanceof LinkedList);
         assertTrue(
                 "Database not constructed with arraylist of Observer objects.",
                 myDatabaseHandler.observerList instanceof ArrayList);

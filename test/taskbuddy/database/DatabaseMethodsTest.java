@@ -5,9 +5,10 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -16,8 +17,6 @@ import org.junit.Test;
 import taskbuddy.database.Database;
 import taskbuddy.database.DatabaseHandler;
 import taskbuddy.database.GoogleCalendarManagerStub;
-import taskbuddy.database.TaskLogger;
-import taskbuddy.googlecal.GoogleCalendarManager;
 import taskbuddy.logic.Task;
 
 /**
@@ -27,19 +26,10 @@ import taskbuddy.logic.Task;
  *
  */
 public class DatabaseMethodsTest {
-    private static final String EMPTY_STRING = "";
-
-    // @formatter:off
-    private static final String ERR_NO_TASKS = 
-            "Cannot read from empty list of tasks.";
-    private static final String ERR_NO_SUCH_TASK_ID = 
-            "No such task ID";
-    private static final String ERR_MSG_SEARCH_STRING_EMPTY = 
-            "Search string cannot be empty.";
-    // @formatter:on
-
     Task firstTask;
     Task secondTask;
+    String firstGoogleId;
+    String secondGoogleId;
 
     Database database;
     String logName = DatabaseHandler.LOG_NAME;
@@ -82,6 +72,19 @@ public class DatabaseMethodsTest {
         task.setFloating(isFloating);
 
         return task;
+    }
+
+    public void checkTaskLogCorrectness() throws IOException, ParseException {
+        ArrayList<Task> readTasks = myDatabaseHandler.taskLogger.readTasks();
+        assertEquals(
+                "Number of tasks in task log is not the same as that in database.",
+                readTasks.size(), database.getTasks().size());
+        for (int i = 0; i < readTasks.size(); i++) {
+            actual = readTasks.get(i).displayTask();
+            expected = database.getTasks().get(i).displayTask();
+            assertTrue("Task " + i + " not correctly logged.",
+                    actual.equals(expected));
+        }
     }
 
     @Before
@@ -138,23 +141,44 @@ public class DatabaseMethodsTest {
             database.read(1);
             fail("Exception not thrown when trying to "
                     + "read from empty list of tasks.");
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
             assertTrue("Empty list exception not thrown.", e.getMessage()
-                    .equals(ERR_NO_TASKS));
+                    .equals(DatabaseHandler.ERR_NO_TASKS));
+        }
+        try {
+            database.read("1111");
+            fail("Exception not thrown when trying to "
+                    + "read from empty list of tasks.");
+        } catch (IllegalAccessException e) {
+            assertTrue("Empty list exception not thrown.", e.getMessage()
+                    .equals(DatabaseHandler.ERR_NO_TASKS));
         }
 
-        database.addTask(firstTask);
+        addTasks();
+        setGoogleIds();
         assertTrue("First task not read correctly from given task ID.",
                 database.read(1).equals(firstTask));
-        database.addTask(secondTask);
+        assertTrue(
+                "First task not read correctly from given Google Calendar ID.",
+                database.read(firstGoogleId).equals(firstTask));
         assertTrue("Second task not read correctly from given task ID.",
                 database.read(2).equals(secondTask));
+        assertTrue(
+                "Second task not read correctly from given Google Calendar ID.",
+                database.read(secondGoogleId).equals(secondTask));
 
         try {
             database.read(3);
-        } catch (Exception e) {
+            fail("No exception thrown for invalid task ID.");
+        } catch (NoSuchElementException e) {
             assertTrue("No such task ID exception not thrown.", e.getMessage()
-                    .equals(ERR_NO_SUCH_TASK_ID));
+                    .equals(DatabaseHandler.ERR_NO_SUCH_TASK_ID));
+        }
+        try {
+            database.read("3333");
+        } catch (NoSuchElementException e) {
+            assertEquals("No such task ID exception not thrown.",
+                    e.getMessage(), DatabaseHandler.ERR_NO_SUCH_GOOGLE_ID);
         }
 
     }
@@ -168,7 +192,7 @@ public class DatabaseMethodsTest {
                     + "from empty list of tasks.");
         } catch (Exception e) {
             assertTrue("Empty list exception not thrown.", e.getMessage()
-                    .equals(ERR_NO_TASKS));
+                    .equals(DatabaseHandler.ERR_NO_TASKS));
         }
 
         addTasks();
@@ -183,13 +207,7 @@ public class DatabaseMethodsTest {
         assertTrue("Remaining task after deletion is not correct.", database
                 .getTasks().get(0).equals(secondTask));
 
-        ArrayList<Task> readTasks = myDatabaseHandler.taskLogger.readTasks();
-        assertEquals("Number of tasks in log did not decrease to one ", 1,
-                readTasks.size());
-        actual = readTasks.get(0).displayTask();
-        expected = database.getTasks().get(0).displayTask();
-        assertTrue("Task deletion not correctly logged.",
-                actual.equals(expected));
+        checkTaskLogCorrectness();
 
         // Test for invalid task ID
         try {
@@ -197,7 +215,7 @@ public class DatabaseMethodsTest {
             fail("Should have thrown no such task ID exception.");
         } catch (Exception e) {
             assertTrue("No such task ID exception not thrown.", e.getMessage()
-                    .equals(ERR_NO_SUCH_TASK_ID));
+                    .equals(DatabaseHandler.ERR_NO_SUCH_TASK_ID));
         }
     }
 
@@ -282,6 +300,71 @@ public class DatabaseMethodsTest {
         newTask.setTaskId(taskIdToEdit);
         database.edit(newTask);
         checkObservedTasksCorrectness();
+    }
+
+    public void setGoogleIds() {
+        firstGoogleId = "1111";
+        firstTask.setGID(firstGoogleId);
+
+        secondGoogleId = "2222";
+        secondTask.setGID(secondGoogleId);
+
+    }
+
+    @Test
+    public void testAddBackwardSync() throws Exception {
+        setGoogleIds();
+        database.addBackwardSync(firstTask);
+
+        assertEquals("Number of tasks did not increase from 0 to 1 after task "
+                + "addition", 1, database.getTasks().size());
+        assertTrue("Task not added properly", database.getTasks().get(0)
+                .equals(firstTask));
+        checkTaskLogCorrectness();
+        checkObservedTasksCorrectness();
+    }
+
+    @Test
+    public void testDeleteBackwardSync() throws Exception {
+        try {
+            database.deleteBackwardSync("1111");
+            fail("Exception not thrown when trying to "
+                    + "read from empty list of tasks.");
+        } catch (IllegalAccessException e) {
+            assertTrue("Empty list exception not thrown.", e.getMessage()
+                    .equals(DatabaseHandler.ERR_NO_TASKS));
+        }
+
+        addTasks();
+        setGoogleIds();
+        assertEquals("Number of tasks in temporary memory is not two.",
+                database.getTasks().size(), 2);
+        assertEquals("Google Calendar ID for first task not set.",
+                firstGoogleId, database.getTasks().get(0).getGID());
+        assertEquals("Google Calendar ID for first task not set.",
+                secondGoogleId, database.getTasks().get(1).getGID());
+
+        database.deleteBackwardSync(firstGoogleId);
+
+        assertEquals("Number of tasks did not decrease to one.", database
+                .getTasks().size(), 1);
+        assertTrue("Remaining task after deletion is not correct.", database
+                .getTasks().get(0).equals(secondTask));
+        checkTaskLogCorrectness();
+        checkObservedTasksCorrectness();
+
+        try {
+            database.deleteBackwardSync("3333");
+        } catch (NoSuchElementException e) {
+            assertEquals("No such task ID exception not thrown.",
+                    e.getMessage(), DatabaseHandler.ERR_NO_SUCH_GOOGLE_ID);
+        }
+    }
+
+    @Ignore
+    @Test
+    public void testEditBackwardSync() throws Exception {
+
     }
 
 }
