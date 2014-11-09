@@ -31,7 +31,7 @@ public class DatabaseHandler {
     TaskLogger taskLogger;
     ArrayList<Task> tasks;
     GoogleCalendarManager googleCal;
-    LinkedList<GoogleCalendarCommand> googleCalendarCommands;
+    LinkedList<GoogleCalendarCommand> commandQueue;
     ArrayList<DatabaseObserver> observerList;
 
     /**
@@ -49,7 +49,7 @@ public class DatabaseHandler {
         this.tasks = taskLogger.prepareLog(logName);
         this.googleCal = new GoogleCalendarManager();
         GoogleCalendarCommand.googleCal = this.googleCal;
-        this.googleCalendarCommands = new LinkedList<GoogleCalendarCommand>();
+        this.commandQueue = new LinkedList<GoogleCalendarCommand>();
         this.observerList = new ArrayList<DatabaseObserver>();
     }
 
@@ -67,8 +67,8 @@ public class DatabaseHandler {
      * 
      * @return command queue for Google Calendar commands
      */
-    public LinkedList<GoogleCalendarCommand> getGoogleCalendarCommands() {
-        return googleCalendarCommands;
+    public LinkedList<GoogleCalendarCommand> getCommandQueue() {
+        return commandQueue;
     }
 
     /**
@@ -102,7 +102,7 @@ public class DatabaseHandler {
         } catch (UnknownHostException e) {
             // TODO Add add command to command queue
             assert GoogleCalendarCommand.googleCal != null;
-            this.googleCalendarCommands.add(new GoogleCalendarAdd(task));
+            this.commandQueue.add(new GoogleCalendarAdd(task));
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
         } finally {
@@ -186,8 +186,7 @@ public class DatabaseHandler {
         } catch (UnknownHostException e) {
             // TODO Add delete command to command queue
             assert GoogleCalendarCommand.googleCal != null;
-            this.googleCalendarCommands.add(new GoogleCalendarDelete(
-                    taskToDelete));
+            this.commandQueue.add(new GoogleCalendarDelete(taskToDelete));
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
         } finally {
@@ -315,7 +314,7 @@ public class DatabaseHandler {
         } catch (UnknownHostException e) {
             // TODO Add edit command to command queue
             assert GoogleCalendarCommand.googleCal != null;
-            this.googleCalendarCommands.add(new GoogleCalendarUpdate(newTask));
+            this.commandQueue.add(new GoogleCalendarUpdate(newTask));
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
         } finally {
@@ -357,15 +356,32 @@ public class DatabaseHandler {
      *             performed.
      */
     void forwardSync() throws UnknownHostException {
-        LinkedList<GoogleCalendarCommand> myGoogleCalendarCommands = this
-                .getGoogleCalendarCommands();
-        while (!myGoogleCalendarCommands.isEmpty()) {
-            GoogleCalendarCommand nextCommand = myGoogleCalendarCommands.peek();
+        while (!this.getCommandQueue().isEmpty()) {
+            GoogleCalendarCommand nextCommand = this.getCommandQueue().peek();
             nextCommand.execute();
             // If execution is unsuccessful due to user still being offline, the
             // following code will not be executed and the command that has just
             // failed to be executed will remain in the command queue.
-            myGoogleCalendarCommands.remove();
+            this.getCommandQueue().remove();
         }
+    }
+
+    /**
+     * Adds a task to database like the <code>addTask</code> method, except
+     * without synchronisation to Google Calendar. This method is used when
+     * Google Calendar manager needs to add a task to database to synchronise
+     * tasks between Google Calendar manager and database, which is also known
+     * as backward sync.
+     * 
+     * @param task
+     *            task to be added
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void addBackwardSync(Task task) throws IOException {
+        this.tasks.add(task);
+        this.setTaskIds();
+        this.taskLogger.writeToLogFile(this.getTasks());
+        this.notifyObservers();
     }
 }

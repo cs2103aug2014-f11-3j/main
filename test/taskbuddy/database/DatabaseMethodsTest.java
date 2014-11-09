@@ -284,4 +284,37 @@ public class DatabaseMethodsTest {
         checkObservedTasksCorrectness();
     }
 
+    @Test
+    public void testAddBackwardSync() throws Exception {
+        String firstGoogleId = "1111";
+        firstTask.setGID(firstGoogleId);
+        database.addBackwardSync(firstTask);
+
+        assertEquals("Number of tasks did not increase from 0 to 1 after task "
+                + "addition", 1, database.getTasks().size());
+        assertTrue("Task not added properly", database.getTasks().get(0)
+                .equals(firstTask));
+        ArrayList<Task> readTasks = myDatabaseHandler.taskLogger.readTasks();
+        assertEquals("Number of tasks in log did not increase from 0 to 1 ", 1,
+                readTasks.size());
+        actual = readTasks.get(0).displayTask();
+        expected = database.getTasks().get(0).displayTask();
+        assertTrue("Task not logged correctly in log file.",
+                actual.equals(expected));
+        assertEquals("Observer not updated properly.",
+                databaseObserverStub.getObservedTasks(), database.getTasks());
+    }
+
+    @Ignore
+    @Test
+    public void testDeleteBackwardSync() throws Exception {
+
+    }
+
+    @Ignore
+    @Test
+    public void testEditBackwardSync() throws Exception {
+
+    }
+
 }

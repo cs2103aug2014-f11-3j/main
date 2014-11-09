@@ -194,4 +194,20 @@ public class Database {
         databaseHandler.forwardSync();
     }
 
+    /**
+     * Adds a task to database like the <code>addTask</code> method, except
+     * without synchronisation to Google Calendar. This method is used when
+     * Google Calendar manager needs to add a task to database to synchronise
+     * tasks between Google Calendar manager and database, which is also known
+     * as backward sync.
+     * 
+     * @param task
+     *            task to be added
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void addBackwardSync(Task task) throws IOException {
+        databaseHandler.addBackwardSync(task);
+    }
+
 }
