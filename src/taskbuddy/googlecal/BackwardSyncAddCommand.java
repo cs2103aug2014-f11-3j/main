@@ -37,17 +37,15 @@ public class BackwardSyncAddCommand {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		for (Task task : tasksToAdd) {
-//			try {
-				// TO MODIFY
-				// db.addBackwardSync(task);
-//				db.addTask(task);
-//				System.out.println(task);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-	//	}		
+		for (Task task : tasksToAdd) {
+			try {
+				db.addBackwardSync(task);
+				//System.out.println(task);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
 	}
 	
 	public void printTasks() {

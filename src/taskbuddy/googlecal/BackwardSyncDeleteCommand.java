@@ -4,6 +4,7 @@ package taskbuddy.googlecal;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 import taskbuddy.database.Database;
 import taskbuddy.logic.Task;
@@ -49,15 +50,18 @@ public class BackwardSyncDeleteCommand {
 			e.printStackTrace();
 		}
 		for (Task task : tasksToDelete) {
-			//try {
-				// TO MODIFY
-				//db.deleteBackwardSync(task.getGID(), task);
+
+				try {
+					db.deleteBackwardSync(task.getGID());
+				} catch (IllegalAccessException | NoSuchElementException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
-				//db.addTask(task);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+
 		}		
 	}
 }

@@ -4,6 +4,7 @@ package taskbuddy.googlecal;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 import taskbuddy.database.Database;
 import taskbuddy.logic.Task;
@@ -47,15 +48,12 @@ public class BackwardSyncEditCommand {
 			e.printStackTrace();
 		}
 		for (Task task : tasksToEdit) {
-			//try {
-				// TO MODIFY
-				//db.deleteBackwardSync(task.getGID(), task);
-				
-				//db.addTask(task);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			try {
+				db.editBackwardSync(task.getGID(), task);
+			} catch (IOException | IllegalAccessException | NoSuchElementException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}		
 	}
 }
