@@ -28,7 +28,8 @@ public class GoogleCalendarManager {
     
 	GooCalBackend gooCalBackend = new GooCalBackend(); 
 	GoogleCalendarAuthorizerStatus googleCalendarAuthorizer = new GoogleCalendarAuthorizerStatus();
-   
+	GoogleCalendarBackwardSyncCommandCreator googleCalendarBackwardSyncCommandCreator = new GoogleCalendarBackwardSyncCommandCreator();
+	
 	public void add(Task task) throws UnknownHostException  {
 		String gooCalEventID;
 		// Assertion Tests
@@ -143,6 +144,10 @@ public class GoogleCalendarManager {
 			}
 			gooCalBackend.updateEvent(service, eventSummary, eventDescription,  gooCalEventID, eventStartDate, eventStartTime, eventEndDate, eventEndTime, eventPriority);		
 		}
+	}
+	
+	public void executeBackwardSync() throws UnknownHostException {
+		googleCalendarBackwardSyncCommandCreator.executeBackwardSync();
 	}
 	
 	public String getSummary(Task task) {
