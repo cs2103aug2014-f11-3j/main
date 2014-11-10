@@ -95,10 +95,10 @@ public class Parser {
 			return a;
 
 		} else if (isEditType(commandType)) {
-			AcknowledgeBundle a = null;
+			AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
+			
 			try{
 				editDataPadding(userInputs, commandType, userCommand);
-				a = commandParser.parseUserInputs(userInputs);
 			}catch(NullPointerException e){
 				a.putMessage(e.getMessage());
 			}
