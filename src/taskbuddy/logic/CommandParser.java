@@ -50,7 +50,7 @@ public class CommandParser {
 			} else if (commandType.equals("redo")){
 				ack = RedoCommand.redo();
 			} else if (commandType.equals("sync")){
-				ack = SyncCommand.SyncCalendars(database);
+				ack = SyncCommand.SyncCalendars();
 			} else {
 				ack.putFailure();
 				ack.putMessage("invalid command");

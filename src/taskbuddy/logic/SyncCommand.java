@@ -7,9 +7,10 @@ import taskbuddy.database.Database;
 
 public class SyncCommand {
 
-	public static AcknowledgeBundle SyncCalendars(Database db){
+	public static AcknowledgeBundle SyncCalendars(){
 		AcknowledgeBundle acks = new AcknowledgeBundle();
-		// TODO try db.sync();
+		CommandParser cp = CommandParser.getInstance();
+		Database db = cp.getDatabase();
 		
 		return acks;
 	}
