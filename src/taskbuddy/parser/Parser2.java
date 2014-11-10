@@ -43,6 +43,7 @@ public class Parser2 {
 		boolean containsRevert = (searchTokens(commandRevert, line) != -1);
 		boolean containsPriority = (searchTokens(commandPriority, line) != -1);
 		boolean containsUndo = (searchTokens(commandUndo, line) != -1);
+		boolean containsRedo = (searchTokens(commandRedo, line) != -1);
 		if (containsSync) {
 			acks = syncCmd(line, bundle);
 		} else if (containsDone) {
@@ -54,6 +55,8 @@ public class Parser2 {
 		} else if (containsUndo){
 			System.err.println("err1");
 			acks = undoCmd(line, bundle);
+		} else if (containsRedo){
+			acks = redoCmd(line, bundle);
 		} else {
 			acks.putFailure();
 			acks.putMessage("wrong parser");
