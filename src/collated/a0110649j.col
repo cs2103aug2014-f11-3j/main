@@ -1,0 +1,1538 @@
+//@author: a0110649j
+
+
+
+	/**
+	 * origin: .\taskbuddy\gui\MainApp.java
+	 */
+
+//andrew
+package taskbuddy.gui;
+
+import java.net.URL;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+
+public class MainApp extends Application {
+
+	private Stage primaryStage;
+	private BorderPane taskBuddyView;
+
+	public void start(Stage primaryStage) {
+		this.primaryStage = primaryStage;
+		this.primaryStage.setTitle("TaskBuddy!");
+		initView();
+	}
+
+	public void initView() {
+		try {
+			FXMLLoader loader = new FXMLLoader();
+			URL location = this.getClass().getResource("TaskBuddyView.fxml");
+			loader.setLocation(location);
+			taskBuddyView = loader.load();
+			Scene scene = new Scene(taskBuddyView);
+			primaryStage.setScene(scene);
+			primaryStage.show();
+			System.err.println("opening gui");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public Stage getPrimaryStage() {
+		return primaryStage;
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+	
+}
+
+	// End of segment: .\taskbuddy\gui\MainApp.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\gui\TaskBuddyViewController.java
+	 */
+
+//andrew
+
+package taskbuddy.gui;
+
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import taskbuddy.database.Database;
+import taskbuddy.database.DatabaseObserver;
+import taskbuddy.googlecalcontroller.GoogleCalendarController;
+import taskbuddy.logic.AcknowledgeBundle;
+import taskbuddy.logic.Task;
+import taskbuddy.parser.Parser;
+import taskbuddy.parser.Parser2;
+
+public class TaskBuddyViewController implements DatabaseObserver {
+
+	protected Database database;
+	protected ArrayList<Task> listTasks;
+	private final static String commandSync = "sync";
+	private final static String commandDone = "done";
+	private final static String commandRevert = "revert";
+	private final static String commandPriority = "priority";
+	private final static String commandUndo = "undo";
+	private final static String commandRedo = "redo";
+
+	private ObservableList<Task> taskData = FXCollections.observableArrayList();
+	@FXML
+	private TableView<Task> taskTable;
+	@FXML
+	private TableColumn<Task, String> titleColumn;
+	@FXML
+	private TableColumn<Task, String> taskIDColumn;
+	@FXML
+	private TableColumn<Task, String> startDateColumn;
+	@FXML
+	private TableColumn<Task, String> endDateColumn;
+	@FXML
+	private Label taskIDLabel;
+	@FXML
+	private Label taskTitleLabel;
+	@FXML
+	private Label taskDescriptionLabel;
+	@FXML
+	private Label taskTypeLabel;
+	@FXML
+	private Label taskStartTimeLabel;
+	@FXML
+	private Label taskDueTimeLabel;
+	@FXML
+	private Label taskPriorityLabel;
+	@FXML
+	private Label taskCompletionLabel;
+	@FXML
+	private Label responseLabel;
+	@FXML
+	private Label usernameLabel;
+	@FXML
+	private Label gooCalLabel;
+	@FXML
+	private Label authLabel;
+	@FXML
+	private Label userAuthLabel;
+	@FXML
+	protected TextField userInputField = new TextField();
+	@FXML
+	protected TextField usernameField = new TextField();
+	@FXML
+	protected TextField goocalField = new TextField();
+	@FXML
+	protected TextField authField = new TextField();
+	protected GoogleCalendarController gcCont = new GoogleCalendarController();
+	final String fail = "Failure";
+
+	public TaskBuddyViewController() {
+	}
+
+	public TaskBuddyViewController(Database database) throws IOException,
+			ParseException {
+		listTasks = new ArrayList<Task>();
+		this.database = database;
+		database.addObserver(this);
+	}
+
+	@FXML
+	private void initialize() {
+		checkUser();
+		titleColumn.setCellValueFactory(cellData -> cellData.getValue()
+				.titleProperty());
+		taskIDColumn.setCellValueFactory(cellData -> StringProperty
+				.stringExpression(cellData.getValue().idProperty()));
+		startDateColumn.setCellValueFactory(cellData -> cellData.getValue()
+				.startDateProperty());
+		endDateColumn.setCellValueFactory(cellData -> cellData.getValue()
+				.dueDateProperty());
+		taskTable
+				.getSelectionModel()
+				.selectedItemProperty()
+				.addListener(
+						(observable, oldValue, newValue) -> showTaskDetails(newValue));
+		update();
+	}
+
+	private void showTaskDetails(Task task) {
+		if (task != null) {
+			taskIDLabel.setText(String.valueOf(task.getTaskId()));
+			taskTitleLabel.setText(task.getTitle());
+			taskDescriptionLabel.setText(task.getDescription());
+			Boolean floating = task.isFloatingTask();
+			if (floating) {
+				taskTypeLabel.setText("Floating");
+				taskStartTimeLabel.setText("-");
+				taskDueTimeLabel.setText("-");
+			} else {
+				taskTypeLabel.setText("Timed");
+				String starT = task.displayStart();
+				String enD = task.displayEnd();
+				String start = starT.substring(7);
+				String end = enD.substring(5);
+				taskStartTimeLabel.setText(start);
+				taskDueTimeLabel.setText(end);
+			}
+			Boolean complete = task.getCompletionStatus();
+			if (complete) {
+				taskCompletionLabel.setText("Completed");
+			} else {
+				taskCompletionLabel.setText("Incomplete");
+			}
+			taskPriorityLabel.setText(String.valueOf(task.getPriority()));
+		} else {
+			taskIDLabel.setText("-");
+			taskTitleLabel.setText("-");
+			taskDescriptionLabel.setText("-");
+			taskTypeLabel.setText("-");
+			taskStartTimeLabel.setText("-");
+			taskDueTimeLabel.setText("-");
+			taskCompletionLabel.setText("-");
+			taskPriorityLabel.setText("-");
+		}
+	}
+
+	@FXML
+	protected void parseInputs() {
+		String inputLine = userInputField.getText();
+		System.err.println(inputLine);
+		boolean useParser2 = checkParser(inputLine);
+		if (inputLine.isEmpty()) {
+			responseLabel.setText("Nothing entered");
+		} else {
+			AcknowledgeBundle a = new AcknowledgeBundle();
+			try {
+				if (useParser2) {
+					a = Parser2.parseOtherCommands(inputLine);
+				} else {
+					a = Parser.userInput(inputLine);
+				}
+			} catch (ParseException e) {
+				a.putFailure();
+				a.putMessage("Parse error");
+				e.printStackTrace();
+			} catch (IOException e) {
+				a.putFailure();
+				a.putMessage("Input error");
+				e.printStackTrace();
+			}
+			String status = a.getStatus();
+			System.err.println(a.getStatus());
+			System.err.println(a.getMessage());
+			if (status.equals(fail)) {
+				String response = status + ": " + a.getMessage();
+				System.err.println(a.getMessage());
+				responseLabel.setText(response);
+			} else {
+				responseLabel.setText(a.getMessage());
+			}
+			update();
+		}
+	}
+
+	
+	protected boolean checkParser(String s) {
+		String[] tokens = s.split(" ");
+		String word = tokens[0];
+		switch (word){
+			case commandSync:
+			case commandDone:
+			case commandRevert:
+			case commandPriority:
+			case commandUndo:
+			case commandRedo:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	@FXML
+	protected void parseUsername() {
+		String username = usernameField.getText();
+		System.err.println(username);
+		gcCont.setUserName(username);
+	}
+
+	@FXML
+	protected void parseGoocal() {
+		String address = goocalField.getText();
+		System.err.println(address);
+		gcCont.setCalAddress(address);
+	}
+
+	@FXML
+	protected void parseAuth() {
+		// try {
+		String authCode = authField.getText();
+		System.err.println(authCode);
+		gcCont.authorize(authCode);
+		if (gcCont.isCalendarAuthenticated()) {
+			String username = usernameField.getText();
+			userAuthLabel.setText(username + "'s Google Calendar");
+			update();
+		} else {
+			userAuthLabel.setText("Authorization error");
+		}
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// userAuthLabel.setText("Authorization Error");
+		// }
+	}
+
+	protected void checkUser() {
+		String userInfo = gcCont.getDisplayStrings();
+		String none = "Username and Address empty";
+		String first = "Address empty";
+		String second = "Username empty";
+		if (userInfo.equals(none)) {
+			;
+		} else if (userInfo.equals(first)) {
+			goocalField.setText(userInfo);
+		} else if (userInfo.endsWith(second)) {
+			usernameField.setText(userInfo);
+		} else {
+			String[] userIn = userInfo.split(" ");
+			usernameField.setText(userIn[0]);
+			goocalField.setText(userIn[1]);
+			if (!gcCont.isCalendarAuthenticated()) {
+				String authURL = gcCont.getAuthorizationUrl();
+				try {
+					Desktop.getDesktop().browse(new URI(authURL));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				userAuthLabel.setText(userIn[0] + "'s Google Calendar");
+				update();
+			}
+		}
+	}
+
+	@Override
+	public void update() {
+		try {
+			database = Database.getInstance();
+			listTasks = database.getTasks();
+			System.err.println("copied db");
+		} catch (Exception e) {
+			listTasks = new ArrayList<Task>();
+			System.err.println("copy db fail");
+			Task dummy = new Task();
+			dummy.setTitle("dummy value");
+			dummy.setDescription("dummy desc");
+			dummy.setFloating(true);
+			dummy.setCompletion(false);
+			dummy.setStartTime(Calendar.getInstance());
+			dummy.setEndTime(Calendar.getInstance());
+			dummy.setPriority(1);
+			dummy.setTaskId(1);
+			listTasks.add(dummy);
+		}
+		taskData.setAll(listTasks);
+		taskTable.setItems(taskData);
+	}
+
+}
+
+	// End of segment: .\taskbuddy\gui\TaskBuddyViewController.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\AcknowledgeBundle.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import java.util.ArrayList;
+
+public class AcknowledgeBundle extends Bundle{
+	
+	private String status = "Status";
+	private String success = "Success";
+	private String failure = "Failure";
+	private String message = "Message";
+	private String task = "Task";
+	private String oldTask = "Old Task";
+	private String listTask = "List of tasks";
+	
+	//setter methods
+	
+	public void putStatus(String stat){
+		this.putString(status, stat);
+	}
+	
+	public void putSuccess(){
+		this.putString(status, success);
+	}
+	
+	public void putFailure(){
+		this.putString(status, failure);
+	}
+	
+	public void putMessage(String msg){
+		this.putString(message, msg);
+	}
+	
+	public void putTask(Task t){
+		this.putObject(task, t);
+	}
+	
+	public void putOldTask(Task t){
+		this.putObject(oldTask, t);
+	}
+	
+	public void putList(ArrayList<String> l){
+		this.putObject(listTask, l);
+	}
+	//access methods
+	
+	public String getStatus(){
+		return (String) this.getItem(status);
+	}
+	
+	public String getMessage(){
+		return (String) this.getItem(message);
+	}
+	
+	public Task getTask(){
+		return (Task) this.getItem(task);
+	}
+	
+	public Task getOldTask(){
+		return (Task) this.getItem(oldTask);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public ArrayList<String> getList(){
+		return (ArrayList<String>) this.getItem(listTask);
+	}
+}
+
+	// End of segment: .\taskbuddy\logic\AcknowledgeBundle.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\AddCommand.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import java.util.Calendar;
+
+import taskbuddy.database.Database;
+
+public class AddCommand {
+
+	private static String nullValue = "padding value";
+
+	public static AcknowledgeBundle addTask(UserInputBundle extras, Database db) {
+		AcknowledgeBundle ackBundle = new AcknowledgeBundle();
+		Task taskToAdd = new Task();
+		String title = extras.getTitle();
+		String desc = extras.getDescription();
+		String endDate = extras.getEndDate();
+		String endtime = extras.getEndTime();
+		String startDate = extras.getStartDate();
+		String startTime = extras.getStartTime();
+		taskToAdd.setTitle(title);
+		if (!desc.equals(nullValue)) {
+			taskToAdd.setDescription(desc);
+		} else {
+			taskToAdd.setDescription("no description available");
+		}
+		addTimeToTask(taskToAdd, startTime, startDate, endtime, endDate);
+		try {
+			db.addTask(taskToAdd);
+			ackBundle.putSuccess();
+			ackBundle.putMessage("added task to database with no errors");
+			ackBundle.putTask(taskToAdd);
+			CommandParser cp = CommandParser.getInstance();
+			cp.initRedo();
+			cp.pushUndo(extras);
+			cp.pushUndoTask(taskToAdd);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ackBundle.putFailure();
+			ackBundle.putMessage("failed to add task to online database");
+			ackBundle.putTask(taskToAdd);
+		}
+		return ackBundle;
+	}
+
+	private static void addTimeToTask(Task taskToMod, String timeStart,
+			String dateStart, String timeEnd, String dateEnd) {
+
+		if (dateStart.equals(nullValue) && dateEnd.equals(nullValue)) {
+			if (!timeStart.equals(nullValue) && !timeEnd.equals(nullValue)) {
+				Calendar calStart = Calendar.getInstance();
+				Calendar calEnd = Calendar.getInstance();
+				int startH = Integer.parseInt(timeStart.substring(0, 2));
+				int startM = Integer.parseInt(timeStart.substring(2));
+				int endH = Integer.parseInt(timeEnd.substring(0, 2));
+				int endM = Integer.parseInt(timeEnd.substring(2));
+				calStart.set(Calendar.HOUR_OF_DAY, startH);
+				calStart.set(Calendar.MINUTE, startM);
+				calEnd.set(Calendar.HOUR_OF_DAY, endH);
+				calEnd.set(Calendar.MINUTE, endM);
+				taskToMod.setEndTime(calEnd);
+				taskToMod.setStartTime(calStart);
+			} else if (!timeEnd.equals(nullValue)) {
+				taskToMod.setFloating(false);
+				Calendar cal = Calendar.getInstance();
+				int hh = Integer.parseInt(timeEnd.substring(0, 2));
+				int mm = Integer.parseInt(timeEnd.substring(2));
+				cal.set(Calendar.HOUR_OF_DAY, hh);
+				cal.set(Calendar.MINUTE, mm);
+				taskToMod.setEndTime(cal);
+				taskToMod.setStartTime(cal);
+			} else if (!timeStart.equals(nullValue)) {
+				taskToMod.setFloating(false);
+				Calendar cal = Calendar.getInstance();
+				int hh = Integer.parseInt(timeStart.substring(0, 2));
+				int mm = Integer.parseInt(timeStart.substring(2));
+				cal.set(Calendar.HOUR_OF_DAY, hh);
+				cal.set(Calendar.MINUTE, mm);
+				taskToMod.setEndTime(cal);
+				taskToMod.setStartTime(cal);
+			} else {
+				taskToMod.setFloating(true);
+				Calendar cal = Calendar.getInstance();
+				taskToMod.setEndTime(cal);
+				taskToMod.setStartTime(cal);
+			}
+		} else {
+			// not floating
+			taskToMod.setFloating(false);
+			if (!dateStart.equals(nullValue) && !dateEnd.equals(nullValue)) {
+				// task within 2 dates
+				String startT = "0000";
+				String endT = "2359";
+				if (timeStart.equals(nullValue)) {
+					taskToMod.setStartTime(dateStart, startT);
+				} else {
+					taskToMod.setStartTime(dateStart, timeStart);
+				}
+				if (timeEnd.equals(nullValue)) {
+					taskToMod.setEndTime(dateEnd, endT);
+				} else {
+					taskToMod.setEndTime(dateEnd, timeEnd);
+				}
+			}
+		}
+	}
+}
+
+	// End of segment: .\taskbuddy\logic\AddCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Bundle.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+//Author: andrew
+
+public class Bundle {
+    public HashMap<String, Object> bundle = new HashMap<String, Object>();
+
+    // e.g bundle.putString("Failure", "Failed to load etc");
+    // note that keys are unique for each bundle
+    public void putString(String key, String s) {
+        this.bundle.put(key, s);
+    }
+
+    public void putObject(String key, Object o) {
+        this.bundle.put(key, o);
+    }
+
+    // e.g bundle.get("success");
+    public Object getItem(String key) {
+        return this.bundle.get(key);
+    }
+
+    public String toString() {
+        return this.bundle.toString();
+    }
+
+}
+	// End of segment: .\taskbuddy\logic\Bundle.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\CommandParser.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Stack;
+
+import taskbuddy.database.Database;
+
+//Author: andrew
+
+public class CommandParser {
+	
+	private static CommandParser instance;
+	
+	protected static Database database;
+	protected static Stack<UserInputBundle> undoStack;
+	protected static Stack<Task> undoStackTask;
+	protected static Stack<UserInputBundle> redoStack;
+	protected static Stack<Task> redoStackTask;
+
+	public AcknowledgeBundle parseUserInputs(UserInputBundle userIn) {
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		try {
+		} catch (Exception e){ System.err.println("nothing");}
+		try {
+			String commandType = userIn.getCommand();
+			if (commandType.equals("add")) {
+				ack = AddCommand.addTask(userIn, database);
+			} else if (commandType.equals("delete")) {
+				ack = DeleteCommand.deleteTask(userIn, database);
+				Task t = ack.getTask();
+				this.pushUndoTask(t);
+			} else if (commandType.equals("edit")) {
+				ack = EditCommand.editTask(userIn);
+				Task oldt = ack.getOldTask();
+				Task newt = ack.getTask();
+				this.pushUndoTask(oldt);
+				this.pushUndoTask(newt);
+			} else if (commandType.equals("display")) {
+				ack = DisplayCommand.displayAllTasks(database);
+			} else if (commandType.equals("search")) {
+				ack = SearchCommand.searchForTasks(userIn, database);
+			} else if (commandType.equals("undo")){
+				ack = UndoCommand.undo();
+			} else if (commandType.equals("redo")){
+				ack = RedoCommand.redo();
+			} else if (commandType.equals("sync")){
+				ack = SyncCommand.SyncCalendars(database);
+			} else {
+				ack.putFailure();
+				ack.putMessage("invalid command");
+			}
+		} catch (Exception e) {
+			ack.putFailure();
+			ack.putMessage(e.getMessage());
+		}
+		return ack;
+	}
+
+	//deprecated
+	private void preProcess(UserInputBundle u) {
+		redoStack = new Stack<UserInputBundle>();
+		redoStackTask = new Stack<Task>();
+		undoStack.push(u);
+	}
+	
+	private String parseDate(Calendar cal){
+		String s = cal.getTime().toString();
+		String[] calInfo = s.split(" ");
+		String time = calInfo[3].substring(0,5);
+		String toReturn = calInfo[0] + " " + calInfo[1] + " " + calInfo[2] + ", " + time;
+		return toReturn;
+	}
+
+	//deprecated
+	protected CommandParser() throws ParseException, IOException {
+		database = Database.getInstance();
+		undoStack = new Stack<UserInputBundle>();
+		undoStackTask = new Stack<Task>();
+		redoStack = new Stack<UserInputBundle>();
+		redoStackTask = new Stack<Task>();
+	}
+
+	protected void pushUndo(UserInputBundle command){
+		undoStack.push(command);
+	}
+	
+	protected void pushUndoTask(Task item){
+		undoStackTask.push(item);
+	}
+	
+	protected void pushRedo(UserInputBundle command){
+		redoStack.push(command);
+	}
+	
+	protected void pushRedoTask(Task item){
+		redoStackTask.push(item);
+	}
+	
+	protected void initRedo(){
+		redoStack = new Stack<UserInputBundle>();
+		redoStackTask = new Stack<Task>();
+	}
+	
+	protected UserInputBundle getUndo(){
+		return undoStack.pop();
+	}
+	
+	protected UserInputBundle getRedo(){
+		return redoStack.pop();
+	}
+	
+	protected Task getUndoTask(){
+		return undoStackTask.pop();
+	}
+	
+	protected Task getRedoTask(){
+		return redoStackTask.pop();
+	}
+	
+	protected UserInputBundle peekUndo(){
+		return undoStack.peek();
+	}
+	public static CommandParser getInstance() throws ParseException, IOException{
+		if (instance == null){
+			instance = new CommandParser();
+			database = Database.getInstance();
+			undoStack = new Stack<UserInputBundle>();
+			undoStackTask = new Stack<Task>();
+			redoStack = new Stack<UserInputBundle>();
+			redoStackTask = new Stack<Task>();
+		}
+		return instance;
+	}
+	
+	public Database getDatabase() {
+		return database;
+	}
+}
+
+	// End of segment: .\taskbuddy\logic\CommandParser.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\DeleteCommand.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+import java.util.ArrayList;
+
+import taskbuddy.database.Database;
+
+public class DeleteCommand {
+
+	public static AcknowledgeBundle deleteTask(UserInputBundle inputs, Database db){
+		int id = Integer.parseInt(inputs.getTaskID());
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		try{
+			Task t = db.read(id);
+			db.delete(id);
+			CommandParser cp = CommandParser.getInstance();
+			ack.putSuccess();
+			ack.putMessage("task deleted successfully");
+			ack.putTask(t);
+			cp.initRedo();
+			cp.pushUndo(inputs);
+			cp.pushUndoTask(t);
+		} catch (Exception e){
+			ack.putFailure();
+			ack.putMessage("Unable to delete task");
+		}
+		return ack;
+	}
+	
+}
+
+	// End of segment: .\taskbuddy\logic\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\DisplayCommand.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import java.util.ArrayList;
+import taskbuddy.database.Database;
+
+public class DisplayCommand {
+
+	private static String floating = "Floating task: ";
+	private static String normal = "Task: ";
+	private static String due = ", due by ";
+	private static String started = ", started on ";
+
+	public static AcknowledgeBundle displayAllTasks(Database db) {
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		try {
+			ArrayList<Task> tasksInDB = db.getTasks();
+			ArrayList<String> toDisplay = new ArrayList<String>();
+			int length = tasksInDB.size();
+			for (int i = 0; i < length; i++) {
+				String taskInfo = "";
+				Task current = tasksInDB.get(i);
+				boolean isCompleted = current.getCompletionStatus();
+				if (!isCompleted) {
+					String title = current.getTitle();
+					String ID = String.valueOf(current.getTaskId());
+					boolean isFloating = current.isFloatingTask();
+					if (isFloating) {
+						taskInfo = "ID:" + ID + " " + floating + title;
+						toDisplay.add(taskInfo);
+					} else {
+						String startTime = current.getStartTime().getTime().toString();
+						String endTime = current.getEndTime().getTime().toString();
+						taskInfo = "ID:" + ID + " " + normal + title + started + startTime + due + endTime;
+						toDisplay.add(taskInfo);
+					}
+				} 
+			}
+			ack.putSuccess();
+			ack.putMessage("retrieval successful");
+			ack.putList(toDisplay);
+		} catch (Exception e) {
+			ack.putFailure();
+			ack.putMessage("failed to generate tasks in DB");
+		}
+		return ack;
+	}
+}
+
+	// End of segment: .\taskbuddy\logic\DisplayCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\EditCommand.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import java.net.UnknownHostException;
+import java.util.Calendar;
+
+import taskbuddy.database.Database;
+
+public class EditCommand {
+
+	private static String nullValue = "padding value";
+
+	public static AcknowledgeBundle editTask(UserInputBundle extras) {
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		Task toEdit = new Task();
+		int taskID = Integer.parseInt(extras.getTaskID());
+		try {
+			CommandParser cp = CommandParser.getInstance();
+			Database db = cp.getDatabase();
+			toEdit = db.read(taskID);
+			Task dup = duplicateTask(toEdit);
+			cp.pushUndoTask(dup);
+			System.err.println(dup.getTitle() + "++ pushing");
+			String title = extras.getTitle();
+			if (!title.equals(nullValue)) {
+				toEdit.setTitle(title);
+			}
+
+			String desc = extras.getDescription();
+			if (!desc.equals(nullValue)) {
+				toEdit.setDescription(desc);
+			}
+
+			String startDate = extras.getStartDate();
+			String startTime = extras.getStartTime();
+			if (!startDate.equals(nullValue) && !startTime.equals(nullValue)) {
+				toEdit.setStartTime(startDate, startTime);
+			} else if (!startDate.equals(nullValue)) {
+				Calendar cal = Calendar.getInstance();
+				String[] ddmmyyyy = startDate.split("/");
+				int d = Integer.parseInt(ddmmyyyy[0]);
+				int m = Integer.parseInt(ddmmyyyy[1]);
+				int y = Integer.parseInt(ddmmyyyy[2]);
+				cal.set(y, m, d);
+				toEdit.setStartTime(cal);
+			} else if (!startTime.equals(nullValue)) {
+				Calendar cal = Calendar.getInstance();
+				int h = Integer.parseInt(startTime.substring(0, 2));
+				int m = Integer.parseInt(startTime.substring(2));
+				cal.set(Calendar.HOUR_OF_DAY, h);
+				cal.set(Calendar.MINUTE, m);
+				toEdit.setStartTime(cal);
+			}
+
+			String endDate = extras.getEndDate();
+			String endTime = extras.getEndTime();
+			if (!endDate.equals(nullValue) && !endTime.equals(nullValue)) {
+				toEdit.setEndTime(endDate, endTime);
+			} else if (!endDate.equals(nullValue)) {
+				Calendar cal = Calendar.getInstance();
+				String[] ddmmyyyy = endDate.split("/");
+				int d = Integer.parseInt(ddmmyyyy[0]);
+				int m = Integer.parseInt(ddmmyyyy[1]);
+				int y = Integer.parseInt(ddmmyyyy[2]);
+				cal.set(y, m, d);
+				toEdit.setEndTime(cal);
+			} else if (!endTime.equals(nullValue)) {
+				Calendar cal = Calendar.getInstance();
+				int h = Integer.parseInt(endTime.substring(0, 2));
+				int m = Integer.parseInt(endTime.substring(2));
+				cal.set(Calendar.HOUR_OF_DAY, h);
+				cal.set(Calendar.MINUTE, m);
+				toEdit.setEndTime(cal);
+			}
+			try {
+				Boolean completion = extras.getCompletionStatus();
+				toEdit.setCompletion(completion);
+			} catch (Exception e){
+				;
+			}
+			try {
+				Integer priority = Integer.parseInt(extras.getPriority());
+				toEdit.setPriority(priority);
+			} catch (Exception e){
+				;
+			}
+			try {
+				db.edit(toEdit);
+				ack.putSuccess();
+				ack.putMessage("task edited");
+				ack.putTask(toEdit);
+				cp.pushUndo(extras);
+				cp.pushUndoTask(toEdit);
+			} catch (UnknownHostException e){
+				ack.putSuccess();
+				ack.putMessage("task edited locally");
+				ack.putTask(toEdit);
+				cp.pushUndo(extras);
+				cp.pushUndoTask(toEdit);
+			}
+		} catch (Exception e) {
+			ack.putFailure();
+			ack.putMessage("Unable to find task in DB");
+		}
+		return ack;
+	}
+	
+	protected static Task duplicateTask(Task toDup){
+		Task t = new Task();
+		t.setTaskId(toDup.getTaskId());
+		t.setCompletion(toDup.getCompletionStatus());
+		t.setDescription(toDup.getDescription());
+		t.setEndTime(toDup.getEndTime());
+		t.setGID(toDup.getGID());
+		t.setTitle(toDup.getTitle());
+		t.setStartTime(toDup.getStartTime());
+		t.setPriority(toDup.getPriority());
+		return t;
+	}
+}
+
+	// End of segment: .\taskbuddy\logic\EditCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\RedoCommand.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import java.util.ArrayList;
+import java.util.Stack;
+
+import taskbuddy.database.Database;
+
+public class RedoCommand {
+
+	public static AcknowledgeBundle redo() {
+
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		try {
+			CommandParser cp = CommandParser.getInstance();
+			Database db = cp.getDatabase();
+			UserInputBundle commandToRedo = cp.getRedo();
+			cp.pushUndo(commandToRedo);
+			String commandType = commandToRedo.getCommand();
+			try {
+				if (commandType.equals("add")) {
+					ack = AddCommand.addTask(commandToRedo, db);
+					ack.putMessage("add redid");
+				} else if (commandType.equals("delete")){
+					ack = DeleteCommand.deleteTask(commandToRedo, db);
+					ack.putMessage("delete redid");
+				} else if (commandType.equals("edit")){
+					Task afterEdit = cp.getRedoTask();
+					Task beforeEdit = cp.getRedoTask();
+					db.edit(afterEdit);
+					cp.pushUndoTask(beforeEdit);
+					cp.pushUndoTask(afterEdit);
+					ack.putSuccess();
+					ack.putMessage("edit redid");
+					ack.putOldTask(beforeEdit);
+					ack.putTask(afterEdit);
+				}
+			} catch (Exception e) {
+				ack.putFailure();
+				ack.putMessage("redo failure");
+			}
+		} catch (Exception e) {
+			ack.putFailure();
+			ack.putMessage("redo stack empty");
+		}
+		return ack;
+	}
+
+}
+
+	// End of segment: .\taskbuddy\logic\RedoCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\SearchCommand.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import java.util.ArrayList;
+
+import taskbuddy.database.Database;
+
+public class SearchCommand {
+
+	private static String nullValue = "padding value";
+
+	static public AcknowledgeBundle searchForTasks(UserInputBundle extras,
+			Database db) {
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		ArrayList<Task> listTask = new ArrayList<Task>();
+		ArrayList<String> displayToUser = new ArrayList<String>();
+		String title = extras.getTitle();
+		String desc = extras.getDescription();
+
+		try {
+			if (!title.equals(nullValue)) {
+				listTask = db.search(title);
+				displayToUser = concatTaskList(listTask);
+				ack.putSuccess();
+				ack.putMessage("Search success: \n"
+						+ concatListString(displayToUser));
+				ack.putList(displayToUser);
+			} else if (title.equals(nullValue)) {
+				listTask = db.search(desc);
+				displayToUser = concatTaskList(listTask);
+				ack.putSuccess();
+				ack.putMessage("Displaying results for:" + title);
+				ack.putList(displayToUser);
+			} else {
+				ack.putFailure();
+				ack.putMessage("No search term");
+			}
+		} catch (Exception e) {
+			ack.putFailure();
+			ack.putMessage("Read error, read from null");
+		}
+		return ack;
+	}
+
+	private static String concatListString(ArrayList<String> listS) {
+		String toReturn = "Results (Task IDs):  ";
+		for (String s : listS) {
+			toReturn = toReturn + s + "  ";
+		}
+		return toReturn;
+	}
+
+	private static ArrayList<String> concatTaskList(ArrayList<Task> listT) {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		int listLength = listT.size();
+		if (listLength == 0) {
+			toReturn.add("No results found");
+		} else {
+			try {
+				for (int i = 0; i < listLength; i++) {
+					Task current = listT.get(i);
+					String title = current.getTitle();
+					int ID = current.getTaskId();
+					String toAdd = String.valueOf(ID);
+					toReturn.add(toAdd);
+				}
+			} catch (Exception e) {
+				;
+			}
+		}
+		return toReturn;
+	}
+}
+
+	// End of segment: .\taskbuddy\logic\SearchCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\SyncCommand.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import taskbuddy.database.Database;
+
+public class SyncCommand {
+
+	public static AcknowledgeBundle SyncCalendars(Database db){
+		AcknowledgeBundle acks = new AcknowledgeBundle();
+		// TODO try db.sync();
+		
+		return acks;
+	}
+	
+}
+
+	// End of segment: .\taskbuddy\logic\SyncCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
+//Author: andrew
+public class Task {
+
+	// @formatter:off
+	private static final String EMPTY_STRING = "";
+	private static final String DELIMITER = " | ";
+	private static final String TASK_ID = "Task ID: ";
+	private static final String TITLE = "Title: ";
+	private static final String DESCRIPTION = "Description: ";
+	private static final String START = "Start: ";
+	private static final String END = "End: ";
+	private static final String PRIORITY = "Priority: ";
+	private static final String IS_COMPLETE = "Completed: ";
+	private static final String IS_FLOATING = "Floating task: ";
+	private static final String GOOGLE_CALENDAR_ID = "Google Calendar ID: ";
+	// @formatter:on
+
+	private static String nullValue = "padding value";
+	private String __title;
+	private String __description;
+	private Calendar __startTime;
+	private Calendar __endTime;
+	private int __priorityFlag;
+	private boolean __completionFlag;
+	private boolean __floatingTask;
+	private String __googleID;
+	private int __taskId;
+
+	// Properties
+	private StringProperty __titleProperty;
+	private StringProperty __startTimeProperty;
+	private StringProperty __endTimeProperty;
+	private IntegerProperty __taskIdProperty;
+
+	// bundle strings
+	private String user_description = "description";
+	private String user_endDate = "endDate";
+	private String user_start = "startTime";
+	private String user_endTime = "endTime";
+	private String user_title = "title";
+	private String user_flag = "flag";
+	private String user_priority = "priority";
+	private String user_googleID = "GoogleID";
+
+	public SimpleDateFormat formatter;
+	public static final String DATABASE_DATE_TIME_FORMATTER = "d-M-yyyy 'at' "
+			+ "HH:mm";
+
+	// basic constructors
+	public Task() {
+	}
+
+	public Task(String title) {
+		this.__title = title;
+		this.__completionFlag = false;
+	}
+
+	// basic accessors
+	public String getTitle() {
+		return this.__title;
+	}
+
+	public StringProperty titleProperty() {
+		return this.__titleProperty;
+	}
+
+	public String getDescription() {
+		return this.__description;
+	}
+
+	public Calendar getStartTime() {
+		return this.__startTime;
+	}
+
+	public Calendar getEndTime() {
+		return this.__endTime;
+	}
+
+	public StringProperty startDateProperty() {
+		return this.__startTimeProperty;
+	}
+
+	public StringProperty dueDateProperty() {
+		return this.__endTimeProperty;
+	}
+
+	private String parseDate(Calendar cal) {
+		String s = cal.getTime().toString();
+		String[] calInfo = s.split(" ");
+		String time = calInfo[3].substring(0, 5);
+		String toReturn = calInfo[0] + " " + calInfo[1] + " " + calInfo[2]
+				+ ", " + time;
+		return toReturn;
+	}
+
+	public int getPriority() {
+		return this.__priorityFlag;
+	}
+
+	public boolean getCompletionStatus() {
+		return this.__completionFlag;
+	}
+
+	public boolean isFloatingTask() {
+		return this.__floatingTask;
+	}
+
+	public String getGID() {
+		return this.__googleID;
+	}
+
+	/**
+	 * Gets the task ID, which is the unique identifier of a task. The task ID
+	 * is used for task manipulation such as task addition and deletion. For
+	 * example <code>delete(int taskId):void</code> deletes a task given a
+	 * specified, valid task ID.
+	 * 
+	 * @return the task ID
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\UndoCommand.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Stack;
+
+import taskbuddy.database.Database;
+
+public class UndoCommand {
+
+	public static AcknowledgeBundle undo() throws ParseException, IOException {
+		CommandParser cp = CommandParser.getInstance();
+		Database db = cp.getDatabase();
+		AcknowledgeBundle ack = new AcknowledgeBundle();
+		try {
+			UserInputBundle previousCommand = cp.getUndo();
+			try{
+				System.err.println(previousCommand.getCommand() + "command type");
+			} catch (Exception e){
+				;
+			}
+			cp.pushRedo(previousCommand);
+			String commandType = previousCommand.getCommand();
+			try {
+				if (commandType.equals("add")) {
+					Task added = cp.getUndoTask();
+					cp.pushRedoTask(added);
+					ArrayList<Task> allTasks = db.getTasks();
+					int size = allTasks.size();
+					db.delete((size));
+					ack.putSuccess();
+					ack.putMessage("add reverted");
+					ack.putTask(added);
+					
+				} else if (commandType.equals("delete")) {
+					Task deleted = cp.getUndoTask();
+					cp.pushRedoTask(deleted);;
+					db.addTask(deleted);
+					ack.putSuccess();
+					ack.putMessage("delete reverted");
+					ack.putTask(deleted);
+
+				} else if (commandType.equals("edit")) {
+					Task afterEdit = cp.getUndoTask();
+					System.err.println(afterEdit.getTitle() + " after");
+					Task beforeEdit = cp.getUndoTask();
+					System.err.println(beforeEdit.getTitle() + " before");
+					cp.pushRedoTask(beforeEdit);
+					cp.pushRedoTask(afterEdit);
+					db.edit(beforeEdit);
+					ack.putSuccess();
+					ack.putMessage("edit reverted");
+					ack.putOldTask(afterEdit);
+					ack.putTask(beforeEdit);
+				} else {
+					ack.putFailure();
+					ack.putMessage(previousCommand.getCommand() + " not recognized");
+				}
+			} catch (Exception e) {
+				Task t = cp.getRedoTask();
+				cp.pushUndoTask(t);
+				ack.putFailure();
+				ack.putMessage("undo failure");
+			}
+
+		} catch (Exception e) {
+			ack.putFailure();
+			ack.putMessage("no previous commands found");
+		}
+		return ack;
+	}
+
+}
+
+	// End of segment: .\taskbuddy\logic\UndoCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\UserInputBundle.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+public class UserInputBundle extends Bundle {
+
+	private String user_command = "command";
+	private String user_description = "description";
+	private String user_startDate = "startDate";
+	private String user_endDate = "endDate";
+	private String user_startTime = "startTime";
+	private String user_endTime = "endTime";
+	private String user_title = "title";
+	private String user_id = "task ID";
+	private String user_float = "floatingTask";
+	private String user_comp = "completion";
+	private String user_priority = "Priority";
+	//Setter methods
+	
+	public void putTitle(String title) {
+		this.putString(user_title, title);
+	}
+
+	public void putCommand(String cmd) {
+		this.putString(user_command, cmd);
+	}
+
+	public void putDescription(String desc) {
+		this.putString(user_description, desc);
+	}
+
+	public void putEndDate(String endDate) {
+		this.putString(user_endDate, endDate);
+	}
+
+	public void putEndTime(String endTime) {
+		this.putString(user_endTime, endTime);
+	}
+
+	public void putStartDate(String startDate) {
+		this.putString(user_startDate, startDate);
+	}
+
+	public void putStartTime(String startTime) {
+		this.putString(user_startTime, startTime);
+	}
+
+	public void putID(String ID){
+		this.putString(user_id, ID);
+	}
+	
+	public void putFloating(boolean flt){
+		this.putObject(user_float, flt);
+	}
+	
+	public void putCompletion(boolean comp){
+		this.putObject(user_comp, comp);
+	}
+	
+	public void putPriority(String p){
+		this.putObject(user_priority, p);
+	}
+	
+	//Access methods
+	
+	public String getTitle() {
+		return (String) this.getItem(user_title);
+	}
+	
+	public String getCommand() {
+		return (String) this.getItem(user_command);
+	}
+	
+	public String getDescription() {
+		return (String) this.getItem(user_description);
+	}
+	
+	public String getEndDate(){
+		return (String) this.getItem(user_endDate);
+	}
+	
+	public String getEndTime(){
+		return (String) this.getItem(user_endTime);
+	}
+	
+	public String getStartDate(){
+		return (String) this.getItem(user_startDate);
+	}
+	
+	public String getStartTime(){
+		return (String) this.getItem(user_startTime);
+	}
+	
+	public String getTaskID(){
+		return (String) this.getItem(user_id);
+	}
+	
+	public boolean getFloatingStatus(){
+		return (boolean) this.getItem(user_float);
+	}
+	
+	public boolean getCompletionStatus(){
+		return (boolean) this.getItem(user_comp);
+	}
+	
+	public String getPriority(){
+		return (String)this.getItem(user_priority);
+	}
+}
+
+	// End of segment: .\taskbuddy\logic\UserInputBundle.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\parser\Parser2.java
+	 */
+
+//andrew
+
+package taskbuddy.parser;
+
+import java.io.IOException;
+import java.text.ParseException;
+
+import taskbuddy.logic.AcknowledgeBundle;
+import taskbuddy.logic.CommandParser;
+import taskbuddy.logic.UserInputBundle;
+
+	// End of segment: .\taskbuddy\parser\Parser2.java
+
+
+
+
+
