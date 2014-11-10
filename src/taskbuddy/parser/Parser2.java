@@ -53,7 +53,6 @@ public class Parser2 {
 		} else if (containsPriority) {
 			acks = priorityCmd(line, bundle);
 		} else if (containsUndo){
-			System.err.println("err1");
 			acks = undoCmd(line, bundle);
 		} else if (containsRedo){
 			acks = redoCmd(line, bundle);
@@ -99,7 +98,7 @@ public class Parser2 {
 			}
 		} catch (Exception e) {
 			acks.putFailure();
-			acks.putMessage(e.getMessage());
+			acks.putMessage("argument error");
 		}
 		return acks;
 	}
@@ -125,7 +124,7 @@ public class Parser2 {
 			}
 		} catch (Exception e) {
 			acks.putFailure();
-			acks.putMessage(e.getMessage());
+			acks.putMessage("argument error");
 		}
 		return acks;
 	}
@@ -172,7 +171,7 @@ public class Parser2 {
 			acks = cp.parseUserInputs(bundle);
 		} catch (Exception e) {
 			acks.putFailure();
-			acks.putMessage(e.getMessage());
+			acks.putMessage("argument error");
 		}
 		return acks;
 	}
@@ -192,7 +191,7 @@ public class Parser2 {
 			acks = cp.parseUserInputs(bundle);
 		} catch (Exception e) {
 			acks.putFailure();
-			acks.putMessage(e.getMessage());
+			acks.putMessage("argument error");
 		}
 		return acks;
 	}
