@@ -1,0 +1,1839 @@
+//@author: a0108411w
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\BackwardSyncAddCommand.java
+	 */
+
+package taskbuddy.googlecal;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+
+import taskbuddy.database.Database;
+import taskbuddy.logic.Task;
+
+/**
+ * This class is part of the BackwardSync capabilities of the Google Calendar Sync.
+ * Following the implementation of the Command pattern taught in CS2103, 
+ * this class is the command class for the add command.
+ * It calls the database, and performs adding of tasks to the database. 
+ * 
+ *
+ */
+
+public class BackwardSyncAddCommand {
+	//private Task taskToAdd = new Task();
+	private ArrayList<Task> tasksToAdd = new ArrayList<Task>();
+	Database db;
+	
+	// Constructor 
+	public BackwardSyncAddCommand(ArrayList<Task> tasks) {
+		tasksToAdd = tasks;
+	}
+	
+	public void executeAdd() {
+		System.out.println("Running from command queue: to add");
+		printTasks();
+
+		try {
+			db = db.getInstance();
+		} catch (IOException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (Task task : tasksToAdd) {
+			try {
+				db.addBackwardSync(task);
+				//System.out.println(task);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	public void printTasks() {
+		System.out.println("Tasks to add: running from object");
+		for (Task task : tasksToAdd) {
+			System.out.println(task.displayTask());
+		}
+	}
+}
+
+	// End of segment: .\taskbuddy\googlecal\BackwardSyncAddCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\BackwardSyncDeleteCommand.java
+	 */
+
+package taskbuddy.googlecal;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+
+import taskbuddy.database.Database;
+import taskbuddy.logic.Task;
+
+/**
+ * This class is part of the BackwardSync capabilities of the Google Calendar Sync.
+ * Following the implementation of the Command pattern taught in CS2103, 
+ * this class is the command class for the delete command.
+ * It calls the database, and performs deleting of tasks to the database. 
+ * 
+ *
+ */
+
+
+public class BackwardSyncDeleteCommand {
+	//private Task taskToAdd = new Task();
+	private ArrayList<Task> tasksToDelete = new ArrayList<Task>();
+	Database db;
+	
+	
+	// Constructor 
+	public BackwardSyncDeleteCommand(ArrayList<Task> tasks) {
+		tasksToDelete = tasks;
+	}
+	
+	
+	public void printTasks() {
+		System.out.println("Tasks to delete: running from object");
+		for (Task task : tasksToDelete) {
+			System.out.println(task.displayTask());
+		}
+	}
+	
+
+	public void executeDelete() {
+		System.out.println("Running from command queue: to delete");
+		printTasks();
+		
+		try {
+			db = db.getInstance();
+		} catch (IOException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (Task task : tasksToDelete) {
+
+				try {
+					db.deleteBackwardSync(task.getGID());
+				} catch (IllegalAccessException | NoSuchElementException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+
+		}		
+	}
+}
+
+	// End of segment: .\taskbuddy\googlecal\BackwardSyncDeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\BackwardSyncEditCommand.java
+	 */
+
+package taskbuddy.googlecal;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+
+import taskbuddy.database.Database;
+import taskbuddy.logic.Task;
+
+/**
+ * This class is part of the BackwardSync capabilities of the Google Calendar Sync.
+ * Following the implementation of the Command pattern taught in CS2103, 
+ * this class is the command class for the edit command.
+ * It calls the database, and performs editing of tasks in the database. 
+ * 
+ *
+ */
+
+
+public class BackwardSyncEditCommand {
+	//private Task taskToAdd = new Task();
+	private ArrayList<Task> tasksToEdit = new ArrayList<Task>();
+	Database db;
+	
+	// Constructor 
+	public BackwardSyncEditCommand(ArrayList<Task> tasks) {
+		tasksToEdit = tasks;
+	}
+	
+	
+	public void printTasks() {
+		System.out.println("Tasks to edit: running from object");
+		for (Task task : tasksToEdit) {
+			System.out.println(task.displayTask());
+		}
+	}
+
+	public void executeEdit() {
+		System.out.println("Running from command queue: to delete");
+		printTasks();
+		
+		try {
+			db = db.getInstance();
+		} catch (IOException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (Task task : tasksToEdit) {
+			try {
+				db.editBackwardSync(task.getGID(), task);
+			} catch (IOException | IllegalAccessException | NoSuchElementException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
+	}
+}
+
+	// End of segment: .\taskbuddy\googlecal\BackwardSyncEditCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\GooCalBackend.java
+	 */
+
+package taskbuddy.googlecal;
+
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
+
+
+/**
+ * 
+ * Performs all back-end functionality for 
+ * communicating with Google Calendar Servers
+ * Handles all the CRUD (Create, Update and Delete) features 
+ * when performing forward syncing  - from the local database
+ * to the Google Calendar Servers. 
+ *
+ */
+
+
+
+
+public class GooCalBackend {
+    // These are the "magic numbers" of the Google Calendar event colour code IDs
+	private static final String RED_COLOR = "11";
+    private static final String YELLOW_COLOR = "5";
+    private static final String GREEN_COLOR = "10";
+    private static final String GREY_COLOR = "8";
+    
+    
+    private static EventDateTime startEventAllDay;
+    private static EventDateTime endEventAllDay;
+    private static EventDateTime startEventDateTime;
+    private static EventDateTime endEventDateTime;
+    
+    static AuthorizationCodeFlow codeFlow;
+    static String redirectUri;
+    
+    GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
+    
+   
+	public boolean isAllDayEvent(String eventStartTime, String eventEndTime) {
+		if (eventStartTime.equals("00:00") && eventEndTime.equals("23:59")) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	
+	public void setEventNormal(String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime) {
+		try {
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			// To parse string into Date object
+			Date dateFirst = simpleDateFormat.parse(eventStartDate + " " + eventStartTime);
+			Date dateSecond = simpleDateFormat.parse(eventEndDate + " " + eventEndTime);
+
+			// Create DateTime object to add to event object
+			DateTime dateTime1 = new DateTime(dateFirst,TimeZone.getTimeZone("UTC"));
+			startEventDateTime = new EventDateTime();
+			startEventDateTime.setDateTime(dateTime1);
+			
+			DateTime dateTime2 = new DateTime(dateSecond,TimeZone.getTimeZone("UTC"));
+			endEventDateTime = new EventDateTime();
+			endEventDateTime.setDateTime(dateTime2);
+		} catch (ParseException ex) {
+			System.out.println("Exception " + ex);
+		}
+	}
+	
+	public void setEventAllDay(String eventStartDate, String eventEndDate) {
+		SimpleDateFormat simpleDateFormatAllDay = new SimpleDateFormat("dd/MM/yyyy");
+		
+		try {
+			// To parse string into Date object
+			Date dateFirst = simpleDateFormatAllDay.parse(eventStartDate);
+			Date dateSecond = simpleDateFormatAllDay.parse(eventEndDate);
+			
+			java.util.Calendar cal = java.util.Calendar.getInstance();
+			cal.setTime(dateSecond);
+			cal.add( java.util.Calendar.DATE, 1 );
+			
+			// Creates string from date object, string must be in a
+			// particular format to create a DateTime object with no
+			// time element
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			String startDateStr = dateFormat.format(dateFirst);
+			String endDateStr2 = dateFormat.format(cal.getTime());
+			String endDateStr = dateFormat.format(dateSecond);
+
+			DateTime startDateTime = new DateTime(startDateStr);
+			DateTime endDateTime = new DateTime(endDateStr2);
+
+			startEventAllDay = new EventDateTime();
+			startEventAllDay.setDate(startDateTime);
+			
+			endEventAllDay = new EventDateTime();
+			endEventAllDay.setDate(endDateTime);
+			
+		} catch (ParseException ex) {
+			System.err.println("A parsing exception has occurred for an all-day event" + ex);
+		}
+	}
+
+	
+	public String addEventToCalendar(Calendar service, String eventSummary, String eventDescription, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime, int eventPriority)  {
+		String calendarID = googleCalendarPreferenceLogger.readAddressFile();
+		Event event = new Event();
+		event = setEventVariables(event, eventSummary, eventDescription, eventStartDate, eventStartTime, eventEndDate, eventEndTime, eventPriority);
+
+		// Create event object, execute the insertion of this event into the google calendar
+		Event createdEvent = null;
+		try {
+			createdEvent = service.events().insert(calendarID, event).execute();
+		} catch (IOException unableToCreateEvent) {
+			System.err.println("Unable to create event in Google Calendar");
+		}
+		return createdEvent.getId();
+	}
+
+	public String retrieveEvent(Calendar service, String eventId)  {
+		String calendarId = googleCalendarPreferenceLogger.readAddressFile();
+		Event event = null;
+		try {
+			event = service.events().get(calendarId, eventId).execute();
+		} catch (IOException unableToRetrieve) {
+			System.err.println("Unable to retrieve event");
+		}
+		return event.getSummary();
+	}
+	
+
+	public void deleteEventFromCalendar(Calendar service, String eventId)  {
+		String calendarId = googleCalendarPreferenceLogger.readAddressFile();
+		try {
+			service.events().delete(calendarId,eventId).execute();
+			System.out.println("Deleted from Google Calendar: " + eventId);
+			System.out.println("Event deleted!");
+		} catch (IOException unableToDeleteEvent) {
+			System.err.println("Unable to delete event from Google Calendar");
+		}
+	}
+	
+	public String updateEvent(Calendar service, String eventSummary, String eventDescription, String gooCalEventID, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime, int eventPriority)  {
+		//System.out.println("Executing addEventToCalendar:"); // For debugging
+		String calendarID = googleCalendarPreferenceLogger.readAddressFile();
+		Event event = new Event();
+		
+		event = setEventVariables(event, eventSummary, eventDescription, eventStartDate, eventStartTime, eventEndDate, eventEndTime, eventPriority);
+		
+		// Create event object, execute the insertion of this event into the google calendar
+		Event updatedEvent = null;
+		try {
+			updatedEvent = service.events().update(calendarID, gooCalEventID, event).execute();
+		} catch (IOException unableToCreateEvent) {
+			System.err.println("Unable to update event in Google Calendar");
+		}
+		
+		System.out.println("Updated event in Google Calendar: " + gooCalEventID);
+		System.out.println("Event updated!");
+		return updatedEvent.getId();
+	}
+
+	
+	
+	private String setEventColour(int eventPriority) {
+		if (eventPriority == 1) {
+			return RED_COLOR;
+		}
+		else if (eventPriority == 2) {
+			return YELLOW_COLOR;
+		}
+		else if (eventPriority == 3) {
+			return GREEN_COLOR;
+		}
+		else if (eventPriority == 4) {
+			return GREY_COLOR;
+		}
+		return YELLOW_COLOR;
+	}
+
+	public Event setEventVariables(Event event, String eventSummary, String eventDescription, String eventStartDate, String eventStartTime, String eventEndDate, String eventEndTime, int eventPriority) {
+		event.setColorId(setEventColour(eventPriority));
+		
+		if (isAllDayEvent(eventStartTime, eventEndTime)) {
+			setEventAllDay(eventStartDate,eventEndDate);
+			event.setSummary(eventSummary);
+			event.setDescription(eventDescription);
+			event.setStart(startEventAllDay);
+			event.setEnd(endEventAllDay);
+		} 
+		else {
+			setEventNormal(eventStartDate, eventStartTime, eventEndDate, eventEndTime);
+			event.setSummary(eventSummary);
+			event.setDescription(eventDescription);
+			event.setStart(startEventDateTime);
+			event.setEnd(endEventDateTime);
+		}
+		return event;
+	}
+}
+
+	// End of segment: .\taskbuddy\googlecal\GooCalBackend.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\GooCalRetriever.java
+	 */
+
+package taskbuddy.googlecal;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.Event;
+
+/**
+ * 
+ * Performs back-end functionality for 
+ * communicating with Google Calendar Servers
+ * Handles retrieve features. 
+ * 
+ *
+ */
+
+
+public class GooCalRetriever {
+  
+    private static final String USER_OFFLINE_ERROR = "User is offline";
+    private static final String AUTHORIZATION_EXPIRED_ERROR = "Authorization has expired";
+    
+	private String retrievedSummary;
+	private String retrievedDescription;
+	private String retrievedStart;
+	private String retrievedEnd;
+	
+	GooCalBackend gooCalBackend = new GooCalBackend();
+	GoogleCalendarAuthorizerStatus googleCalendarAuthorizer = new GoogleCalendarAuthorizerStatus();
+	GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
+	
+	public void retrieve(String eventId) throws UnknownHostException{
+		// Check user online status, throws exception if offline
+		if (!googleCalendarAuthorizer.isUserOnline()) {
+			throw new UnknownHostException(USER_OFFLINE_ERROR); 
+		}
+		// Check calendar authorization status, throws exception if unauthorized/expired
+		else if (!googleCalendarAuthorizer.isAuthenticationValid()) {
+			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
+		}
+		// Google Calendar Services working
+		else {
+			Calendar service = googleCalendarAuthorizer.getCalendar();
+			retriever(service, eventId);
+		}	
+	}
+	
+	
+	public void retriever(Calendar service,  String eventId) {
+		Event event = null;
+		String calendarId = googleCalendarPreferenceLogger.readAddressFile();
+		
+		try {
+			event = service.events().get(calendarId, eventId).execute();
+		} catch (IOException unableToRetrieve) {
+			System.err.println("Unable to retrieve event");
+		}
+		setRetrievedSummary(event.getSummary());
+		setRetrievedStart(event.getStart().toString());
+		setRetrievedEnd(event.getEnd().toString());
+		setRetrievedDescription(event.getDescription());
+	}
+
+
+	// Mutators
+	public void setRetrievedSummary(String retrievedSummary) {
+		this.retrievedSummary = retrievedSummary;
+	}
+	
+	public void setRetrievedStart(String retrievedStart) {
+		this.retrievedStart = retrievedStart;
+	}
+	
+	public void setRetrievedEnd(String retrievedEnd) {
+		this.retrievedEnd = retrievedEnd;
+	}
+	
+	
+	private void setRetrievedDescription(String retrievedDescription) {
+		this.retrievedDescription = retrievedDescription;
+	}
+
+	
+	// Accessors 
+	public String getRetrievedSummary() {
+		return retrievedSummary;
+	}
+	
+	public String getRetrievedStart() {
+		System.out.println("Retrieved Start: " + retrievedStart);
+		return retrievedStart;
+	}
+	
+	public String getRetrievedEnd() {
+		System.out.println("Retrieved End: " + retrievedEnd);
+		return retrievedEnd;
+	}
+	
+	public String getRetrievedDescription() {
+		System.out.println("Retrieved Description: " + retrievedDescription);
+		return retrievedDescription;
+	}
+}
+	// End of segment: .\taskbuddy\googlecal\GooCalRetriever.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\GoogleCalendarAuthorizerStatus.java
+	 */
+
+package taskbuddy.googlecal;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.Set;
+
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
+import com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.TokenResponse;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarList;
+
+/**
+ * Handles all back-end authorization functions of Google Calendar.
+ * Some of the methods are called by GoogleCalendarController (in the googlecalendarcontroller package).
+ * Methods like isUserOnline and isAuthenticatonValid provide the online and active status of the connected Google Calendar.
+ *  
+ */
+
+
+public class GoogleCalendarAuthorizerStatus {
+	GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
+	Calendar calendarGlobal = null;
+	
+    static AuthorizationCodeFlow codeFlow;
+    static String redirectUri;
+    
+	public boolean isUserOnline()  {
+		Socket socket = null;
+		try {
+		    socket = new Socket("www.google.com", 80);
+		} catch (UnknownHostException hostNotReached) {
+			System.err.println("User is offline");
+			return false;
+		} catch (IOException socketError) {
+			System.err.println("Socket cannot be created");
+		}
+		finally { 
+			if (socket != null) {
+		    	try { 
+		    		socket.close(); 
+		    	} catch(IOException e) {}		    	
+		    }
+		}
+		return true;
+	}
+	
+	
+	public boolean isAuthenticationValid() {
+		Calendar service = null;
+		
+			File file = new File("GoogleCalAuthenticationToken_New");
+			if (!file.exists()) {
+				try {
+					file.createNewFile();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		if (googleCalendarPreferenceLogger.isTokenFileEmpty()) {			
+			try {
+				//service = createCalendar(googleCalendarPreferenceLogger.readTokenFile(), googleCalendarPreferenceLogger.readUsernameFile());
+				checkCalendar(createCalendar(googleCalendarPreferenceLogger.readTokenFile(), googleCalendarPreferenceLogger.readUsernameFile()));
+			} catch (IOException unauthorized) {
+				// TODO Auto-generated catch block
+				System.out.println("invalid");
+				return false;
+			}
+		}
+		
+		else {
+			try {
+				// Check if authentication key is valid. If it is invalid, IOException unauthorized will be caught.
+				//service = createCalendar(googleCalendarPreferenceLogger.readTokenFile(), googleCalendarPreferenceLogger.readUsernameFile());
+				checkCalendar(createCalendar(googleCalendarPreferenceLogger.readTokenFile(), googleCalendarPreferenceLogger.readUsernameFile()));
+			} catch (IOException unauthorized) {
+				// An IOException is thrown by the createCalendar method, if the calendar fails to be created due to an invalid authorization token.
+				// The IOException is caught at this point. 
+				// When the exception is caught, the original token database is cleared, and a new token is generated by the method generateNewToken.
+				System.out.println("invalid");
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	
+	public Calendar createCalendar(String token, String username) throws IOException {
+		//System.out.println("Executing createCalendar:"); // For debugging
+	
+		
+		// Two globals that will be used in each step.
+		HttpTransport httpTransport = new NetHttpTransport();
+		JsonFactory jsonFactory = new JacksonFactory();
+
+		// Create the authorization code flow manager
+		Set<String> scope = Collections.singleton(CalendarScopes.CALENDAR);
+		String clientId = "369332843116-gr8ct1guerlf1fudpgivfjv43h0oleip.apps.googleusercontent.com";
+		String clientSecret = "ISvEBCzHT-jheksy-kO-oBvs";
+
+		AuthorizationCodeFlow.Builder codeFlowBuilder = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, clientId, clientSecret, scope);
+
+		AuthorizationCodeFlow codeFlow = codeFlowBuilder.build();
+		TokenResponse existingToken = new TokenResponse();
+
+		// Read existing token from file
+		existingToken.setAccessToken(token);
+
+		existingToken.setExpiresInSeconds(null);
+		String userId = username;  
+		Credential credential = codeFlow.createAndStoreCredential(existingToken, userId);
+
+		// Credentials may be used to initialize http requests
+		HttpRequestInitializer initializer = credential;
+
+		// and thus are used to initialize the calendar service
+		Calendar.Builder serviceBuilder = new Calendar.Builder(httpTransport,jsonFactory, initializer);
+		serviceBuilder.setApplicationName("GooCal");
+		Calendar calendar = serviceBuilder.build();
+		
+		calendarGlobal = calendar;
+		return calendar;
+		
+		
+	}
+	
+	public Calendar getCalendar() {
+		return calendarGlobal;
+	}
+	
+	public void checkCalendar(Calendar calendar) throws IOException {
+		//System.out.println("Executing checkCalendar:"); // For debugging
+		
+		
+		Calendar.CalendarList.List listRequest = calendar.calendarList().list();
+		CalendarList feed = listRequest.execute();
+	}   
+	
+	
+
+	public String generateNewTokenStep1()  {
+
+		//System.out.println("Executing generateNewToken:"); // For debugging
+		
+		// Two globals that will be used in each step.
+		HttpTransport httpTransport = new NetHttpTransport();
+		JsonFactory jsonFactory = new JacksonFactory();
+
+		// Create the authorization code flow manager
+		Set<String> scope = Collections.singleton(CalendarScopes.CALENDAR);
+		String clientId = "369332843116-gr8ct1guerlf1fudpgivfjv43h0oleip.apps.googleusercontent.com";
+		String clientSecret = "ISvEBCzHT-jheksy-kO-oBvs";
+
+		// Use a factory pattern to create the code flow
+		AuthorizationCodeFlow.Builder codeFlowBuilder = new GoogleAuthorizationCodeFlow.Builder(
+				httpTransport, jsonFactory, clientId, clientSecret, scope);
+		codeFlow = codeFlowBuilder.build();
+
+		// set the code flow to use a dummy user
+		// in a servlet, this could be the session id
+		//String userId = username;
+
+		// "redirect" to the authentication url
+		redirectUri = "urn:ietf:wg:oauth:2.0:oob";
+		AuthorizationCodeRequestUrl authorizationUrl = codeFlow
+				.newAuthorizationUrl();
+		authorizationUrl.setRedirectUri(redirectUri);
+		System.out.println("Error: Google Calendar Authorization Token has expired.");
+		System.out.println("Generating new token.");
+		System.out.println("Go to the following address, copy and paste the code into this program, and enter:");
+		System.out.println(authorizationUrl);
+		return authorizationUrl.toString();
+		
+	}
+	
+	public  String generateNewTokenStep2(String userInput)  {
+		String code = userInput;
+
+
+		AuthorizationCodeTokenRequest tokenRequest = codeFlow
+				.newTokenRequest(code);
+
+		tokenRequest.setRedirectUri(redirectUri);
+		TokenResponse tokenResponse = null;
+		try {
+			tokenResponse = tokenRequest.execute();
+		} catch (IOException tokenRequestFailed) {
+			System.err.println("Token request failed");
+		}
+		System.out.println(tokenResponse.getAccessToken());
+		//addToDb(tokenResponse.getAccessToken());
+		googleCalendarPreferenceLogger.createAndAddToTokenFile(tokenResponse.getAccessToken());
+		return tokenResponse.getAccessToken();
+	}	
+}
+
+	// End of segment: .\taskbuddy\googlecal\GoogleCalendarAuthorizerStatus.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandCreator.java
+	 */
+
+package taskbuddy.googlecal;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.util.ArrayList;
+
+//import sun.security.jca.GetInstance;
+import taskbuddy.database.Database;
+import taskbuddy.logic.Task;
+
+
+/**
+ * This class is part of the BackwardSync capabilities of the Google Calendar Sync.
+ * Following the implementation of the Command pattern taught in CS2103, this class acts
+ * as the command creator class. It creates the command objects BackwardSyncAddCommand,
+ * BackwardSyncDeleteCommand and BackwardSyncEditCommand. 
+ * 
+ * This class scans the tasks stored in the dabatase, and the tasks currently on Google Calendar.
+ * It generates arraylists of task objects for the necessary required functionalities of backward sync,
+ * including Add, Delete and Edit functionality.
+ * 
+ *
+ */
+
+
+public class GoogleCalendarBackwardSyncCommandCreator {
+	GoogleCalRetrieveAll googleCalRetrieveAll = new GoogleCalRetrieveAll();
+	ArrayList<Task> tasksFromDatabase = new ArrayList<Task>();
+	ArrayList<Task> tasksFromGoogleCal = new ArrayList<Task>();
+	ArrayList<Task> tasksToAddToDb = new ArrayList<Task>();
+	ArrayList<Task> tasksToDeleteFromDb = new ArrayList<Task>();
+	
+	ArrayList<Task> tasksInDb_ScanForEdits = new ArrayList<Task>();
+	ArrayList<Task> tasksInGCal_ScanForEdits = new ArrayList<Task>();
+	
+	ArrayList<Task> tasksToEdit = new ArrayList<Task>();
+	
+	public void getTasksFromDatabase() {
+		
+		Database db = null;
+		try {
+			db = db.getInstance();
+		} catch (IOException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		tasksFromDatabase = db.getTasks();
+//		System.out.println("Tasks from db");
+//		printArrayListOfTasks(tasksFromDatabase);
+	}
+	
+	public void getTasksFromGCal() throws UnknownHostException {
+		
+		googleCalRetrieveAll.getListFromGoogle();
+		tasksFromGoogleCal = googleCalRetrieveAll.getTasks();		
+	}
+	
+
+	
+	public void generateArrayListToAddToDatabase() {
+		boolean flagTaskAlreadyInDb;
+		for (Task task: tasksFromGoogleCal) {
+			flagTaskAlreadyInDb = false;
+			for (int i = 0; i < tasksFromDatabase.size(); i++) {
+				if ((tasksFromDatabase.get(i)).getGID().equals(task.getGID())) {
+					flagTaskAlreadyInDb = true;
+				}
+			}
+			if (!flagTaskAlreadyInDb) {
+				tasksToAddToDb.add(task);
+			}
+			else {
+				tasksInGCal_ScanForEdits.add(task);
+			}
+		}
+	}
+		
+			
+	
+	public void generateArrayListToDeleteFromDatabase() {
+		boolean flagTaskNeedToDelete;
+		for (Task task: tasksFromDatabase) {
+			flagTaskNeedToDelete = true;
+			for (int i = 0; i < tasksFromGoogleCal.size(); i++) {
+				if ((tasksFromGoogleCal.get(i)).getGID().equals(task.getGID())) {
+					flagTaskNeedToDelete = false;
+				}
+			}
+			if (flagTaskNeedToDelete) {
+				tasksToDeleteFromDb.add(task);
+			}
+			else {
+				tasksInDb_ScanForEdits.add(task);
+			}
+		}
+	}
+		
+	public void generateArrayListOfEdits() {		
+		boolean flagEditRequired;
+		for (Task task: tasksInDb_ScanForEdits) {
+			flagEditRequired = false;
+			for (int i = 0; i < tasksInGCal_ScanForEdits.size(); i++) {
+				if (task.getGID().equals(tasksInGCal_ScanForEdits.get(i).getGID())) {
+					if (!(task.getTitle().equals(tasksInGCal_ScanForEdits.get(i).getTitle()))) {
+						System.out.println("title");
+						flagEditRequired = true;
+					}		
+					else if (!(task.getDescription().equals(tasksInGCal_ScanForEdits.get(i).getDescription()))) {
+						System.out.println("description");
+						flagEditRequired = true;
+					}				
+					else if (!(task.getStartTime().equals(tasksInGCal_ScanForEdits.get(i).getStartTime()))) {
+						System.out.println("start");
+						flagEditRequired = true;
+					}
+
+					else if (!(task.getEndTime().equals(tasksInGCal_ScanForEdits.get(i).getEndTime()))) {
+						System.out.println("end");
+						flagEditRequired = true;
+					}
+					else if (!((task.getCompletionStatus()) == (tasksInGCal_ScanForEdits.get(i).getCompletionStatus()))) {
+						System.out.println("completion");
+						System.out.println(task.getCompletionStatus());
+						System.out.println(tasksInGCal_ScanForEdits.get(i).getCompletionStatus());
+						flagEditRequired = true;
+					}
+					else if (task.getPriority() != tasksInGCal_ScanForEdits.get(i).getPriority()) {
+						System.out.println("priority");
+						flagEditRequired = true;
+					}
+					else {
+						flagEditRequired = false;
+					}
+				}
+				if (flagEditRequired) {
+					tasksToEdit.add(tasksInGCal_ScanForEdits.get(i));
+				}
+			}
+		}
+	}
+	
+
+	
+	public void printArrayListOfTasks(ArrayList<Task> tasks) {
+		for (Task task: tasks) {
+			System.out.println(task.displayTask());
+		}
+	}
+	
+	public void printArrayListOfTasks1() {
+		System.out.println("Tasks from db");
+		for (Task task1: tasksFromDatabase) {
+			System.out.println(task1.displayTask());
+		}
+	}
+	
+	public void printArrayListOfTasks2() {
+		System.out.println("Tasks from gcal");
+		for (Task task2: tasksFromGoogleCal) {
+			System.out.println(task2.displayTask());
+		}
+	}
+	
+	public void printArrayListOfTasks3() {
+		System.out.println("Tasks to add to db");
+		for (Task task3 : tasksToAddToDb) {
+			System.out.println(task3.displayTask());
+		}
+	}
+	
+	
+	public void printArrayListOfTasks4() {
+		System.out.println("Tasks to delete from db");
+		for (Task task4 : tasksToDeleteFromDb) {
+			System.out.println(task4.displayTask());
+		}
+	}
+	
+	public void printArrayListOfTasks5() {
+		System.out.println("Scan edit list: Tasks in db");
+		for (Task task4 : tasksInDb_ScanForEdits) {
+			System.out.println(task4.displayTask());
+		}
+	}
+	
+	public void printArrayListOfTasks6() {
+		System.out.println("Scan edit list: tasks in gcal");
+		for (Task task4 : tasksInGCal_ScanForEdits) {
+			System.out.println(task4.displayTask());
+		}
+	}
+	
+	
+	public void printArrayListOfTasks7() {
+		System.out.println("Tasks to edit");
+		for (Task task4 : tasksToEdit) {
+			System.out.println(task4.displayTask());
+		}
+	}
+	
+	
+	public void executeCommandCreator() {
+		BackwardSyncAddCommand backwardSyncAddCommand = new BackwardSyncAddCommand(tasksToAddToDb);
+		BackwardSyncDeleteCommand backwardSyncDeleteCommand = new BackwardSyncDeleteCommand(tasksToDeleteFromDb);
+		BackwardSyncEditCommand backwardSyncEditCommand = new BackwardSyncEditCommand(tasksToEdit);
+		
+		GoogleCalendarBackwardSyncCommandQueue commandQueueAdd = new GoogleCalendarBackwardSyncCommandQueue(backwardSyncAddCommand);
+		commandQueueAdd.executeCommands();
+		GoogleCalendarBackwardSyncCommandQueue commandQueueDelete = new GoogleCalendarBackwardSyncCommandQueue(backwardSyncDeleteCommand);
+		commandQueueDelete.executeCommands();
+		GoogleCalendarBackwardSyncCommandQueue commandQueueEdit = new GoogleCalendarBackwardSyncCommandQueue(backwardSyncEditCommand);
+		commandQueueEdit.executeCommands();
+	}
+	
+	public void executeBackwardSync() throws UnknownHostException {
+		getTasksFromDatabase();
+		getTasksFromGCal();
+		generateArrayListToAddToDatabase();
+		generateArrayListToDeleteFromDatabase();
+		generateArrayListOfEdits();
+		executeCommandCreator();
+	}
+}
+
+	// End of segment: .\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandCreator.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandQueue.java
+	 */
+
+package taskbuddy.googlecal;
+
+/**
+ * This class is part of the BackwardSync capabilities of the Google Calendar Sync.
+ * Following the implementation of the Command pattern taught in CS2103, this class acts
+ * as the command queue class. It executes the commands, without knowing what the functionalities
+ * of the commands are.  
+ * 
+ *
+ */
+
+
+public class GoogleCalendarBackwardSyncCommandQueue {
+	
+	private BackwardSyncAddCommand addCommand = null;
+	private BackwardSyncDeleteCommand deleteCommand = null;
+	private BackwardSyncEditCommand editCommand = null;
+	
+		
+	
+	//Constructors 
+	public GoogleCalendarBackwardSyncCommandQueue(BackwardSyncAddCommand backwardSyncAddCommand) {
+		addCommand = backwardSyncAddCommand;
+	}
+	
+	public GoogleCalendarBackwardSyncCommandQueue(BackwardSyncDeleteCommand backwardSyncDeleteCommand) {
+		deleteCommand = backwardSyncDeleteCommand;
+	}
+
+	public GoogleCalendarBackwardSyncCommandQueue(BackwardSyncEditCommand backwardSyncEditCommand) {
+		editCommand = backwardSyncEditCommand;
+	}
+	
+	// Execution 
+	public void executeCommands() {
+		if (addCommand != null) {
+			addCommand.executeAdd();
+		}
+		else if (deleteCommand != null) {
+			deleteCommand.executeDelete();
+		}
+		else if (editCommand != null) {
+			editCommand.executeEdit();
+		}
+	}
+}
+
+	// End of segment: .\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandQueue.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\GoogleCalendarManager.java
+	 */
+
+package taskbuddy.googlecal;
+
+import taskbuddy.logic.Task;
+import java.net.UnknownHostException;
+import com.google.api.services.calendar.Calendar;
+
+
+/**
+ * Acts as a frontend API to be called by classes of other packages - 
+ * Mainly for Database to initiate communication with Google Calendar Forward Syncing.
+ * 
+ * Handles frontend calling of the CRUD (Create, Retrieve, Update and Delete) features 
+ * when performing forward syncing  - from the local database
+ * to the Google Calendar Servers. 
+ * 
+ * This class acts as the Facade class to the Backend class, GoogleCalBackend.java, and follows the 
+ * implementations of the Facade pattern taught in CS2103. 
+ *
+ */
+
+public class GoogleCalendarManager {
+
+    private static final String USER_OFFLINE_ERROR = "User is offline";
+    private static final String AUTHORIZATION_EXPIRED_ERROR = "Authorization has expired";
+    private static final String MISSING_TITLE_ERROR = "Title is missing from this task object";
+    private static final String MISSING_GOOGLE_ID_ERROR = "Google ID is missing from this task object";
+    
+	GooCalBackend gooCalBackend = new GooCalBackend(); 
+	GoogleCalendarAuthorizerStatus googleCalendarAuthorizer = new GoogleCalendarAuthorizerStatus();
+	GoogleCalendarBackwardSyncCommandCreator googleCalendarBackwardSyncCommandCreator = new GoogleCalendarBackwardSyncCommandCreator();
+	
+	public void add(Task task) throws UnknownHostException  {
+		String gooCalEventID;
+		// Assertion Tests
+		assert (task.getTitle() != null): MISSING_TITLE_ERROR;
+
+		// Check user online status, throws exception if offline
+		if (!googleCalendarAuthorizer.isUserOnline()) {
+			throw new UnknownHostException(USER_OFFLINE_ERROR); 
+		}
+		
+		// Check calendar authorization status, throws exception if unauthorized/expired
+		else if (!googleCalendarAuthorizer.isAuthenticationValid()) {
+			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
+		}
+		
+		// Google Calendar Services working
+		else {
+			Calendar service = googleCalendarAuthorizer.getCalendar();
+			String eventSummary = task.getTitle();
+			String eventDescription = task.getDescription();
+			String eventStartDate = task.displayStartDate();
+			String eventStartTime = task.displayStartTime();
+			String eventEndDate = task.displayEndDate();
+			String eventEndTime = task.displayEndTime();
+			int eventPriority = task.getPriority();
+			boolean isComplete = task.getCompletionStatus();
+			
+			if (isComplete) {
+				eventPriority = 4;
+			}
+		
+			gooCalEventID = gooCalBackend.addEventToCalendar(service, eventSummary, eventDescription, eventStartDate, eventStartTime, eventEndDate, eventEndTime, eventPriority);
+			task.setGID(gooCalEventID);			
+		}
+	}
+	
+	
+
+	public void delete(String eventId) throws UnknownHostException  {
+		// Assert Tests
+		assert (!eventId.equals("Google Calendar ID:")): MISSING_GOOGLE_ID_ERROR;
+				
+		GooCalBackend gooCalBackend = new GooCalBackend(); 
+		
+		// Check user online status, throws exception if offline
+		if (!googleCalendarAuthorizer.isUserOnline()) {
+			throw new UnknownHostException(USER_OFFLINE_ERROR); 
+		}
+		
+		// Check calendar authorization status, throws exception if unauthorized/expired
+		else if (!googleCalendarAuthorizer.isAuthenticationValid()) {
+			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
+		}
+		
+		// Google Calendar Services working
+		else {
+			Calendar service = googleCalendarAuthorizer.getCalendar();
+			gooCalBackend.deleteEventFromCalendar(service, eventId);
+		}
+	}
+
+	public String retrieve(String eventId) throws UnknownHostException {
+		// Check user online status, throws exception if offline
+		if (!googleCalendarAuthorizer.isUserOnline()) {
+			throw new UnknownHostException(USER_OFFLINE_ERROR); 
+		}
+		
+		// Check calendar authorization status, throws exception if unauthorized/expired
+		else if (!googleCalendarAuthorizer.isAuthenticationValid()) {
+			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
+		}
+		
+		// Google Calendar Services working
+		else {
+			Calendar service = googleCalendarAuthorizer.getCalendar();
+			return gooCalBackend.retrieveEvent(service, eventId);
+		}
+	}
+
+	public void update(Task task) throws UnknownHostException  {
+		// Assertion Tests
+		assert (task.getGID() != null): MISSING_GOOGLE_ID_ERROR;
+		assert (task.getTitle() != null): MISSING_TITLE_ERROR;
+				
+		GooCalBackend gooCalBackend = new GooCalBackend(); 
+
+		// Check user online status, throws exception if offline
+		if (!googleCalendarAuthorizer.isUserOnline()) {
+			throw new UnknownHostException(USER_OFFLINE_ERROR); 
+		}
+		
+		// Check calendar authorization status, throws exception if unauthorized/expired
+		else if (!googleCalendarAuthorizer.isAuthenticationValid()) {
+			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
+		}
+		
+		// Google Calendar Services working
+		else {	
+			Calendar service = googleCalendarAuthorizer.getCalendar();
+			String eventSummary = task.getTitle();
+			String eventDescription = task.getDescription();
+			String eventStartDate = task.displayStartDate();
+			String eventStartTime = task.displayStartTime();
+			String eventEndDate = task.displayEndDate();
+			String eventEndTime = task.displayEndTime();
+			String gooCalEventID = task.getGID();
+			int eventPriority = task.getPriority();
+			boolean isComplete = task.getCompletionStatus();
+
+			if (isComplete) {
+				eventPriority = 4;
+			}
+			gooCalBackend.updateEvent(service, eventSummary, eventDescription,  gooCalEventID, eventStartDate, eventStartTime, eventEndDate, eventEndTime, eventPriority);		
+		}
+	}
+	
+	public void executeBackwardSync() throws UnknownHostException {
+		googleCalendarBackwardSyncCommandCreator.executeBackwardSync();
+	}
+	
+	public String getSummary(Task task) {
+		return task.getTitle();
+	}
+}
+	// End of segment: .\taskbuddy\googlecal\GoogleCalendarManager.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\GoogleCalendarPreferenceLogger.java
+	 */
+
+package taskbuddy.googlecal;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+
+
+/**
+ * 
+ * This class performs all read/write functions of user preferences onto Files stored in the user's computer.
+ * User preferences include the user's username, the user's Google Calendar Address, as well as the authorization token
+ * provided by Google Calendar.
+ * 
+ *
+ */
+
+public class GoogleCalendarPreferenceLogger {
+	public void createAndAddToTokenFile(String accessToken) {
+		try {
+			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken_New");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(accessToken);
+			oos.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public String readTokenFile() {
+		String accessToken;
+		try {
+			FileInputStream fin = new FileInputStream("GoogleCalAuthenticationToken_New");
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			accessToken = (String) ois.readObject();
+			ois.close();
+			return accessToken;
+		} catch (Exception ex) {
+			System.err.println("token not found");
+			//ex.printStackTrace;
+			return "";
+		}
+	}
+	
+	public void clearTokenFile() {
+		try {
+			FileOutputStream fout = new FileOutputStream("GoogleCalAuthenticationToken_New");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject("");
+			oos.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	public boolean isTokenFileEmpty() {
+		if (readTokenFile().equals("")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+
+	
+	public void createAndAddToUsernameFile(String username) {
+		try {
+			FileOutputStream fout = new FileOutputStream("Username");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(username);
+			oos.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public String readUsernameFile() {
+		String accessToken;
+		try {
+			FileInputStream fin = new FileInputStream("Username");
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			accessToken = (String) ois.readObject();
+			ois.close();
+			return accessToken;
+		} catch (Exception ex) {
+			System.err.println("file not found");
+			//ex.printStackTrace;
+			return "";
+		}
+	}
+	
+	public void clearUsernameFile() {
+		try {
+			FileOutputStream fout = new FileOutputStream("Username");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject("");
+			oos.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	public boolean isUsernameFileEmpty() {
+		if (readUsernameFile().equals("")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
+	
+	
+	public void createAndAddToAddressFile(String address) {
+		try {
+			FileOutputStream fout = new FileOutputStream("Address");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(address);
+			oos.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public String readAddressFile() {
+		String accessToken;
+		try {
+			FileInputStream fin = new FileInputStream("Address");
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			accessToken = (String) ois.readObject();
+			ois.close();
+			return accessToken;
+		} catch (Exception ex) {
+			System.err.println("file not found");
+			//ex.printStackTrace;
+			return "";
+		}
+	}
+	
+	public void clearAddressFile() {
+		try {
+			FileOutputStream fout = new FileOutputStream("Address");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject("");
+			oos.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	public boolean isAddressFileEmpty() {
+		if (readAddressFile().equals("")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
+	
+	
+}
+	
+	
+
+
+
+	// End of segment: .\taskbuddy\googlecal\GoogleCalendarPreferenceLogger.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecal\GoogleCalRetrieveAll.java
+	 */
+
+package taskbuddy.googlecal;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.TimeZone;
+
+import sun.security.jca.GetInstance;
+import taskbuddy.gui.AWTgui;
+import taskbuddy.logic.Task;
+
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
+import com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.TokenResponse;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson.JacksonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.Events;
+
+/**
+ * 
+ * This class allows for the conversion of all existing events on Google Calendar into Task objects used in the local database.
+ * 
+ *
+ */
+
+
+
+public class GoogleCalRetrieveAll {
+	private static final String USER_OFFLINE_ERROR = "User is offline";
+	private static final String AUTHORIZATION_EXPIRED_ERROR = "Authorization has expired";
+	
+    private static final String RED_COLOR = "11";
+    private static final String YELLOW_COLOR = "5";
+    private static final String GREEN_COLOR = "10";
+    private static final String GREY_COLOR = "8";
+	
+	
+    private static final ArrayList<Task> tasks = new ArrayList<Task>();
+    
+	GooCalBackend gooCalBackend = new GooCalBackend(); 
+	GoogleCalendarAuthorizerStatus googleCalendarAuthorizer = new GoogleCalendarAuthorizerStatus();
+	GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
+	
+	
+
+	public void getListFromGoogle() throws UnknownHostException {
+		GooCalBackend gooCalBackend = new GooCalBackend();
+
+		
+		// Check user online status, throws exception if offline
+		if (!googleCalendarAuthorizer.isUserOnline()) {
+			throw new UnknownHostException(USER_OFFLINE_ERROR); 
+		}
+		
+		// Check calendar authorization status, throws exception if unauthorized/expired
+		else if (!googleCalendarAuthorizer.isAuthenticationValid()) {
+			throw new UnknownHostException(AUTHORIZATION_EXPIRED_ERROR);
+		}
+		
+		// Google Calendar Services working
+		else {
+			Calendar service = googleCalendarAuthorizer.getCalendar();
+			String pageToken = null;
+			do {
+				Events events = null;
+				try {
+					events = service.events().list(googleCalendarPreferenceLogger.readAddressFile()).setPageToken(pageToken).execute();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				List<Event> items = events.getItems();
+				for (Event event : items) {
+					createTaskObject(event);
+				}
+				pageToken = events.getNextPageToken();
+			} while (pageToken != null);	
+		}
+	}
+		
+	public void createTaskObject(Event event) {
+		Task newTask = new Task();
+
+		EventDateTime eventStart = null;
+		EventDateTime eventEnd = null;
+		String eventTitle = null;
+		String eventDescription = null;
+		String eventGCalId = null;
+		
+		
+		eventStart = event.getStart();
+		eventEnd = event.getEnd();
+		eventTitle = event.getSummary();
+		eventDescription = event.getDescription();
+		eventGCalId = event.getId();
+		
+
+		newTask.setTitle(eventTitle);
+		newTask.setGID(eventGCalId);
+		newTask.setPriority(getTaskPriorityInteger(event));
+		if (getTaskPriorityInteger(event) == 4) {
+			newTask.setCompletion(true);
+		}
+		else if (getTaskPriorityInteger(event) == 2) {
+			newTask.setPriority(0);
+		}
+
+		if (eventDescription == null ) {
+			eventDescription = "padding value";
+		}
+		newTask.setDescription(eventDescription);
+		
+		
+		
+		if (isEventAllDay(eventStart, eventEnd)) {
+			Date eventStartDateObject = formatDateAllDay(eventStart.getDate());
+			java.util.Calendar eventStartCalendarObject = java.util.Calendar.getInstance();
+			eventStartCalendarObject.setTime(eventStartDateObject);
+			int yearStart = eventStartCalendarObject.get(java.util.Calendar.YEAR);
+			int monthStart = eventStartCalendarObject.get(java.util.Calendar.MONTH);
+			int dateStart = eventStartCalendarObject.get(java.util.Calendar.DAY_OF_MONTH);
+			eventStartCalendarObject.set(yearStart, monthStart, dateStart, 0, 0, 0);
+
+			Date eventEndDateObject = formatDateAllDay(eventEnd.getDate());
+			java.util.Calendar eventEndCalendarObject = java.util.Calendar.getInstance();
+			eventEndCalendarObject.setTime(eventEndDateObject);
+			int yearEnd = eventEndCalendarObject.get(java.util.Calendar.YEAR);
+			int monthEnd = eventEndCalendarObject.get(java.util.Calendar.MONTH);
+			int dateEnd = eventEndCalendarObject.get(java.util.Calendar.DAY_OF_MONTH) - 1;
+			eventEndCalendarObject.set(yearEnd, monthEnd, dateEnd, 23, 59, 0);
+
+			newTask.setStartTime(eventStartCalendarObject);
+			newTask.setEndTime(eventEndCalendarObject);	
+	
+				newTask.setFloating(false);
+			
+			
+			addTaskToArraylist(newTask);
+		}
+		else {
+			// For normal timed tasks 
+			Date eventStartDateObject = formatDateNormal(eventStart.getDateTime());
+			java.util.Calendar eventStartCalendarObject = java.util.Calendar.getInstance();
+			eventStartCalendarObject.setTime(eventStartDateObject);
+
+			Date eventEndDateObject = formatDateNormal(eventEnd.getDateTime());
+			java.util.Calendar eventEndCalendarObject = java.util.Calendar.getInstance();
+			eventEndCalendarObject.setTime(eventEndDateObject);
+
+			newTask.setStartTime(eventStartCalendarObject);
+			newTask.setEndTime(eventEndCalendarObject);		
+			
+			if (isEventFloating(eventStart, eventEnd)) {
+				newTask.setFloating(true);
+			}
+			else {
+				newTask.setFloating(false);
+			}
+			
+			addTaskToArraylist(newTask);
+		}
+	}
+
+	public Date formatDateNormal(DateTime date) {
+		SimpleDateFormat formatDateNormal = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+		try {
+			return formatDateNormal.parse(date.toString());
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public Date formatDateAllDay(DateTime date) {
+		Date formattedDate = new Date();
+		SimpleDateFormat formatDateAllDaySDF = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			String dateString = date.toString();
+			formattedDate = formatDateAllDaySDF.parse(dateString);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return formattedDate;
+	}
+	
+	public boolean isEventAllDay(EventDateTime eventStart, EventDateTime eventEnd) {
+		if (eventStart.getDateTime() == null && eventEnd.getDateTime() == null) {
+			return true;
+		}
+		else if (eventStart.getDate() == null && eventEnd.getDate() == null) {
+			return false;
+		}
+		System.out.println("neither");
+		return false;
+	}
+	
+	public boolean isEventFloating(EventDateTime eventStart, EventDateTime eventEnd) {
+		if (eventStart.getDateTime().toString().equals(eventEnd.getDateTime().toString())) {
+			return true;
+		}
+		else return false;
+	}
+	
+	public int getTaskPriorityInteger (Event event) {
+		String eventColorId = event.getColorId();
+		if (!(eventColorId == null)) {
+			switch (eventColorId) {
+			case RED_COLOR: 
+				return 1;
+			case YELLOW_COLOR:
+				return 2;
+			case GREEN_COLOR:
+				return 3;
+			case GREY_COLOR:
+				return 4;
+			default: 
+				return 2;
+			}
+		}
+		return 2;
+	}
+		
+	public ArrayList<Task> addTaskToArraylist(Task task) {	
+		tasks.add(task);
+		return tasks;
+	}
+	
+	public void printArrayListOfTasks(ArrayList<Task> tasks) {
+		for (Task task : tasks) {
+			System.out.println(task.displayTask());
+		}
+	}
+	
+	public ArrayList<Task> getTasks() {
+		
+		return tasks;
+	}
+}
+	// End of segment: .\taskbuddy\googlecal\GoogleCalRetrieveAll.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\googlecalcontroller\GoogleCalendarController.java
+	 */
+
+package taskbuddy.googlecalcontroller;
+
+import taskbuddy.googlecal.GooCalBackend;
+import taskbuddy.googlecal.GoogleCalendarAuthorizerStatus;
+import taskbuddy.googlecal.GoogleCalendarPreferenceLogger;
+
+/**
+ * This class sits in the package which GUI interfaces directly with. 
+ * Its main aim is to facilitate authorization of the google calendar, and also
+ * to obtain the user's Username and Google Calendar Address.
+ *  
+ */
+
+
+public class GoogleCalendarController {
+
+	GoogleCalendarAuthorizerStatus googleCalendarAuthorizer = new GoogleCalendarAuthorizerStatus();
+	GoogleCalendarPreferenceLogger googleCalendarPreferenceLogger = new GoogleCalendarPreferenceLogger();
+
+
+
+	// To be called by GUI
+	public String getDisplayStrings() {
+		if (isUserNameEmpty()  && isAddressEmpty()) {
+			return "Username and Address empty";
+		}
+		else if (isUserNameEmpty() && !isAddressEmpty()) {
+			return "Username empty";
+		}
+		else if (isAddressEmpty() && !isUserNameEmpty()) {
+			return "Address empty";
+		}
+		else  {
+			return googleCalendarPreferenceLogger.readUsernameFile() + " " +  googleCalendarPreferenceLogger.readAddressFile();
+		}
+	}
+
+	// To be called by GUI
+	public void setUserName(String set) {
+		googleCalendarPreferenceLogger.createAndAddToUsernameFile(set);
+	}
+
+	// To be called by GUI
+	public void setCalAddress(String set) {
+		googleCalendarPreferenceLogger.createAndAddToAddressFile(set);
+	}
+
+
+	// To be called by GUI
+	public boolean isCalendarAuthenticated() {
+		return googleCalendarAuthorizer.isAuthenticationValid();
+	}
+
+	// To be called by GUI
+	public String getAuthorizationUrl() {
+		return googleCalendarAuthorizer.generateNewTokenStep1();
+	}
+
+	// To be called by GUI
+	public String authorize(String pastedCode) {
+		return googleCalendarAuthorizer.generateNewTokenStep2(pastedCode);
+	}
+
+	public boolean isUserNameEmpty() {
+		return googleCalendarPreferenceLogger.isUsernameFileEmpty();
+	}
+
+	public boolean isAddressEmpty() {
+		return googleCalendarPreferenceLogger.isAddressFileEmpty();
+	}
+
+
+	// This method is for testing
+	public void setUserNameAndAddress() {
+		googleCalendarPreferenceLogger.createAndAddToUsernameFile("ipeech");
+		googleCalendarPreferenceLogger.createAndAddToAddressFile("i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com");
+		googleCalendarPreferenceLogger.clearTokenFile();
+		//googleCalendarPreferenceLogger.createAndAddToUsernameFile("ambienators.betatester1");
+		//googleCalendarPreferenceLogger.createAndAddToAddressFile("ambienators.betatester1@gmail.com");
+	}
+}
+
+	// End of segment: .\taskbuddy\googlecalcontroller\GoogleCalendarController.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	/**
+	 * Returns a string showing the date of the argument <code>Calendar</code>
+	 * object. For example, the date returned may be "1-1-1", as opposed to
+	 * having leading zeroes like 01-01-0001 at 01:01.
+	 * 
+	 * @param cal
+	 *            the <code>Calendar</code> object to be converted into a string
+	 * @return a string showing the date and time of the argument
+	 *         <code>Calendar</code> object.
+	 * 
+	 * 
+	 */
+	public String displayDate(Calendar cal) {
+		Date date = cal.getTime();
+
+		// Do not change this formatter - this is for GoogleCalendarManager. You
+		// need to at least tell me how you've changed it if you want to change
+		// it, or write your method for your own formatter.
+		formatter = new SimpleDateFormat("d/M/yyyy");
+		return formatter.format(date);
+	}
+	
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	/**
+	 * Returns a string showing the time of the argument <code>Calendar</code>
+	 * object.
+	 * 
+	 * @param cal
+	 *            the <code>Calendar</code> object to be converted into a string
+	 * @return a string showing the date and time of the argument
+	 *         <code>Calendar</code> object.
+	 * 
+	 * 
+	 */
+	public String displayTime(Calendar cal) {
+		Date date = cal.getTime();
+
+		// Do not change this formatter - this is for GoogleCalendarManager. You
+		// need to at least tell me how you've changed it if you want to change
+		// it, or write your method for your own formatter.
+		formatter = new SimpleDateFormat("HH:mm");
+		return formatter.format(date);
+	}
+
+	/**
+	 * @return a list of all string-ified fields of this task
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+

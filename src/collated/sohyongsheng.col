@@ -1,0 +1,1082 @@
+//@author: sohyongsheng
+
+
+
+	/**
+	 * origin: .\taskbuddy\database\Database.java
+	 */
+
+ *
+ */
+public class Database {
+    private static Database instance = null;
+    DatabaseHandler databaseHandler;
+
+    /**
+     * TODO Delete this before sending to production For debugging
+     */
+    public void printTasks() {
+        ArrayList<Task> tasks = databaseHandler.getTasks();
+        TaskLogger myTaskLogger = databaseHandler.taskLogger;
+        System.out.println(myTaskLogger.tasksToString(tasks));
+    }
+
+    /**
+     * @return an instance of this class.
+     * @throws IOException
+     *             when the same circumstances in this class' private
+     *             constructor apply
+     * @throws ParseException
+     *             when the same circumstances in this class' private
+     *             constructor apply
+     */
+    public static Database getInstance() throws IOException, ParseException {
+        if (Database.instance == null) {
+            Database.instance = new Database();
+        }
+        return Database.instance;
+    }
+
+    /**
+     * Private constructor for this class that defeats instantiation by other
+     * classes. Initialises temporary and logged memory for tasks and commands
+     * through the database handler.
+     * 
+     * @throws IOException
+     *             when log file cannot be read from, written to or created when
+     *             user is offline and tasks cannot be synced to Google
+     *             Calendar.
+     * @throws ParseException
+     *             when tasks cannot be parsed from existing log file
+     */
+    Database() throws IOException, ParseException {
+        databaseHandler = new DatabaseHandler();
+    }
+
+    /**
+     * Retrieves all stored tasks.
+     * 
+     * @return all tasks
+     */
+    public ArrayList<Task> getTasks() {
+        return databaseHandler.getTasks();
+    }
+
+    /**
+     * Adds task to temporary and logged list of tasks, as well as syncing to
+     * Google Calendar.
+     * 
+     * @param task
+     *            task to be added
+     * @throws IOException
+     *             when there are problems writing to log file
+     * @throws UnknownHostException
+     *             when user is offline and task cannot be synced to Google
+     *             Calendar
+     */
+    public void addTask(Task task) throws IOException, UnknownHostException {
+        databaseHandler.addTask(task);
+    }
+
+    /**
+     * Searches for and returns a task based on its task ID from an empty or
+     * non-empty stored list of tasks.
+     * 
+     * @param taskId
+     *            title of task to retrieve
+     * @return task whose title matches search string, null if stored list of
+     *         task is empty or if no title match found.
+     * @throws IllegalAccessException
+     *             when this method tries to read from an empty list of tasks
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to the given
+     *             task ID.
+     * 
+     */
+    public Task read(int taskId) throws IllegalAccessException,
+            NoSuchElementException {
+        return databaseHandler.read(taskId);
+    }
+
+    /**
+     * Searches for and returns a task based on its Google Calendar ID from an
+     * empty or non-empty stored list of tasks.
+     * 
+     * @param googleId
+     *            Google Calendar ID of task to retrieve
+     * @return task whose Google Calendar ID matches given Google Calendar ID,
+     *         null if stored list of task is empty or if no Google Calendar ID
+     *         match is found.
+     * @throws IllegalAccessException
+     *             when this method tries to read from an empty list of tasks
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to the given
+     *             Google Calendar ID.
+     * 
+     */
+    public Task read(String googleId) throws IllegalAccessException,
+            NoSuchElementException {
+        return databaseHandler.read(googleId);
+    }
+
+    /**
+     * Deletes a task from temporary and logged memory, as well as Google
+     * Calendar, based on its task ID from an empty or non-empty stored list of
+     * tasks.
+     *
+     * @param taskId
+     *            task ID of task to be deleted
+     * @throws IllegalAccessException
+     *             when list of tasks is empty and there is no task for this
+     *             method to delete
+     * @throws NoSuchElementException
+     *             when no matching task to given task ID is found
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void delete(int taskId) throws IllegalAccessException,
+            NoSuchElementException, IOException {
+        databaseHandler.delete(taskId);
+    }
+
+    /**
+     * Searches for and returns a list of tasks whose descriptions and/or titles
+     * match the search string.
+     *
+     * @param searchString
+     *            search string
+     * @return task whose title and/or description matches search string; empty
+     *         list if no matches found
+     * @throws IllegalArgumentException
+     *             when search string is empty
+     * @throws IllegalAccessException
+     *             when task list is empty and there is nothing to search for
+     */
+    public ArrayList<Task> search(String searchString)
+            throws IllegalArgumentException, IllegalAccessException {
+        return databaseHandler.search(searchString);
+    }
+
+    /**
+     * Edits a task with task ID of argument <code>newTask</code> by replacing
+     * the old task with the new task from the argument of this method.
+     * 
+     * @param newTask
+     *            new task, which has the same task ID as that of old task, to
+     *            replace old task
+     * @throws IllegalAccessException
+     *             when there are no tasks stored currently and hence there is
+     *             no task to edit
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to task ID in
+     *             the given task argument.
+     * @throws IOException
+     *             when there are problems writing to log file
+     * 
+     */
+    public void edit(Task newTask) throws IllegalAccessException,
+            NoSuchElementException, IOException {
+        databaseHandler.edit(newTask);
+    }
+
+    /**
+     * Adds observer to observe changes to tasks stored in this class.
+     * 
+     * @param databaseObserver
+     *            observer subscribing for tasks updates in this class
+     */
+    public void addObserver(DatabaseObserver databaseObserver) {
+        databaseHandler.addObserver(databaseObserver);
+    }
+
+    /**
+     * Synchronises tasks that are manipulated in database but not in Google
+     * Calendar when user is offline forward to Google Calendar Manager. This is
+     * achieved by executing the commands in the command queue. The reversed
+     * synchronisation from Google Calendar to database is called backward
+     * synchronisation.
+     * 
+     * @throws UnknownHostException
+     *             when user is still offline and synchronisation cannot be
+     *             performed.
+     */
+    public void forwardSync() throws UnknownHostException {
+        databaseHandler.forwardSync();
+    }
+
+    /**
+     * Adds a task to database like the <code>addTask</code> method, except
+     * without adding the this task to Google Calendar. This method is used when
+     * Google Calendar manager needs to add a task to database to synchronise
+     * tasks between Google Calendar manager and database, which is also known
+     * as backward sync.
+     * 
+     * @param task
+     *            task to be added
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void addBackwardSync(Task task) throws IOException {
+        databaseHandler.addBackwardSync(task);
+    }
+
+    /**
+     * Deletes a task from database like the <code>delete</code> method, except
+     * without deleting this task from Google Calendar. This method is the
+     * delete variant of the <code>addBackwardSync</code> method.
+     *
+     * @param googleId
+     *            Google Calendar ID of task to be deleted
+     * @throws IllegalAccessException
+     *             when list of tasks is empty and there is no task for this
+     *             method to delete
+     * @throws NoSuchElementException
+     *             when no matching task to given Google Calendar ID is found
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void deleteBackwardSync(String googleId)
+            throws IllegalAccessException, NoSuchElementException, IOException {
+        databaseHandler.deleteBackwardSync(googleId);
+    }
+
+    /**
+     * Edits a task from database like the <code>edit</code> method, except
+     * without updating this task to Google Calendar. This method is the edit
+     * variant of the <code>addBackwardSync</code> method.
+     * 
+     * @param googleIdToEdit
+     *            Google Calendar ID of task to edit
+     * @param newTask
+     *            new task to replace task to be edited
+     */
+    public void editBackwardSync(String googleIdToEdit, Task newTask)
+            throws IllegalAccessException, NoSuchElementException, IOException {
+        // TODO Auto-generated method stub
+        databaseHandler.editBackwardSync(googleIdToEdit, newTask);
+
+    }
+
+}
+	// End of segment: .\taskbuddy\database\Database.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\database\DatabaseObserver.java
+	 */
+
+ *
+ */
+public interface DatabaseObserver {
+    /**
+     * Gets updates on tasks by pulling data from a <code>Database</code>
+     * object.
+     */
+    void update();
+}
+
+	// End of segment: .\taskbuddy\database\DatabaseObserver.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\database\DatabaseObserverStub.java
+	 */
+
+ *
+ */
+public class DatabaseObserverStub implements DatabaseObserver {
+    Database database;
+    ArrayList<Task> observedTasks;
+
+    /**
+     * Constructor that takes in and specifies the database to be observed for
+     * this class
+     * 
+     * @param database
+     *            database to be observed
+     * @throws IOException
+     *             when task log cannot be read from, written to or created when
+     *             constructing database
+     * @throws ParseException
+     *             when tasks cannot be parsed from existing log file when
+     *             constructing database
+     */
+    public DatabaseObserverStub(Database database) throws IOException,
+            ParseException {
+        observedTasks = new ArrayList<Task>();
+        this.database = database;
+        database.addObserver(this);
+    }
+
+    @Override
+    public void update() {
+        observedTasks = database.getTasks();
+    }
+
+    /**
+     * @return list of tasks in this class that gets updates from
+     *         <code>Database</code>'s tasks
+     */
+    public ArrayList<Task> getObservedTasks() {
+        return observedTasks;
+    }
+
+}
+
+	// End of segment: .\taskbuddy\database\DatabaseObserverStub.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\database\GoogleCalendarCommand.java
+	 */
+
+ *
+ */
+abstract class GoogleCalendarCommand {
+    // @formatter:off
+    static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = 
+            "Cannot synchronise tasks to Google Calendar.";
+    // @formatter:on
+    static GoogleCalendarManager googleCal;
+    Task task;
+
+    /**
+     * Constructor for this class, which initialises the task to be manipulated
+     * by the command, and the associated Google Calendar manager. For example,
+     * the task field of an add command is the task to be added to Google
+     * Calendar.
+     * 
+     * @param task
+     *            task to be manipulated by the command
+     */
+    public GoogleCalendarCommand(Task task) {
+        this.task = task;
+    }
+
+    /**
+     * Retrieves and returns the task to be manipulated by the command.
+     * 
+     * @return the task to be manipulated by the command
+     */
+    public Task getTask() {
+        return task;
+    }
+
+    /**
+     * Executes the command, where the execution behaviour depends on the type
+     * of subclass, that is an add command's execution will be different from a
+     * delete command's execution/
+     * 
+     * @throws UnknownHostException
+     *             when user is offline
+     */
+    public abstract void execute() throws UnknownHostException;
+
+}
+	// End of segment: .\taskbuddy\database\GoogleCalendarCommand.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\database\GoogleCalendarManagerStub.java
+	 */
+
+ *
+ */
+public class GoogleCalendarManagerStub extends GoogleCalendarManager {
+    // These flags will turn true if add, delete and update methods are
+    // executed.
+    public String googleCalendarId = "11111";
+
+    public void add(Task task) throws UnknownHostException {
+        task.setGID(googleCalendarId);
+    }
+
+    public void delete(String eventId) throws UnknownHostException {
+    }
+
+    public void update(Task newTask) throws UnknownHostException {
+    }
+}
+
+	// End of segment: .\taskbuddy\database\GoogleCalendarManagerStub.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\database\OfflineGoogleCalendarManagerStub.java
+	 */
+
+ *
+ */
+public class OfflineGoogleCalendarManagerStub extends GoogleCalendarManager {
+    static final String ERROR_USER_OFFLINE = "User is offline";
+
+    public void add(Task task) throws UnknownHostException {
+        throw new UnknownHostException(ERROR_USER_OFFLINE);
+    }
+
+    public void delete(String eventId) throws UnknownHostException {
+        throw new UnknownHostException(ERROR_USER_OFFLINE);
+    }
+
+    public void update(Task newTask) throws UnknownHostException {
+        throw new UnknownHostException(ERROR_USER_OFFLINE);
+    }
+}
+
+	// End of segment: .\taskbuddy\database\OfflineGoogleCalendarManagerStub.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\file\Date.java
+	 */
+
+ *
+ */
+public class Date {
+    /**
+     * Refers to the actual date of the month, e.g. the <code>date</code> field
+     * for "31 December 2014" is 31. This field must be an integer from 1 to 31
+     * inclusive.
+     */
+    int date;
+
+    /**
+     * Refers to the actual month of the year, e.g. the <code>month</code> field
+     * for "31 December 2014" is 12. This field must be an integer from 1 to 12
+     * inclusive.
+     */
+    int month;
+
+    /**
+     * Refers to the year, e.g. the <code>year</code> field for
+     * "31 December 2014" is 2014. This field must be an integer. A negative
+     * year refers to "B.C.", e.g. -2000 means 2000 B.C., whereas a positive
+     * year means "A.D." or "C.E.", e.g. 2014 means 2014 A.D.
+     */
+    int year;
+
+    /**
+     * Constructor for <code>Date</code> class which initialises all 3 fields
+     * date, month, and year. This emphasises the fact that you cannot create
+     * something like a year-less date. If a default month/year is needed,
+     * please feed in the default month/year into the constructor.
+     * 
+     * @param date
+     *            date of the month
+     * @param month
+     *            month of the year
+     * @param year
+     *            year
+     */
+    public Date(int date, int month, int year) {
+        this.date = date;
+        this.month = month;
+        this.year = year;
+    }
+
+    /**
+     * Gets and returns the date of the month as an <code>integer</code>
+     * 
+     * @return date of the month
+     */
+    public int getDate() {
+        return date;
+    }
+
+    /**
+     * Sets the date of the month
+     * 
+     * @param date
+     *            date of the month
+     */
+    public void setDate(int date) {
+        this.date = date;
+    }
+
+    /**
+     * Gets and returns the month of the year as an <code>integer</code>
+     * 
+     * @return month of the year
+     */
+    public int getMonth() {
+        return month;
+    }
+
+    /**
+     * Sets the month of the year
+     * 
+     * @param month
+     *            month of the year
+     */
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    /**
+     * Gets and returns the year as an <code>integer</code>
+     * 
+     * @return year
+     */
+    public int getYear() {
+        return year;
+    }
+
+    /**
+     * Sets the year
+     * 
+     * @param year
+     */
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+}
+
+	// End of segment: .\taskbuddy\file\Date.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\file\Time.java
+	 */
+
+ *
+ */
+public class Time {
+    /**
+     * Stores hour of the time keyed in by user. For example, the hour field of
+     * time 2359 hrs is '23'. This field must be an integer from 00 to 23
+     * inclusive.
+     */
+    int hour;
+
+    /**
+     * Stores minute of the time keyed in by user. For example, the minute field
+     * of time 2359 hrs is '59'. This field must be an integer from 00 to 59
+     * inclusive.
+     */
+    int minute;
+
+    /**
+     * Constructor for the <code>Time</code> object that initialises the hour
+     * and minute fields. Initialisation of hour and minute fields emphasise the
+     * fact that you can't have an (hour/minute)-less time.
+     * 
+     * @param hour
+     * @param minute
+     */
+    public Time(int hour, int minute) {
+        this.hour = hour;
+        this.minute = minute;
+    }
+
+    /**
+     * Retrieves and returns the hour field of the time as an integer.
+     * 
+     * @return hour
+     */
+    public int getHour() {
+        return hour;
+    }
+
+    /**
+     * Sets the hour of the time. The hour must be a positive integer from 00 to
+     * 23 inclusive.
+     * 
+     * @param hour
+     */
+    public void setHour(int hour) {
+        this.hour = hour;
+    }
+
+    /**
+     * Retrieves and returns the minute field of the time as an integer.
+     * 
+     * @return minute
+     */
+    public int getMinute() {
+        return minute;
+    }
+
+    /**
+     * Sets the minute of the time. The hour must be a positive integer from 00
+     * to 59 inclusive.
+     * 
+     * @param minute
+     */
+    public void setMinute(int minute) {
+        this.minute = minute;
+    }
+
+}
+
+	// End of segment: .\taskbuddy\file\Time.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public int getTaskId() {
+		return __taskId;
+	}
+
+	public IntegerProperty idProperty() {
+		return __taskIdProperty;
+	}
+
+	// basic mutators
+	public void setTitle(String nextTitle) {
+		this.__title = nextTitle;
+		this.__titleProperty = new SimpleStringProperty(nextTitle);
+	}
+
+	public void setGID(String newID) {
+		this.__googleID = newID;
+	}
+
+	public void setDescription(String nextDescription) {
+		if (!nextDescription.equals(nullValue)) {
+			this.__description = nextDescription;
+		} else {
+			this.__description = "nil";
+		}
+	}
+
+	public void setStartTime(Calendar nextStart) {
+		this.__startTime = nextStart;
+		String date = parseDate(nextStart);
+		this.__startTimeProperty = new SimpleStringProperty(date);
+	}
+
+	public void setStartTime(String startDate, String startTime) {
+
+		if (!startDate.equals(nullValue) && !startTime.equals(nullValue)) {
+			int date = Integer.parseInt(startDate.substring(0, 2));
+			int month = Integer.parseInt(startDate.substring(3, 5));
+			month--;
+			int year = Integer.parseInt(startDate.substring(6));
+			int hour = Integer.parseInt(startTime.substring(0, 2));
+			int minute = Integer.parseInt(startTime.substring(2));
+			Calendar start = Calendar.getInstance();
+			start.set(year, month, date, hour, minute);
+			this.setStartTime(start);
+		} else if (!startDate.equals(nullValue)) {
+			int date = Integer.parseInt(startDate.substring(0, 2));
+			int month = Integer.parseInt(startDate.substring(3, 5));
+			month--;
+			int year = Integer.parseInt(startDate.substring(6));
+			Calendar start = Calendar.getInstance();
+			start.set(year, month, date);
+			this.setStartTime(start);
+
+		} else if (!startTime.equals(nullValue)) {
+			Calendar start = Calendar.getInstance();
+			int year = start.get(Calendar.YEAR);
+			int month = start.get(Calendar.MONTH);
+			int date = start.get(Calendar.DATE);
+			int hour = Integer.parseInt(startTime.substring(0, 2));
+			int minute = Integer.parseInt(startTime.substring(2));
+			start.set(year, month, date, hour, minute);
+			this.setStartTime(start);
+
+		} else {
+			Calendar now = Calendar.getInstance();
+			this.setStartTime(now);
+		}
+	}
+
+	public void setEndTime(Calendar nextEnd) {
+		this.__endTime = nextEnd;
+		String date = parseDate(nextEnd);
+		this.__endTimeProperty = new SimpleStringProperty(date);
+	}
+
+	public void setEndTime(String endDate, String endTime) {
+		if (!endDate.equals(nullValue) && !endTime.equals(nullValue)) {
+			int date = Integer.parseInt(endDate.substring(0, 2));
+			int month = Integer.parseInt(endDate.substring(3, 5));
+			month--;
+			int year = Integer.parseInt(endDate.substring(6));
+			int hour = Integer.parseInt(endTime.substring(0, 2));
+			int minute = Integer.parseInt(endTime.substring(2));
+			Calendar ending = Calendar.getInstance();
+			ending.set(year, month, date, hour, minute);
+			this.setEndTime(ending);
+		} else if (!endDate.equals(nullValue)) {
+			int date = Integer.parseInt(endDate.substring(0, 2));
+			int month = Integer.parseInt(endDate.substring(3, 5));
+			month--;
+			int year = Integer.parseInt(endDate.substring(6));
+			int hour = 23;
+			int minute = 59;
+			Calendar ending = Calendar.getInstance();
+			ending.set(year, month, date, hour, minute);
+			this.setEndTime(ending);
+
+		} else if (!endTime.equals(nullValue)) {
+			Calendar ending = Calendar.getInstance();
+			int year = ending.get(Calendar.YEAR);
+			int month = ending.get(Calendar.MONTH);
+			int date = ending.get(Calendar.DATE);
+			int hour = Integer.parseInt(endTime.substring(0, 2));
+			int minute = Integer.parseInt(endTime.substring(2));
+			ending.set(year, month, date, hour, minute);
+			this.setEndTime(ending);
+
+		} else {
+			Calendar ending = Calendar.getInstance();
+			this.setEndTime(ending);
+		}
+	}
+
+	public void setPriority(int nextPriority) {
+		this.__priorityFlag = nextPriority;
+	}
+
+	public void setCompletion(boolean nextStatus) {
+		this.__completionFlag = nextStatus;
+	}
+
+	public void setFloating(boolean nextFloatStat) {
+		this.__floatingTask = nextFloatStat;
+	}
+
+	/**
+	 * Sets a unique task ID for every task. Unique task ID is used for task
+	 * manipulation.
+	 * 
+	 * @param __taskId
+	 *            task ID
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public void setTaskId(int taskId) {
+		this.__taskId = taskId;
+		this.__taskIdProperty = new SimpleIntegerProperty(taskId);
+	}
+
+	public void checkFloating(Task task) {
+		if (task.getEndTime() == null) {
+			task.setFloating(true);
+		} else {
+			task.setFloating(false);
+		}
+	}
+
+	// other class methods
+	public Bundle getTaskInfo() {
+		Bundle toDisplay = new Bundle();
+		toDisplay.putString(user_title, this.__title);
+		toDisplay.putObject(user_flag, this.__completionFlag);
+		toDisplay.putString(user_endTime, this.__endTime.toString());
+		toDisplay.putString(user_description, this.__description);
+		toDisplay.putString(user_start, this.__startTime.toString());
+		toDisplay.putString(user_priority,
+				Integer.toString(this.__priorityFlag));
+		toDisplay.putString(user_googleID, this.__googleID);
+		return toDisplay;
+	}
+
+	/**
+	 * Returns a string showing the date and time of the argument
+	 * <code>Calendar</code> object. For example, the date returned may be
+	 * "1-1-1 at 1:1", as opposed to having leading zeroes like 01-01-0001 at
+	 * 01:01.
+	 * 
+	 * @param cal
+	 *            the <code>Calendar</code> object to be converted into a string
+	 * @return a string showing the date and time of the argument
+	 *         <code>Calendar</code> object.
+	 */
+	public String displayDateTime(Calendar cal) {
+		Date date = cal.getTime();
+
+		// Do not change this formatter - this is for Database's log file. You
+		// need to at least tell me how you've changed it if you want to change
+		// it, or write your method for your own formatter.
+		formatter = new SimpleDateFormat(DATABASE_DATE_TIME_FORMATTER);
+		return formatter.format(date);
+	}
+
+	
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public ArrayList<String> taskFields() {
+		ArrayList<String> taskFields = new ArrayList<String>();
+
+		// Do not change this string conversion format - this is for Database's
+		// log file. You need to at least tell me how you've changed it if you
+		// want to change it, or write your method for your own formatter.
+		taskFields.add(this.displayTaskId());
+		taskFields.add(this.displayTitle());
+		taskFields.add(this.displayDescription());
+		taskFields.add(this.displayStart());
+		taskFields.add(this.displayEnd());
+		taskFields.add(this.displayPriority());
+		taskFields.add(this.displayIsComplete());
+		taskFields.add(this.displayIsFloating());
+		taskFields.add(this.displayGoogleId());
+
+		return taskFields;
+	}
+
+	/**
+	 * Converts a <code>Task</code> object and its attributes to a string for
+	 * logging into a text file.
+	 * 
+	 * @return a string containing all the information of a <code>Task</code>
+	 *         object.
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public String displayTask() {
+
+		String result = EMPTY_STRING;
+		for (String aField : this.taskFields()) {
+			int lastFieldIndex = this.taskFields().size() - 1;
+			if (this.taskFields().indexOf(aField) == lastFieldIndex) {
+				result = result + aField;
+			} else {
+				result = result + aField + DELIMITER;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @return Google ID of this task as a string
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public String displayGoogleId() {
+		return GOOGLE_CALENDAR_ID + this.getGID();
+	}
+
+	/**
+	 * @return "true" if this task is floating, "false" otherwise
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public String displayIsFloating() {
+		return IS_FLOATING + Boolean.toString(this.isFloatingTask());
+	}
+
+	/**
+	 * @return "true" if this task is completed, "false" otherwise
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public String displayIsComplete() {
+		return IS_COMPLETE + Boolean.toString(this.getCompletionStatus());
+	}
+
+	/**
+	 * @return a non-zero integer ranking the priority of this task
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public String displayPriority() {
+		return PRIORITY + Integer.toString(this.getPriority());
+	}
+
+	/**
+	 * @return the end date and time of this task
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public String displayEnd() {
+		String displayEnd = END + this.displayDateTime(this.getEndTime());
+		return displayEnd;
+	}
+
+	/**
+	 * @return the end date of this task. This method is used by
+	 *         GooglCalendarManager, please do not change.
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public String displayStart() {
+		return START + this.displayDateTime(this.getStartTime());
+	}
+
+	/**
+	 * @return the start date of this task. This method is used by
+	 *         GooglCalendarManager, please do not change.
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public String displayDescription() {
+		return DESCRIPTION + this.__description;
+	}
+
+	/**
+	 * @return the title of this task
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public String displayTitle() {
+		return TITLE + this.__title;
+	}
+
+	/**
+	 * @return the task ID
+	 * 
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\taskbuddy\logic\Task.java
+	 */
+
+	 * 
+	 */
+	public String displayTaskId() {
+		return TASK_ID + this.__taskId;
+	}
+}
+
+	// End of segment: .\taskbuddy\logic\Task.java
+
+
+
+
+
