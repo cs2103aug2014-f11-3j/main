@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import taskbuddy.gui.AWTgui;
 import taskbuddy.logic.AcknowledgeBundle;
 import taskbuddy.logic.CommandParser;
 import taskbuddy.logic.UserInputBundle;
@@ -135,6 +136,7 @@ public class Parser {
 
 	private static void showInvalidMessage() {
 		// System.out.println("Invalid Command Format");
+		AWTgui.setResponseString("Invalid Command Format");
 	}
 
 	private static boolean isUndoType(String commandType) {
