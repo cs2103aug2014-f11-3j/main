@@ -21,6 +21,8 @@ public class BackwardSyncAddCommand {
 	//private Task taskToAdd = new Task();
 	private ArrayList<Task> tasksToAdd = new ArrayList<Task>();
 	Database db;
+	GoogleCalendarBackwardSyncCommandCreator googleCalendarBackwardSyncCommandCreator = new GoogleCalendarBackwardSyncCommandCreator();
+	
 	
 	// Constructor 
 	public BackwardSyncAddCommand(ArrayList<Task> tasks) {
@@ -40,6 +42,7 @@ public class BackwardSyncAddCommand {
 		for (Task task : tasksToAdd) {
 			try {
 				db.addBackwardSync(task);
+				googleCalendarBackwardSyncCommandCreator.clearAllArrayLists();
 				//System.out.println(task);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

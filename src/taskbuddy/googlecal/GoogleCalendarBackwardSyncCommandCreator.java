@@ -222,4 +222,15 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 		generateArrayListOfEdits();
 		executeCommandCreator();
 	}
+	
+	public void clearAllArrayLists() {
+		tasksToAddToDb.clear();
+		tasksToDeleteFromDb.clear();
+		tasksToEdit.clear();
+		tasksFromDatabase.clear();
+		tasksFromGoogleCal.clear();
+		tasksInDb_ScanForEdits.clear();
+		tasksInGCal_ScanForEdits.clear();
+		googleCalRetrieveAll.clearArrayList();
+	}
 }

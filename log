@@ -1,6 +1,7 @@
-5 tasks:
-Task ID: 1 | Title: hello | Description: no description available | Start: 10-11-2014 at 22:37 | End: 10-11-2014 at 22:37 | Priority: 0 | Completed: false | Floating task: true | Google Calendar ID: oai36jk9111uh9brdt2fhhghag
-Task ID: 2 | Title: added when offline | Description: no description available | Start: 10-11-2014 at 22:42 | End: 10-11-2014 at 22:42 | Priority: 0 | Completed: false | Floating task: true | Google Calendar ID: null
-Task ID: 3 | Title: editeddd | Description: no description available | Start: 10-11-2014 at 22:42 | End: 10-11-2014 at 22:42 | Priority: 0 | Completed: false | Floating task: true | Google Calendar ID: null
-Task ID: 4 | Title: jfsdkfs | Description: no description available | Start: 10-11-2014 at 22:53 | End: 10-11-2014 at 22:53 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: 3lqu20m3u5tf1viasv0ccsa8no
-Task ID: 5 | Title: jfsdkfsad | Description: no description available | Start: 10-11-2014 at 22:53 | End: 10-11-2014 at 22:53 | Priority: 0 | Completed: false | Floating task: true | Google Calendar ID: ibdt3ulq9u2dufa3aeq6e6fia4
+6 tasks:
+Task ID: 1 | Title: a | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: r8ldom994k6e0n3opkt3efl70k
+Task ID: 2 | Title: b | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: gjb6kq4dl7rk9mdj1ai6i3cso0
+Task ID: 3 | Title: c | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: d3lrbnc9o2pq7mvtb07m1ps9rs
+Task ID: 1 | Title: a | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: r8ldom994k6e0n3opkt3efl70k
+Task ID: 2 | Title: b | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: gjb6kq4dl7rk9mdj1ai6i3cso0
+Task ID: 3 | Title: c | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: d3lrbnc9o2pq7mvtb07m1ps9rs

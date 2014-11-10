@@ -23,6 +23,8 @@ public class BackwardSyncEditCommand {
 	//private Task taskToAdd = new Task();
 	private ArrayList<Task> tasksToEdit = new ArrayList<Task>();
 	Database db;
+	GoogleCalendarBackwardSyncCommandCreator googleCalendarBackwardSyncCommandCreator = new GoogleCalendarBackwardSyncCommandCreator();
+	
 	
 	// Constructor 
 	public BackwardSyncEditCommand(ArrayList<Task> tasks) {
@@ -50,6 +52,7 @@ public class BackwardSyncEditCommand {
 		for (Task task : tasksToEdit) {
 			try {
 				db.editBackwardSync(task.getGID(), task);
+				googleCalendarBackwardSyncCommandCreator.clearAllArrayLists();
 			} catch (IOException | IllegalAccessException | NoSuchElementException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

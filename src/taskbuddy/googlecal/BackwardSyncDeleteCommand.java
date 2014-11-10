@@ -24,6 +24,7 @@ public class BackwardSyncDeleteCommand {
 	private ArrayList<Task> tasksToDelete = new ArrayList<Task>();
 	Database db;
 	
+	GoogleCalendarBackwardSyncCommandCreator googleCalendarBackwardSyncCommandCreator = new GoogleCalendarBackwardSyncCommandCreator();
 	
 	// Constructor 
 	public BackwardSyncDeleteCommand(ArrayList<Task> tasks) {
@@ -53,6 +54,7 @@ public class BackwardSyncDeleteCommand {
 
 				try {
 					db.deleteBackwardSync(task.getGID());
+					googleCalendarBackwardSyncCommandCreator.clearAllArrayLists();
 				} catch (IllegalAccessException | NoSuchElementException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

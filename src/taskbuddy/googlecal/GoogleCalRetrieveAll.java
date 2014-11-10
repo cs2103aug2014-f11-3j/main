@@ -238,4 +238,8 @@ public class GoogleCalRetrieveAll {
 		
 		return tasks;
 	}
+	
+	public void clearArrayList() {
+		tasks.clear();
+	}
 }

@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
+import taskbuddy.googlecal.GoogleCalendarBackwardSyncCommandCreator;
 import taskbuddy.logic.Task;
 
 /**
@@ -212,8 +213,9 @@ public class Database {
      *             when command log cannot be written to
      */
     public void sync() throws IOException {
-        databaseHandler.forwardSync();
+    	databaseHandler.forwardSync();
         databaseHandler.googleCal.executeBackwardSync();
+        
     }
 
     /**
