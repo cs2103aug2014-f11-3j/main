@@ -64,10 +64,12 @@ public class Parser {
 			return a;
 
 		} else if (isDeleteType(commandType)) {
-			AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
+			AcknowledgeBundle a = new AcknowledgeBundle();
 			try{
 				deleteDataPadding(userInputs, commandType, userCommand);
+				a = commandParser.parseUserInputs(userInputs);
 			}catch(NullPointerException e){
+				a.putFailure();
 				a.putMessage(e.getMessage());
 			}
 			return a;
@@ -78,11 +80,12 @@ public class Parser {
 			return a;
 
 		} else if (isEditType(commandType)) {
-			AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
-			
+			AcknowledgeBundle a = new AcknowledgeBundle();
 			try{
 				editDataPadding(userInputs, commandType, userCommand);
+				a = commandParser.parseUserInputs(userInputs);
 			}catch(NullPointerException e){
+				a.putFailure();
 				a.putMessage(e.getMessage());
 			}
 			return a;

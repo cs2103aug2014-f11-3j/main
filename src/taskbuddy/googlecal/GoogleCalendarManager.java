@@ -111,7 +111,7 @@ public class GoogleCalendarManager {
 
 	public void update(Task task) throws UnknownHostException  {
 		// Assertion Tests
-		assert (task.getGID() != null): MISSING_GOOGLE_ID_ERROR;
+		// assert (task.getGID() != null): MISSING_GOOGLE_ID_ERROR;
 		assert (task.getTitle() != null): MISSING_TITLE_ERROR;
 				
 		GooCalBackend gooCalBackend = new GooCalBackend(); 

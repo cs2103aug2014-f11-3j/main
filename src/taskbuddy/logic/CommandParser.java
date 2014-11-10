@@ -33,14 +33,8 @@ public class CommandParser {
 				ack = AddCommand.addTask(userIn, database);
 			} else if (commandType.equals("delete")) {
 				ack = DeleteCommand.deleteTask(userIn, database);
-				Task t = ack.getTask();
-				this.pushUndoTask(t);
 			} else if (commandType.equals("edit")) {
 				ack = EditCommand.editTask(userIn);
-				Task oldt = ack.getOldTask();
-				Task newt = ack.getTask();
-				this.pushUndoTask(oldt);
-				this.pushUndoTask(newt);
 			} else if (commandType.equals("display")) {
 				ack = DisplayCommand.displayAllTasks(database);
 			} else if (commandType.equals("search")) {
