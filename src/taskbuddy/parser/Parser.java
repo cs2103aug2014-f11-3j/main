@@ -7,7 +7,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import taskbuddy.gui.AWTgui;
 import taskbuddy.logic.AcknowledgeBundle;
 import taskbuddy.logic.CommandParser;
 import taskbuddy.logic.UserInputBundle;
@@ -137,10 +136,6 @@ public class Parser {
 		return result;
 	}
 
-	private static void showInvalidMessage() {
-		// System.out.println("Invalid Command Format");
-		AWTgui.setResponseString("Invalid Command Format");
-	}
 
 	private static boolean isUndoType(String commandType) {
 		if (commandType.equalsIgnoreCase("undo")) {
@@ -306,9 +301,7 @@ public class Parser {
 			b.putEndDate(NULL_VALUE);
 			b.putTitle(NULL_VALUE);
 			b.putID(contentToDelete);
-		} else {
-			showInvalidMessage();
-		}
+		} 
 
 	}
 
