@@ -3,6 +3,9 @@
 
 package taskbuddy.logic;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.util.Calendar;
 
 import taskbuddy.database.Database;
@@ -11,8 +14,9 @@ public class AddCommand {
 
 	private static String nullValue = "padding value";
 
-	public static AcknowledgeBundle addTask(UserInputBundle extras, Database db) {
+	public static AcknowledgeBundle addTask(UserInputBundle extras, Database db) throws ParseException, IOException {
 		AcknowledgeBundle ackBundle = new AcknowledgeBundle();
+		CommandParser cp = CommandParser.getInstance();
 		Task taskToAdd = new Task();
 		String title = extras.getTitle();
 		String desc = extras.getDescription();
@@ -32,7 +36,13 @@ public class AddCommand {
 			ackBundle.putSuccess();
 			ackBundle.putMessage("added task to database with no errors");
 			ackBundle.putTask(taskToAdd);
-			CommandParser cp = CommandParser.getInstance();
+			cp.initRedo();
+			cp.pushUndo(extras);
+			cp.pushUndoTask(taskToAdd);
+		} catch (UnknownHostException e){
+			ackBundle.putFailure();
+			ackBundle.putMessage("task added locally");
+			ackBundle.putTask(taskToAdd);
 			cp.initRedo();
 			cp.pushUndo(extras);
 			cp.pushUndoTask(taskToAdd);
