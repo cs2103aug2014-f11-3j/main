@@ -1930,9 +1930,10 @@ public class Parser {
 			int indexOfTitleSpecifier = contentSplitCopy.indexOf("-t");
 			int nextIndex = indexOfTitleSpecifier + 1;
 			while(indexOfTitleSpecifier + 1 < contentSplitCopy.size()){
-				if((contentSplitCopy.get(nextIndex).equals("-s")==false)&&
-						(contentSplitCopy.get(nextIndex).equals("-e")==false)&&
-						(contentSplitCopy.get(nextIndex).equals("-d")==false)){
+				if((contentSplitCopy.get(nextIndex).equals("-st")==false)&&
+						(contentSplitCopy.get(nextIndex).equals("-et")==false)&&
+						(contentSplitCopy.get(nextIndex).equals("-sd")==false)&&
+						(contentSplitCopy.get(nextIndex).equals("-ed")==false)){
 					contentSplitCopy.remove(nextIndex);
 				}else{
 					break;
