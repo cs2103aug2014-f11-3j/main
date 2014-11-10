@@ -322,7 +322,10 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			if (!gcCont.isCalendarAuthenticated()) {
 				String authURL = gcCont.getAuthorizationUrl();
 				try {
-					Desktop.getDesktop().browse(new URI(authURL));
+					GoogleCalendarController gcc = new GoogleCalendarController();
+					if (gcc.isUserOnline()){
+						Desktop.getDesktop().browse(new URI(authURL));
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -452,6 +455,9 @@ public class AcknowledgeBundle extends Bundle{
 
 package taskbuddy.logic;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.util.Calendar;
 
 import taskbuddy.database.Database;
@@ -460,8 +466,9 @@ public class AddCommand {
 
 	private static String nullValue = "padding value";
 
-	public static AcknowledgeBundle addTask(UserInputBundle extras, Database db) {
+	public static AcknowledgeBundle addTask(UserInputBundle extras, Database db) throws ParseException, IOException {
 		AcknowledgeBundle ackBundle = new AcknowledgeBundle();
+		CommandParser cp = CommandParser.getInstance();
 		Task taskToAdd = new Task();
 		String title = extras.getTitle();
 		String desc = extras.getDescription();
@@ -481,7 +488,13 @@ public class AddCommand {
 			ackBundle.putSuccess();
 			ackBundle.putMessage("added task to database with no errors");
 			ackBundle.putTask(taskToAdd);
-			CommandParser cp = CommandParser.getInstance();
+			cp.initRedo();
+			cp.pushUndo(extras);
+			cp.pushUndoTask(taskToAdd);
+		} catch (UnknownHostException e){
+			ackBundle.putFailure();
+			ackBundle.putMessage("task added locally");
+			ackBundle.putTask(taskToAdd);
 			cp.initRedo();
 			cp.pushUndo(extras);
 			cp.pushUndoTask(taskToAdd);
@@ -643,14 +656,8 @@ public class CommandParser {
 				ack = AddCommand.addTask(userIn, database);
 			} else if (commandType.equals("delete")) {
 				ack = DeleteCommand.deleteTask(userIn, database);
-				Task t = ack.getTask();
-				this.pushUndoTask(t);
 			} else if (commandType.equals("edit")) {
 				ack = EditCommand.editTask(userIn);
-				Task oldt = ack.getOldTask();
-				Task newt = ack.getTask();
-				this.pushUndoTask(oldt);
-				this.pushUndoTask(newt);
 			} else if (commandType.equals("display")) {
 				ack = DisplayCommand.displayAllTasks(database);
 			} else if (commandType.equals("search")) {
@@ -660,7 +667,7 @@ public class CommandParser {
 			} else if (commandType.equals("redo")){
 				ack = RedoCommand.redo();
 			} else if (commandType.equals("sync")){
-				ack = SyncCommand.SyncCalendars(database);
+				ack = SyncCommand.SyncCalendars();
 			} else {
 				ack.putFailure();
 				ack.putMessage("invalid command");
@@ -766,28 +773,38 @@ public class CommandParser {
 //andrew
 
 package taskbuddy.logic;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 import taskbuddy.database.Database;
 
 public class DeleteCommand {
 
-	public static AcknowledgeBundle deleteTask(UserInputBundle inputs, Database db){
+	public static AcknowledgeBundle deleteTask(UserInputBundle inputs, Database db) throws ParseException, IOException{
 		int id = Integer.parseInt(inputs.getTaskID());
 		AcknowledgeBundle ack = new AcknowledgeBundle();
+		Task t = new Task();
+		CommandParser cp = CommandParser.getInstance();
 		try{
-			Task t = db.read(id);
+			t = db.read(id);
 			db.delete(id);
-			CommandParser cp = CommandParser.getInstance();
 			ack.putSuccess();
 			ack.putMessage("task deleted successfully");
 			ack.putTask(t);
 			cp.initRedo();
 			cp.pushUndo(inputs);
 			cp.pushUndoTask(t);
+		} catch (UnknownHostException e){
+			ack.putFailure();
+			ack.putMessage("Deleted locally");
+			cp.initRedo();
+			cp.pushUndo(inputs);
+			cp.pushUndoTask(t);
 		} catch (Exception e){
 			ack.putFailure();
-			ack.putMessage("Unable to delete task");
+			ack.putMessage("Deleted locally");
 		}
 		return ack;
 	}
@@ -1000,9 +1017,6 @@ public class EditCommand {
 
 package taskbuddy.logic;
 
-import java.util.ArrayList;
-import java.util.Stack;
-
 import taskbuddy.database.Database;
 
 public class RedoCommand {
@@ -1013,7 +1027,8 @@ public class RedoCommand {
 		try {
 			CommandParser cp = CommandParser.getInstance();
 			Database db = cp.getDatabase();
-			UserInputBundle commandToRedo = cp.getRedo();
+			UserInputBundle commandToRedo = new UserInputBundle(); 
+			commandToRedo = cp.getRedo();
 			cp.pushUndo(commandToRedo);
 			String commandType = commandToRedo.getCommand();
 			try {
@@ -1146,14 +1161,25 @@ public class SearchCommand {
 
 package taskbuddy.logic;
 
+import java.io.IOException;
+import java.text.ParseException;
+
 import taskbuddy.database.Database;
 
 public class SyncCommand {
 
-	public static AcknowledgeBundle SyncCalendars(Database db){
+	public static AcknowledgeBundle SyncCalendars() throws ParseException, IOException{
 		AcknowledgeBundle acks = new AcknowledgeBundle();
-		// TODO try db.sync();
-		
+		CommandParser cp = CommandParser.getInstance();
+		Database db = cp.getDatabase();
+		try {
+			db.sync();
+			acks.putFailure();
+			acks.putMessage("sync success");
+		} catch (Exception e){
+			acks.putFailure();
+			acks.putMessage("sync fail");
+		}
 		return acks;
 	}
 	
@@ -1330,7 +1356,8 @@ public class UndoCommand {
 		Database db = cp.getDatabase();
 		AcknowledgeBundle ack = new AcknowledgeBundle();
 		try {
-			UserInputBundle previousCommand = cp.getUndo();
+			UserInputBundle previousCommand = new UserInputBundle();
+			previousCommand = cp.getUndo();
 			try{
 				System.err.println(previousCommand.getCommand() + "command type");
 			} catch (Exception e){
