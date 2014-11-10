@@ -51,6 +51,11 @@ public class GoogleCalendarController {
 	public boolean isCalendarAuthenticated() {
 		return googleCalendarAuthorizer.isAuthenticationValid();
 	}
+	
+	// To be called by GUI
+	public boolean isUserOnline() {
+		return googleCalendarAuthorizer.isUserOnline();
+	}
 
 	// To be called by GUI
 	public String getAuthorizationUrl() {
@@ -68,15 +73,5 @@ public class GoogleCalendarController {
 
 	public boolean isAddressEmpty() {
 		return googleCalendarPreferenceLogger.isAddressFileEmpty();
-	}
-
-
-	// This method is for testing
-	public void setUserNameAndAddress() {
-		googleCalendarPreferenceLogger.createAndAddToUsernameFile("ipeech");
-		googleCalendarPreferenceLogger.createAndAddToAddressFile("i357fqqhffrf1fa9udcbn9sikc@group.calendar.google.com");
-		googleCalendarPreferenceLogger.clearTokenFile();
-		//googleCalendarPreferenceLogger.createAndAddToUsernameFile("ambienators.betatester1");
-		//googleCalendarPreferenceLogger.createAndAddToAddressFile("ambienators.betatester1@gmail.com");
 	}
 }
