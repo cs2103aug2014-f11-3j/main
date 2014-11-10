@@ -17,7 +17,8 @@ public class UndoCommand {
 		Database db = cp.getDatabase();
 		AcknowledgeBundle ack = new AcknowledgeBundle();
 		try {
-			UserInputBundle previousCommand = cp.getUndo();
+			UserInputBundle previousCommand = new UserInputBundle();
+			previousCommand = cp.getUndo();
 			try{
 				System.err.println(previousCommand.getCommand() + "command type");
 			} catch (Exception e){

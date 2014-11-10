@@ -217,76 +217,133 @@ public class Parser {
 			String userCommand) {
 		String contentToAdd = removeFirstWord(userCommand);
 
-		String description = findDescription(contentToAdd);
-		if (description.isEmpty()) {
-			description = NULL_VALUE;
-		}
-		if (description.equals(NULL_VALUE) == false) {
-			contentToAdd = removeDescription(contentToAdd);
-		}
-		// System.out.println("Description is "+description);
-		// System.out.println("After remove description: "+contentToAdd);
+		if(hasTitleSpecifier(contentToAdd)){
+			
+			String titleWithSpecifier = findTitleWithSpecifier(contentToAdd);
+			contentToAdd = removeTitleWithSpecifier(contentToAdd);
+			String startDateWithSpecifier = "";
+			String endDateWithSpecifier = "";
+			String startTimeWithSpecifier = "";
+			String endTimeWithSpecifier = "";
+			String descriptionWithSpecifier = "";
+			
+			if(hasStartDateSpecifier(contentToAdd)){
+				startDateWithSpecifier = findStartDateWithSpecifier(contentToAdd);
+				contentToAdd = removeStartDate(contentToAdd);		
+			}else{
+				startDateWithSpecifier = NULL_VALUE;
+			}
+			
+			if(hasEndDateSpecifier(contentToAdd)){
+				endDateWithSpecifier = findEndDateWithSpecifier(contentToAdd);
+				contentToAdd = removeEndDate(contentToAdd);		
+			}else{
+				endDateWithSpecifier = NULL_VALUE;
+			}
+			
+			if(hasStartTimeSpecifier(contentToAdd)){
+				startTimeWithSpecifier = findStartTimeWithSpecifier(contentToAdd);
+				contentToAdd = removeStartTime(contentToAdd);
+				
+			}else{
+				startTimeWithSpecifier = NULL_VALUE;
+			}
+			
+			if(hasEndTimeSpecifier(contentToAdd)){
+				endTimeWithSpecifier = findEndTimeWithSpecifier(contentToAdd);
+				contentToAdd = removeEndTime(contentToAdd);
+				
+			}else{
+				endTimeWithSpecifier = NULL_VALUE;
+			}
+			
+			if(contentToAdd.isEmpty() == false){
+				descriptionWithSpecifier = contentToAdd.trim();
+			}else{
+				descriptionWithSpecifier = NULL_VALUE;
+			}
+			
+			b.putCommand(commandType);
+			b.putTitle(titleWithSpecifier);
+			b.putDescription(descriptionWithSpecifier);
+			b.putStartTime(startTimeWithSpecifier);
+			b.putEndTime(endTimeWithSpecifier);
+			b.putStartDate(startDateWithSpecifier);
+			b.putEndDate(endDateWithSpecifier);
+			
+		}else{
+			
+			String description = findDescription(contentToAdd);
+			if (description.isEmpty()) {
+				description = NULL_VALUE;
+			}
+			if (description.equals(NULL_VALUE) == false) {
+				contentToAdd = removeDescription(contentToAdd);
+			}
+			// System.out.println("Description is "+description);
+			// System.out.println("After remove description: "+contentToAdd);
 
-		String title = findTitle(contentToAdd);
-		if (title.isEmpty()) {
-			title = NULL_VALUE;
-		}
-		// System.out.println("Title is "+title);
+			String title = findTitle(contentToAdd);
+			if (title.isEmpty()) {
+				title = NULL_VALUE;
+			}
+			// System.out.println("Title is "+title);
 
-		if (title.equals(NULL_VALUE) == false) {
-			contentToAdd = removeTitle(contentToAdd, title);
-		}
-		// System.out.println("new content after remove title: "+contentToAdd);
+			if (title.equals(NULL_VALUE) == false) {
+				contentToAdd = removeTitle(contentToAdd, title);
+			}
+			// System.out.println("new content after remove title: "+contentToAdd);
 
-		String startTime = findStartTime(contentToAdd);
-		if (startTime.isEmpty()) {
-			startTime = NULL_VALUE;
-		}
-		if (startTime.equals(NULL_VALUE) == false) {
-			startTime = convertTimeToFourDigit(startTime);
-		}
-		// System.out.println("Start time is "+startTime);
+			String startTime = findStartTime(contentToAdd);
+			if (startTime.isEmpty()) {
+				startTime = NULL_VALUE;
+			}
+			if (startTime.equals(NULL_VALUE) == false) {
+				startTime = convertTimeToFourDigit(startTime);
+			}
+			// System.out.println("Start time is "+startTime);
 
-		String endTime = findEndTime(contentToAdd);
-		if (endTime.isEmpty()) {
-			endTime = NULL_VALUE;
-		}
-		if (endTime.equals(NULL_VALUE) == false) {
-			endTime = convertTimeToFourDigit(endTime);
-		}
-		// System.out.println("End time is "+endTime);
+			String endTime = findEndTime(contentToAdd);
+			if (endTime.isEmpty()) {
+				endTime = NULL_VALUE;
+			}
+			if (endTime.equals(NULL_VALUE) == false) {
+				endTime = convertTimeToFourDigit(endTime);
+			}
+			// System.out.println("End time is "+endTime);
 
-		if (startTime.equals(NULL_VALUE) == false
-				|| endTime.equals(NULL_VALUE) == false) {
-			contentToAdd = removeStartAndEndTime(startTime, endTime,
-					contentToAdd);
-		}
-		// System.out.println("new content after remove start and end time: "+contentToAdd);
+			if (startTime.equals(NULL_VALUE) == false
+					|| endTime.equals(NULL_VALUE) == false) {
+				contentToAdd = removeStartAndEndTime(startTime, endTime,
+						contentToAdd);
+			}
+			// System.out.println("new content after remove start and end time: "+contentToAdd);
 
-		String startDate = findStartDate(contentToAdd);
-		if (startDate.isEmpty()) {
-			startDate = NULL_VALUE;
-		}
-		// System.out.println("start date is "+startDate);
+			String startDate = findStartDate(contentToAdd);
+			if (startDate.isEmpty()) {
+				startDate = NULL_VALUE;
+			}
+			// System.out.println("start date is "+startDate);
 
-		String endDate = findEndDate(contentToAdd);
-		if (endDate.isEmpty()) {
-			endDate = NULL_VALUE;
-		}
-		// System.out.println("end date is "+endDate);
+			String endDate = findEndDate(contentToAdd);
+			if (endDate.isEmpty()) {
+				endDate = NULL_VALUE;
+			}
+			// System.out.println("end date is "+endDate);
 
+			
+			startDate = convertTodayAndTomorrow(startDate);
+			endDate = convertTodayAndTomorrow(endDate);
+			
+			b.putCommand(commandType);
+			b.putTitle(title);
+			b.putDescription(description);
+			b.putStartTime(startTime);
+			b.putEndTime(endTime);
+			b.putStartDate(startDate);
+			b.putEndDate(endDate);
+		}
 		
-		startDate = convertTodayAndTomorrow(startDate);
-		endDate = convertTodayAndTomorrow(endDate);
-		
-		b.putCommand(commandType);
-		b.putTitle(title);
-		b.putDescription(description);
-		b.putStartTime(startTime);
-		b.putEndTime(endTime);
-		b.putStartDate(startDate);
-		b.putEndDate(endDate);
-
 	}
 
 	private static void deleteDataPadding(UserInputBundle b,
@@ -1825,5 +1882,188 @@ public class Parser {
 		return s;
 			
 	}
+	
+	private static boolean hasTitleSpecifier(String content){
+		if(content.contains("-t")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private static String findTitleWithSpecifier(String content){
+		String[] contentSplit = content.trim().split("\\s+");
+		String title = "";
+		ArrayList<String> contentSplitCopy = new ArrayList<String>();
+		for(int i=0; i<contentSplit.length; i++){
+			contentSplitCopy.add(contentSplit[i]);
+		}
+		
+		int indexOfTitleSpecifier = contentSplitCopy.indexOf("-t");
+		int nextIndex = indexOfTitleSpecifier + 1;
+		while(indexOfTitleSpecifier + 1 < contentSplitCopy.size()){
+			if((contentSplitCopy.get(nextIndex).equals("-s")==false)&&
+					(contentSplitCopy.get(nextIndex).equals("-e")==false)&&
+					(contentSplitCopy.get(nextIndex).equals("-d")==false)){
+				title += contentSplitCopy.get(nextIndex);
+				title += " ";
+				contentSplitCopy.remove(nextIndex);
+			}else{
+				break;
+			}
+		}
+		
+		title = title.trim();
+		return title;			
+	}
+	
+	private static String removeTitleWithSpecifier(String content){		
+		String newContent = "";
+		
+		String[] contentSplit = content.trim().split("\\s+");
+		ArrayList<String> contentSplitCopy = new ArrayList<String>();
+		for(int i=0; i<contentSplit.length; i++){
+			contentSplitCopy.add(contentSplit[i]);
+		}
+		
+		if(contentSplitCopy.contains("-t")){
+			int indexOfTitleSpecifier = contentSplitCopy.indexOf("-t");
+			int nextIndex = indexOfTitleSpecifier + 1;
+			while(indexOfTitleSpecifier + 1 < contentSplitCopy.size()){
+				if((contentSplitCopy.get(nextIndex).equals("-st")==false)&&
+						(contentSplitCopy.get(nextIndex).equals("-et")==false)&&
+						(contentSplitCopy.get(nextIndex).equals("-sd")==false)&&
+						(contentSplitCopy.get(nextIndex).equals("-ed")==false)){
+					contentSplitCopy.remove(nextIndex);
+				}else{
+					break;
+				}
+			}
+		}
+						
+		for(int j=0; j<contentSplitCopy.size(); j++){
+			newContent += contentSplitCopy.get(j);
+			newContent += " ";
+		}
+		
+		newContent = newContent.trim();
+		content = newContent;
+		content = content.replace("-t", "");
+		content = content.trim();
+		return content;
+	}
+	
+	private static boolean hasStartDateSpecifier(String content){
+		if(content.contains("-sd")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private static boolean hasEndDateSpecifier(String content){
+		if(content.contains("-ed")){
+			return true;
+		}else{
+			return false;
+		}
+	}
 
+	private static String findStartDateWithSpecifier(String content){
+		String[] contentSplit = content.trim().split("\\s+");
+		String date = "";
+		for(int i=0; i<contentSplit.length; i++){
+			if(contentSplit[i].equalsIgnoreCase("-sd")){
+				date = contentSplit[i+1];
+				break;
+			}
+		}
+		return date;
+	}
+	
+	private static String findEndDateWithSpecifier(String content){
+		String[] contentSplit = content.trim().split("\\s+");
+		String date = "";
+		for(int i=0; i<contentSplit.length; i++){
+			if(contentSplit[i].equalsIgnoreCase("-ed")){
+				date = contentSplit[i+1];
+				break;
+			}
+		}
+		return date;
+	}
+	
+	private static String removeStartDate(String content){
+		String date = findStartDateWithSpecifier(content);
+		content = content.replace("-sd", "");
+		content = content.replace(date, "");
+		content = content.trim();
+		return content;
+	}
+	
+	private static String removeEndDate(String content){
+		String date = findEndDateWithSpecifier(content);
+		content = content.replace("-ed", "");
+		content = content.replace(date, "");
+		content = content.trim();
+		return content;
+	}
+	
+	private static boolean hasStartTimeSpecifier(String content){
+		if(content.contains("-st")){
+			return true;
+		}else{
+			return false;
+		}	
+	}
+	
+	
+	private static boolean hasEndTimeSpecifier(String content){
+		if(content.contains("-et")){
+			return true;
+		}else{
+			return false;
+		}			
+	}
+	
+	private static String findStartTimeWithSpecifier(String content){
+		String[] contentSplit = content.trim().split("\\s+");
+		String startTime = "";
+		for(int i=0; i<contentSplit.length; i++){
+			if(contentSplit[i].equalsIgnoreCase("-st")){
+				startTime = contentSplit[i+1];
+				break;
+			}
+		}
+		return startTime;
+	}
+	
+	private static String findEndTimeWithSpecifier(String content){
+		String[] contentSplit = content.trim().split("\\s+");
+		String endTime = "";
+		for(int i=0; i<contentSplit.length; i++){
+			if(contentSplit[i].equalsIgnoreCase("-et")){
+				endTime = contentSplit[i+1];
+				break;
+			}
+		}
+		return endTime;		
+	}
+	
+	private static String removeStartTime(String content){
+		String startTime = findStartTimeWithSpecifier(content);
+		content = content.replace("-st", "");
+		content = content.replace(startTime, "");
+		content = content.trim();
+		return content;
+	}
+	
+	private static String removeEndTime(String content){
+		String endTime = findEndTimeWithSpecifier(content);
+		content = content.replace("-et", "");
+		content = content.replace(endTime, "");
+		content = content.trim();
+		return content;
+	}
+	
 }
