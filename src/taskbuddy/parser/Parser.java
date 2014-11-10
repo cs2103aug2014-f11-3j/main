@@ -95,8 +95,13 @@ public class Parser {
 			return a;
 
 		} else if (isEditType(commandType)) {
-			editDataPadding(userInputs, commandType, userCommand);
-			AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
+			AcknowledgeBundle a = null;
+			try{
+				editDataPadding(userInputs, commandType, userCommand);
+				a = commandParser.parseUserInputs(userInputs);
+			}catch(NullPointerException e){
+				a.putMessage(e.getMessage());
+			}
 			return a;
 
 		} else if (isSearchType(commandType)) {
@@ -453,6 +458,7 @@ public class Parser {
 			b.putEndDate(endDate);
 		} else {
 			throw new NullPointerException("Please enter task ID");
+			
 		}
 
 	}
