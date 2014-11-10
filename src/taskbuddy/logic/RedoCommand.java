@@ -7,14 +7,14 @@ import taskbuddy.database.Database;
 
 public class RedoCommand {
 
-	public static AcknowledgeBundle redo(Stack<UserInputBundle> undoStack,
-			Stack<UserInputBundle> redoStack, Stack<Task> undoStackTask,
-			Stack<Task> redoStackTask, Database db) {
+	public static AcknowledgeBundle redo() {
 
 		AcknowledgeBundle ack = new AcknowledgeBundle();
 		try {
-			UserInputBundle commandToRedo = redoStack.pop();
-			undoStack.push(commandToRedo);
+			CommandParser cp = CommandParser.getInstance();
+			Database db = cp.getDatabase();
+			UserInputBundle commandToRedo = cp.getRedo();
+			cp.pushUndo(commandToRedo);
 			String commandType = commandToRedo.getCommand();
 			try {
 				if (commandType.equals("add")) {
@@ -24,11 +24,11 @@ public class RedoCommand {
 					ack = DeleteCommand.deleteTask(commandToRedo, db);
 					ack.putMessage("delete redid");
 				} else if (commandType.equals("edit")){
-					Task afterEdit = redoStackTask.pop();
-					Task beforeEdit = redoStackTask.pop();
+					Task afterEdit = cp.getRedoTask();
+					Task beforeEdit = cp.getRedoTask();
 					db.edit(afterEdit);
-					undoStackTask.push(beforeEdit);
-					undoStackTask.push(afterEdit);
+					cp.pushUndoTask(beforeEdit);
+					cp.pushUndoTask(afterEdit);
 					ack.putSuccess();
 					ack.putMessage("edit redid");
 					ack.putOldTask(beforeEdit);
