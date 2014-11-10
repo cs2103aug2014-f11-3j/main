@@ -15,6 +15,7 @@ public class Parser2 {
 	private final static String commandEdit = "edit";
 	private final static String commandPriority = "priority";
 	private final static String commandUndo = "undo";
+	private final static String commandRedo = "redo";
 	private final static String nullValue = "padding value";
 	private static CommandParser cp;
 
@@ -169,6 +170,25 @@ public class Parser2 {
 		return acks;
 	}
 
+	protected static AcknowledgeBundle redoCmd(String[] line, UserInputBundle bundle){
+		AcknowledgeBundle acks = new AcknowledgeBundle();
+		try {
+			bundle.putCommand(commandRedo);
+			bundle.putID(nullValue);
+			bundle.putPriority(nullValue);
+			bundle.putDescription(nullValue);
+			bundle.putEndDate(nullValue);
+			bundle.putEndTime(nullValue);
+			bundle.putStartDate(nullValue);
+			bundle.putStartTime(nullValue);
+			acks = cp.parseUserInputs(bundle);
+		} catch (Exception e) {
+			acks.putFailure();
+			acks.putMessage(e.getMessage());
+		}
+		return acks;
+	}
+	
 	protected static int searchTokens(String searchItem, String[] list) {
 		String token = list[0];
 		if (searchItem.equals(token)) {

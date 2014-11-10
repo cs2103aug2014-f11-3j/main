@@ -45,7 +45,7 @@ public class CommandParser {
 			} else if (commandType.equals("undo")){
 				ack = UndoCommand.undo();
 			} else if (commandType.equals("redo")){
-				ack = RedoCommand.redo(undoStack, redoStack, undoStackTask, redoStackTask, database);
+				ack = RedoCommand.redo();
 			} else if (commandType.equals("sync")){
 				ack = SyncCommand.SyncCalendars(database);
 			} else {

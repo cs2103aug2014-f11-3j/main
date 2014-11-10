@@ -27,6 +27,12 @@ public class TaskBuddyViewController implements DatabaseObserver {
 
 	protected Database database;
 	protected ArrayList<Task> listTasks;
+	private final static String commandSync = "sync";
+	private final static String commandDone = "done";
+	private final static String commandRevert = "revert";
+	private final static String commandPriority = "priority";
+	private final static String commandUndo = "undo";
+	private final static String commandRedo = "redo";
 
 	private ObservableList<Task> taskData = FXCollections.observableArrayList();
 	@FXML
@@ -181,14 +187,21 @@ public class TaskBuddyViewController implements DatabaseObserver {
 		}
 	}
 
+	
 	protected boolean checkParser(String s) {
 		String[] tokens = s.split(" ");
 		String word = tokens[0];
-		if (word.equals("sync") || word.equals("done") || word.equals("revert")
-				|| word.equals("priority") || word.equals("undo")) {
-			return true;
+		switch (word){
+			case commandSync:
+			case commandDone:
+			case commandRevert:
+			case commandPriority:
+			case commandUndo:
+			case commandRedo:
+				return true;
+			default:
+				return false;
 		}
-		return false;
 	}
 
 	@FXML
