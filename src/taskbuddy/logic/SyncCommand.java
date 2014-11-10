@@ -10,11 +10,18 @@ import taskbuddy.database.Database;
 
 public class SyncCommand {
 
-	public static AcknowledgeBundle SyncCalendars() throws ParseException, IOException{
+	public static AcknowledgeBundle SyncCalendars(){
 		AcknowledgeBundle acks = new AcknowledgeBundle();
 		CommandParser cp = CommandParser.getInstance();
 		Database db = cp.getDatabase();
-		db.sync();
+		try {
+			db.sync();
+			acks.putFailure();
+			acks.putMessage("sync success");
+		} catch (Exception e){
+			acks.putFailure();
+			acks.putMessage("sync fail");
+		}
 		return acks;
 	}
 	
