@@ -54,3 +54,5 @@ local.properties
 .buildpath
 log
 GoogleCalAuthenticationToken_New
+GoogleCalAuthenticationToken_New
+log
