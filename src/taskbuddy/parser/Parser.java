@@ -1,3 +1,5 @@
+//@author A0119383B
+
 package taskbuddy.parser;
 
 import java.io.IOException;
@@ -16,36 +18,13 @@ import taskbuddy.logic.UserInputBundle;
  *  1.Command type: add/edit/display/delete/undo/redo
  *   	
  *  2.Time must be this format: 9am, 9:30am, 10pm, 11:15pm
- *    User can enter "today", "tomorrow", "this Saturday", "next Wednesday"
+ *    User can enter "today", "tomorrow"
  * 	
  *  3.Date must be this format 19/10/2014 
  *  
  */
 
-/*
- * Add command: (use task index/task id to identify?)
- * 
- * add <title> at <starttime/endtime>      #<description>
- * add <title> from <starttime> to <endtime>
- * add <title> at <starttime/endtime> on <startdate/enddate>
- * add <title> from <starttime> to <endtime> on <startdate/enddate>
- * add <title> on <startdate/enddate>
- * add <title> from <startdate> to <enddate>
- * add <title> from <startdate><starttime> to <enddate><endtime>
- * add <title> 
- * add <title> today/tomorrow/this Saturday/next Wednesday
- * 
- * FORMAT FOR TIME: 8am, 0830am
- * 
- * for deadline task:
- * add <title> by <starttime/endtime>
- * add <title> by <startdate/enddate> 
- * add <title> by <startdate/enddate> <starttime/endtime>
- * 
- * 
- * add <title> at <time> <every Tuesday> 
- * floating task: no start time, no end time
- */
+
 
 public class Parser {
 
