@@ -88,6 +88,7 @@ public class Parser2 {
 				bundle.putDescription(nullValue);
 				bundle.putEndDate(nullValue);
 				bundle.putEndTime(nullValue);
+				bundle.putTitle(nullValue);
 				bundle.putStartDate(nullValue);
 				bundle.putStartTime(nullValue);
 				bundle.putCompletion(true);
@@ -111,6 +112,7 @@ public class Parser2 {
 			} else {
 				bundle.putID(line[1]);
 				bundle.putDescription(nullValue);
+				bundle.putTitle(nullValue);
 				bundle.putEndDate(nullValue);
 				bundle.putEndTime(nullValue);
 				bundle.putStartDate(nullValue);
@@ -136,6 +138,7 @@ public class Parser2 {
 			} else {
 				bundle.putID(line[1]);
 				bundle.putPriority(line[2]);
+				bundle.putTitle(nullValue);
 				bundle.putDescription(nullValue);
 				bundle.putEndDate(nullValue);
 				bundle.putEndTime(nullValue);
@@ -145,7 +148,7 @@ public class Parser2 {
 			}
 		} catch (Exception e) {
 			acks.putFailure();
-			acks.putMessage(e.getMessage());
+			acks.putMessage("error with args");
 		}
 		return acks;
 	}
@@ -157,6 +160,7 @@ public class Parser2 {
 			bundle.putCommand(commandUndo);
 			bundle.putID(nullValue);
 			bundle.putPriority(nullValue);
+			bundle.putTitle(nullValue);
 			bundle.putDescription(nullValue);
 			bundle.putEndDate(nullValue);
 			bundle.putEndTime(nullValue);
@@ -177,6 +181,7 @@ public class Parser2 {
 			bundle.putID(nullValue);
 			bundle.putPriority(nullValue);
 			bundle.putDescription(nullValue);
+			bundle.putTitle(nullValue);
 			bundle.putEndDate(nullValue);
 			bundle.putEndTime(nullValue);
 			bundle.putStartDate(nullValue);

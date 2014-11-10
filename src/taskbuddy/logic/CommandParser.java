@@ -33,7 +33,7 @@ public class CommandParser {
 				Task t = ack.getTask();
 				this.pushUndoTask(t);
 			} else if (commandType.equals("edit")) {
-				ack = EditCommand.editTask(userIn, database);
+				ack = EditCommand.editTask(userIn);
 				Task oldt = ack.getOldTask();
 				Task newt = ack.getTask();
 				this.pushUndoTask(oldt);

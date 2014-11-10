@@ -9,13 +9,14 @@ public class EditCommand {
 
 	private static String nullValue = "padding value";
 
-	public static AcknowledgeBundle editTask(UserInputBundle extras, Database db) {
+	public static AcknowledgeBundle editTask(UserInputBundle extras) {
 		AcknowledgeBundle ack = new AcknowledgeBundle();
 		Task toEdit = new Task();
 		int taskID = Integer.parseInt(extras.getTaskID());
 		try {
-			toEdit = db.read(taskID);
 			CommandParser cp = CommandParser.getInstance();
+			Database db = cp.getDatabase();
+			toEdit = db.read(taskID);
 			Task dup = duplicateTask(toEdit);
 			cp.pushUndoTask(dup);
 			System.err.println(dup.getTitle() + "++ pushing");
