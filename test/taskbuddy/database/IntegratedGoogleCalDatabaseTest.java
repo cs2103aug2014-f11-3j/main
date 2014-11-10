@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import static org.junit.Assert.*;
@@ -29,7 +31,7 @@ public class IntegratedGoogleCalDatabaseTest {
      * Deletes existing log file before running tests
      */
     public void deleteLog() {
-        File log = new File(DatabaseHandler.LOG_NAME);
+        File log = new File(DatabaseHandler.TASK_LOG_NAME);
         if (log.isFile()) {
             log.delete();
         }

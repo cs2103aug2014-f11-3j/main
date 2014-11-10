@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import java.io.IOException;
@@ -11,7 +13,8 @@ import taskbuddy.googlecal.GoogleCalendarManager;
 import taskbuddy.logic.Task;
 
 public class DatabaseHandler {
-    static final String LOG_NAME = "log";
+    static final String TASK_LOG_NAME = "log";
+    static final String COMMAND_LOG_NAME = "commandLog";
     static final String EMPTY_STRING = "";
 
     // @formatter:off
@@ -27,8 +30,8 @@ public class DatabaseHandler {
             "Search string cannot be empty.";
     // @formatter:on
 
-    String logName;
     TaskLogger taskLogger;
+    CommandLogger commandLogger;
     ArrayList<Task> tasks;
     GoogleCalendarManager googleCal;
     LinkedList<GoogleCalendarCommand> commandQueue;
@@ -44,9 +47,10 @@ public class DatabaseHandler {
      *             when tasks cannot be parsed from existing log file
      */
     DatabaseHandler() throws IOException, ParseException {
-        this.logName = LOG_NAME;
         this.taskLogger = new TaskLogger();
-        this.tasks = taskLogger.prepareLog(logName);
+        this.commandLogger = new CommandLogger();
+        this.tasks = taskLogger.prepareTaskLog(TASK_LOG_NAME);
+        this.commandQueue = commandLogger.prepareCommandLog(COMMAND_LOG_NAME);
         this.googleCal = new GoogleCalendarManager();
         GoogleCalendarCommand.googleCal = this.googleCal;
         this.commandQueue = new LinkedList<GoogleCalendarCommand>();
@@ -56,7 +60,7 @@ public class DatabaseHandler {
     /**
      * Retrieves all stored tasks.
      * 
-     * @return all tasks
+     * @return all tasks stored temporarily in this class
      */
     ArrayList<Task> getTasks() {
         return this.tasks;
@@ -103,10 +107,11 @@ public class DatabaseHandler {
             // TODO Add add command to command queue
             assert GoogleCalendarCommand.googleCal != null;
             this.commandQueue.add(new GoogleCalendarAdd(task));
+            commandLogger.writeToLogFile(this.getCommandQueue());
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
         } finally {
-            followUpOnEdit();
+            followUpOnTaskUpdate();
         }
     }
 
@@ -236,10 +241,11 @@ public class DatabaseHandler {
             // TODO Add delete command to command queue
             assert GoogleCalendarCommand.googleCal != null;
             this.commandQueue.add(new GoogleCalendarDelete(taskToDelete));
+            commandLogger.writeToLogFile(this.getCommandQueue());
             throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                     + e.getMessage());
         } finally {
-            followUpOnEdit();
+            followUpOnTaskUpdate();
         }
     }
 
@@ -360,14 +366,14 @@ public class DatabaseHandler {
      * @param e
      *            exception thrown by Google Calendar manager when user is
      *            offline
-     * @throws UnknownHostException
-     *             when user is offline and attempt to update Google Calendar
-     *             fails
+     * @throws IOException
+     *             when command Log cannot be written to
      */
     public void followUpGoogleCalendarUpdateFailure(Task newTask,
-            UnknownHostException e) throws UnknownHostException {
+            UnknownHostException e) throws IOException {
         assert GoogleCalendarCommand.googleCal != null;
         this.commandQueue.add(new GoogleCalendarUpdate(newTask));
+        commandLogger.writeToLogFile(this.getCommandQueue());
         throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
                 + e.getMessage());
     }
@@ -381,7 +387,7 @@ public class DatabaseHandler {
      * @throws IOException
      *             when there are problems writing to log file
      */
-    public void followUpOnEdit() throws IOException {
+    public void followUpOnTaskUpdate() throws IOException {
         this.setTaskIds();
         this.taskLogger.writeToLogFile(this.getTasks());
         this.notifyObservers();
@@ -412,7 +418,7 @@ public class DatabaseHandler {
         } catch (UnknownHostException e) {
             followUpGoogleCalendarUpdateFailure(newTask, e);
         } finally {
-            followUpOnEdit();
+            followUpOnTaskUpdate();
         }
 
     }
@@ -443,11 +449,10 @@ public class DatabaseHandler {
      * synchronisation from Google Calendar to database is called backward
      * synchronisation.
      * 
-     * @throws UnknownHostException
-     *             when user is still offline and synchronisation cannot be
-     *             performed.
+     * @throws IOException
+     *             when command log cannot be written to
      */
-    void forwardSync() throws UnknownHostException {
+    void forwardSync() throws IOException {
         while (!this.getCommandQueue().isEmpty()) {
             GoogleCalendarCommand nextCommand = this.getCommandQueue().peek();
             nextCommand.execute();
@@ -455,6 +460,7 @@ public class DatabaseHandler {
             // following code will not be executed and the command that has just
             // failed to be executed will remain in the command queue.
             this.getCommandQueue().remove();
+            commandLogger.writeToLogFile(this.getCommandQueue());
         }
     }
 
@@ -472,7 +478,7 @@ public class DatabaseHandler {
      */
     public void addBackwardSync(Task task) throws IOException {
         this.tasks.add(task);
-        followUpOnEdit();
+        followUpOnTaskUpdate();
     }
 
     /**
@@ -496,7 +502,7 @@ public class DatabaseHandler {
         assert !this.getTasks().isEmpty() && taskToDelete != null;
 
         this.tasks.remove(taskToDelete);
-        followUpOnEdit();
+        followUpOnTaskUpdate();
 
     }
 
@@ -532,7 +538,7 @@ public class DatabaseHandler {
     public void editBackwardSync(String googleIdToEdit, Task newTask)
             throws IllegalAccessException, NoSuchElementException, IOException {
         replaceTaskToEdit(googleIdToEdit, newTask);
-        followUpOnEdit();
+        followUpOnTaskUpdate();
     }
 
 }

@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import static org.junit.Assert.*;
@@ -5,12 +7,11 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import taskbuddy.database.GoogleCalendarCommand;
@@ -32,7 +33,7 @@ public class GoogleCalendarSyncFailTest {
      * Deletes existing log file before running tests
      */
     public void deleteLog() {
-        File log = new File(DatabaseHandler.LOG_NAME);
+        File log = new File(DatabaseHandler.TASK_LOG_NAME);
         if (log.isFile()) {
             log.delete();
         }
@@ -61,7 +62,6 @@ public class GoogleCalendarSyncFailTest {
         return task;
     }
 
-    @Before
     public void setup() throws Exception {
         deleteLog();
 
@@ -79,8 +79,25 @@ public class GoogleCalendarSyncFailTest {
         GoogleCalendarCommand.googleCal = myDatabaseHandler.googleCal;
     }
 
+    public void checkCommandQueueCorrectness(
+            LinkedList<GoogleCalendarCommand> googleCalendarCommands)
+            throws ParseException, IOException {
+        LinkedList<GoogleCalendarCommand> readCommands = myDatabaseHandler.commandLogger
+                .readCommands();
+        assertEquals("Number of commands read from command log is not the "
+                + "same as that in command queue.",
+                googleCalendarCommands.size(), readCommands.size());
+        for (int i = 0; i < readCommands.size(); i++) {
+            assertEquals("Title of command " + i + " in command log is"
+                    + " different from that in command queue.",
+                    googleCalendarCommands.get(i).getTask().getTitle(),
+                    readCommands.get(i).getTask().getTitle());
+        }
+    }
+
     @Test
     public void testAdd() throws Exception {
+        setup();
         LinkedList<GoogleCalendarCommand> googleCalendarCommands = myDatabaseHandler
                 .getCommandQueue();
         ArrayList<Task> tasks = database.getTasks();
@@ -100,8 +117,9 @@ public class GoogleCalendarSyncFailTest {
 
             assertEquals("Number of commands in command queue is not one.", 1,
                     googleCalendarCommands.size());
-            assertEquals("Number of tasks in database is not two.", 1,
-                    tasks.size());
+            assertEquals("Number of tasks in database is not one.", 1,
+                    tasks.size());            
+            checkCommandQueueCorrectness(googleCalendarCommands);
         }
 
         try {
@@ -118,6 +136,7 @@ public class GoogleCalendarSyncFailTest {
                     secondTask.getTitle(), tasks.get(0).getTitle());
             assertEquals("Task description not edited properly in database.",
                     secondTask.getDescription(), tasks.get(0).getDescription());
+            checkCommandQueueCorrectness(googleCalendarCommands);
         }
 
         try {
@@ -129,6 +148,7 @@ public class GoogleCalendarSyncFailTest {
                     3, googleCalendarCommands.size());
             assertEquals("Number of tasks in database is not zero.", 0,
                     tasks.size());
+            checkCommandQueueCorrectness(googleCalendarCommands);
         }
 
         assertTrue("First command to be executed is not the add command.",
@@ -145,6 +165,7 @@ public class GoogleCalendarSyncFailTest {
         } catch (UnknownHostException e) {
             assertEquals("Number of commands in command queue is not three.",
                     3, googleCalendarCommands.size());
+            checkCommandQueueCorrectness(googleCalendarCommands);
         }
 
         // @formatter:off
@@ -160,7 +181,24 @@ public class GoogleCalendarSyncFailTest {
         } catch (UnknownHostException e) {
             fail("Exception thrown even though sync is supposed to be "
                     + "successful when user is online.");
+            checkCommandQueueCorrectness(googleCalendarCommands);
         }
+    }
 
+    @Test
+    public void testGoogleIdLog() throws Exception {
+        setup();
+        try {
+            database.addTask(firstTask);
+        } catch (Exception e) {
+            assertNull(firstTask.getGID());
+            Database newDatabase = new Database();
+            assertNotEquals("Google Calendar ID of read task from task log is "
+                    + "the same as that of firstTask, which is null.",
+                    firstTask.getGID(), newDatabase.getTasks().get(0).getGID());
+            assertEquals("Google Calendar ID of read task from "
+                    + "task log is not 'null'.", "null", newDatabase.getTasks()
+                    .get(0).getGID());
+        }
     }
 }

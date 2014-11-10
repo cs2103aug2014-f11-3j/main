@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import java.io.BufferedReader;
@@ -17,11 +19,8 @@ import taskbuddy.logic.Task;
 
 public class TaskLogger {
 
-    private static final String ERR_CANNOT_PARSE = "Cannot parse task";
-    private static final String ERR_CANNOT_OPEN_LOG = "Cannot open log file.";
-
-    SimpleDateFormat formatter = new SimpleDateFormat(
-            Task.DATABASE_DATE_TIME_FORMATTER);
+    private static final String ERROR_CANNOT_PARSE = "Cannot parse task";
+    private static final String ERROR_CANNOT_OPEN_LOG = "Cannot open log file.";
 
     // @formatter:off
     private static final String TASK_ID             = "Task ID: ";
@@ -36,9 +35,8 @@ public class TaskLogger {
 
     private static final String EMPTY_STRING        = "";
     private static final String DELIMITER_SPLIT     = "\\|";
+    
     private static final int NUMBER_OF_FIELDS       = 9;
-    
-    
     private static final int POSITION_TASK_ID       = 0;
     private static final int POSITION_TITLE         = 1;
     private static final int POSITION_DESCRIPTION   = 2;
@@ -51,6 +49,9 @@ public class TaskLogger {
     // @formatter:on
 
     private static final String TASKS = " tasks:";
+    
+    SimpleDateFormat formatter = new SimpleDateFormat(
+            Task.DATABASE_DATE_TIME_FORMATTER);
 
     File log;
     BufferedWriter writer = null;
@@ -67,22 +68,22 @@ public class TaskLogger {
     }
 
     /**
-     * Prepares the log file to be read/written from/to. If the log file exists,
-     * this method assumes that the log file came from a previous session. Thus
-     * to use an existing log file, the text in the log file must be properly
-     * formatted. If the log file does not exist, this method creates it and
-     * logs all tasks into newly created log file.
+     * Prepares the task log to be read/written from/to. If the task log exists,
+     * this method assumes that it came from a previous session. Thus to use an
+     * existing task log, the text in the it must be properly formatted. If the
+     * task log does not exist, this method creates it and logs all tasks into
+     * newly created task log.
      * 
      * @param logName
-     *            name of log file
-     * @return list of tasks read from existing log file, otherwise empty list
-     *         of tasks for non-existing log file
+     *            name of task log file
+     * @return list of tasks read from existing task log, otherwise empty list
+     *         of tasks for non-existing task log
      * @throws IOException
-     *             when log file cannot be read properly
+     *             when task log cannot be read properly
      * @throws ParseException
-     *             when tasks cannot be parsed from log file properly
+     *             when tasks cannot be parsed from task log properly
      */
-    public ArrayList<Task> prepareLog(String logName) throws IOException,
+    public ArrayList<Task> prepareTaskLog(String logName) throws IOException,
             ParseException {
         ArrayList<Task> tasks = new ArrayList<Task>();
         this.log = new File(logName);
@@ -92,7 +93,7 @@ public class TaskLogger {
         } else {
             try {
                 log.createNewFile();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 // TODO Test this
                 throw new IOException("Cannot create log file.", e);
             }
@@ -119,12 +120,11 @@ public class TaskLogger {
 
     /**
      * Writes all existing tasks represented as a <code>String</code> into the
-     * log file. The <code>prepareLog</code> method must be called first before
+     * task log. The <code>prepareLog</code> method must be called first before
      * calling this.
      * 
      * @param tasks
-     *            all currently existing tasks in TextBuddy's task manager
-     *            represented as a <code>String</code>
+     *            all tasks to be written to the task log
      * @throws IOException
      *             if there are write problems to the log file
      */
@@ -305,7 +305,8 @@ public class TaskLogger {
                     .extractDescription(splitFields[POSITION_DESCRIPTION]));
             result.setStartTime(this.extractStart(splitFields[POSITION_START]));
             result.setEndTime(this.extractEnd(splitFields[POSITION_END]));
-            result.setPriority(this.extractPriority(splitFields[POSITION_PRIORITY]));
+            result.setPriority(this
+                    .extractPriority(splitFields[POSITION_PRIORITY]));
             result.setCompletion(this
                     .extractIsComplete(splitFields[POSITION_IS_COMPLETE]));
             result.setFloating(this
@@ -313,7 +314,7 @@ public class TaskLogger {
             result.setGID(this.extractGoogleId(splitFields[POSITION_GOOGLE_ID]));
         } catch (ParseException e) {
             // TODO Test this
-            throw new ParseException(ERR_CANNOT_PARSE, e.getErrorOffset());
+            throw new ParseException(ERROR_CANNOT_PARSE, e.getErrorOffset());
         }
 
         return result;
@@ -346,7 +347,7 @@ public class TaskLogger {
                 result.add(aTask);
             }
         } catch (IOException e) {
-            throw new IOException(ERR_CANNOT_OPEN_LOG, e);
+            throw new IOException(ERROR_CANNOT_OPEN_LOG, e);
         } finally {
             if (reader != null) {
                 reader.close();

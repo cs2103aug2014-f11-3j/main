@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import java.io.IOException;
@@ -9,14 +11,12 @@ import java.util.NoSuchElementException;
 import taskbuddy.logic.Task;
 
 /**
- * 
+ *
  * Facade class for <code>DatabaseHandler</code> that stores tasks and
  * implements methods associated with adding/retrieval of tasks. This class
  * provides the API for database component. It is primarily called by logic
  * component and effectively communicates with Google Calendar manager for task
  * synchronisation with Google Calendar.
- * 
- * @author Soh Yong Sheng
  *
  */
 public class Database {
@@ -201,18 +201,19 @@ public class Database {
     }
 
     /**
-     * Synchronises tasks that are manipulated in database but not in Google
-     * Calendar when user is offline forward to Google Calendar Manager. This is
-     * achieved by executing the commands in the command queue. The reversed
-     * synchronisation from Google Calendar to database is called backward
-     * synchronisation.
+     * Synchronises tasks between database and Google Calendar. This achieved by
+     * first executing the forward sync, followed by the backward sync. Forward
+     * sync entails synchronising task manipulations done in database but not
+     * Google Calendar when the user was previously offline. Backward sync is
+     * the reverse, that is synchronising task manipulations done in Google
+     * Calendar but not database when the user was previously offline.
      * 
-     * @throws UnknownHostException
-     *             when user is still offline and synchronisation cannot be
-     *             performed.
+     * @throws IOException
+     *             when command log cannot be written to
      */
-    public void forwardSync() throws UnknownHostException {
+    public void sync() throws IOException {
         databaseHandler.forwardSync();
+        databaseHandler.googleCal.executeBackwardSync();
     }
 
     /**

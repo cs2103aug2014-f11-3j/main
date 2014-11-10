@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import java.net.UnknownHostException;
@@ -9,8 +11,6 @@ import taskbuddy.logic.Task;
  * This class is a stub for the GoogleCalendarManager class, for dependency
  * injection in testing the Database class
  * 
- * @author Soh Yong Sheng
- *
  */
 public class GoogleCalendarManagerStub extends GoogleCalendarManager {
     // These flags will turn true if add, delete and update methods are

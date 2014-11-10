@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import static org.junit.Assert.*;
@@ -20,21 +22,26 @@ public class DatabaseInitialisationTest {
     Task secondTask;
 
     Database database;
-    String logName = DatabaseHandler.LOG_NAME;
+    String logName = DatabaseHandler.TASK_LOG_NAME;
     GoogleCalendarManagerStub googleCalendarManagerStub;
     DatabaseHandler myDatabaseHandler;
 
     String expected;
     String actual;
     File taskLog;
+    File commandLog;
 
     /**
-     * Deletes existing log file before running tests
+     * Deletes existing command and task log files.
      */
-    public void deleteLog() {
-        taskLog = new File(DatabaseHandler.LOG_NAME);
+    public void deleteLogs() {
+        taskLog = new File(DatabaseHandler.TASK_LOG_NAME);
         if (taskLog.isFile()) {
             taskLog.delete();
+        }
+        commandLog = new File(DatabaseHandler.COMMAND_LOG_NAME);
+        if (commandLog.isFile()) {
+            commandLog.delete();
         }
     }
 
@@ -74,18 +81,15 @@ public class DatabaseInitialisationTest {
 
     @Test
     public void testDatabase() throws Exception {
-        deleteLog();
+        deleteLogs();
         database = new Database();
         assertEquals("Static variable googleCal of GoogleCalendarCommand "
                 + "not initialised properly in Database's constructor.",
                 database.databaseHandler.googleCal,
                 GoogleCalendarCommand.googleCal);
 
-        deleteLog();
+        deleteLogs();
         setup();
-        assertEquals("Name of task log not initalised "
-                + "properly in Database's constructor.",
-                DatabaseHandler.LOG_NAME, myDatabaseHandler.logName);
         assertTrue("Database not constructed with an instance of TaskLogger.",
                 myDatabaseHandler.taskLogger instanceof TaskLogger);
         assertTrue("Database not constructed with arraylist of Task objects.",
@@ -102,16 +106,23 @@ public class DatabaseInitialisationTest {
                 myDatabaseHandler.observerList instanceof ArrayList);
 
         assertTrue(
-                "Log file object not initialised with Database's constructor.",
+                "Task log not initialised with Database's constructor.",
                 myDatabaseHandler.taskLogger.log instanceof File);
-        assertTrue("Log file doesn't exist even when it's supposed to have "
+        assertTrue("Task log file doesn't exist even when it's supposed to have "
                 + "been created.", myDatabaseHandler.taskLogger.getLog()
+                .exists());
+        assertTrue(
+                "Command log not initialised with Database's constructor.",
+                myDatabaseHandler.commandLogger.log instanceof File);
+        assertTrue("Command log file doesn't exist even when it's supposed to have "
+                + "been created.", myDatabaseHandler.commandLogger.getLog()
                 .exists());
 
         // Populate task log first in preparation for next test
         addTasks();    
-        taskLog = new File(DatabaseHandler.LOG_NAME);
+        taskLog = new File(DatabaseHandler.TASK_LOG_NAME);
         assertTrue("Task log doesn't exist when it should.", taskLog.isFile());
+        
         
         setup();
         ArrayList<Task> tasks = database.getTasks();
@@ -128,7 +139,7 @@ public class DatabaseInitialisationTest {
 
     @Test
     public void testMultipleInstances() throws Exception {
-        deleteLog();
+        deleteLogs();
         assertFalse("Log file exists when it shouldn't.", taskLog.isFile());
 
         // Initialise database using getInstance

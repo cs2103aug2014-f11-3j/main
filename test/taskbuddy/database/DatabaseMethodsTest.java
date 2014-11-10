@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import static org.junit.Assert.*;
@@ -22,8 +24,6 @@ import taskbuddy.logic.Task;
 /**
  * Contains unit tests for <code>Database</code> class
  * 
- * @author Soh Yong Sheng
- *
  */
 public class DatabaseMethodsTest {
     Task firstTask;
@@ -32,7 +32,7 @@ public class DatabaseMethodsTest {
     String secondGoogleId;
 
     Database database;
-    String logName = DatabaseHandler.LOG_NAME;
+    String taskLogName = DatabaseHandler.TASK_LOG_NAME;
     GoogleCalendarManagerStub googleCalendarManagerStub;
     DatabaseHandler myDatabaseHandler;
 
@@ -45,9 +45,13 @@ public class DatabaseMethodsTest {
      * Deletes existing log file before running tests
      */
     public void deleteLog() {
-        File log = new File(DatabaseHandler.LOG_NAME);
-        if (log.isFile()) {
-            log.delete();
+        File taskLog = new File(DatabaseHandler.TASK_LOG_NAME);
+        if (taskLog.isFile()) {
+            taskLog.delete();
+        }
+        File commandLog = new File(DatabaseHandler.COMMAND_LOG_NAME);
+        if (commandLog.isFile()) {
+            commandLog.delete();
         }
     }
 

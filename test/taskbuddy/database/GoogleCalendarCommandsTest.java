@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import static org.junit.Assert.*;
@@ -65,19 +67,23 @@ public class GoogleCalendarCommandsTest {
                     GoogleCalendarCommand.ERR_NOT_SYNCED_GOOGLE_CALENDAR,
                     e.getMessage());
         }
+
+        assertEquals("Add command not string-ified properly.",
+                addCommand.displayCommand(), "Add | "
+                        + addCommand.getTask().displayTask());
     }
-    
+
     @Test
     public void testDeleteCommand() throws Exception {
         GoogleCalendarDelete deleteCommand = new GoogleCalendarDelete(firstTask);
-        
+
         GoogleCalendarCommand.googleCal = googleCalendarManagerStub;
         try {
             deleteCommand.execute();
         } catch (Exception e) {
             fail("Delete command was not executed normally.");
         }
-        
+
         GoogleCalendarCommand.googleCal = offlineGoogleCalendarManagerStub;
         try {
             deleteCommand.execute();
@@ -89,19 +95,23 @@ public class GoogleCalendarCommandsTest {
                     GoogleCalendarAdd.ERR_NOT_SYNCED_GOOGLE_CALENDAR,
                     e.getMessage());
         }
+        
+        assertEquals("Delete command not string-ified properly.",
+                deleteCommand.displayCommand(), "Delete | "
+                        + deleteCommand.getTask().displayTask());
     }
-    
+
     @Test
     public void testUpdateCommand() throws Exception {
         GoogleCalendarUpdate updateCommand = new GoogleCalendarUpdate(firstTask);
-        
+
         GoogleCalendarCommand.googleCal = googleCalendarManagerStub;
         try {
             updateCommand.execute();
         } catch (Exception e) {
             fail("Update command was not executed normally.");
         }
-        
+
         GoogleCalendarCommand.googleCal = offlineGoogleCalendarManagerStub;
         try {
             updateCommand.execute();
@@ -113,6 +123,10 @@ public class GoogleCalendarCommandsTest {
                     GoogleCalendarAdd.ERR_NOT_SYNCED_GOOGLE_CALENDAR,
                     e.getMessage());
         }
+        
+        assertEquals("Update command not string-ified properly.",
+                updateCommand.displayCommand(), "Update | "
+                        + updateCommand.getTask().displayTask());
     }
 
 }

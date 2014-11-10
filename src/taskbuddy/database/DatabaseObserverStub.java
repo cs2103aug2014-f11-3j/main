@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import java.io.IOException;
@@ -9,8 +11,6 @@ import taskbuddy.logic.Task;
 /**
  * Stub that observes tasks stored in a <code>Database</code> object.
  * 
- * @author Soh Yong Sheng
- *
  */
 public class DatabaseObserverStub implements DatabaseObserver {
     Database database;

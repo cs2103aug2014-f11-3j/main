@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import java.net.UnknownHostException;
@@ -10,8 +12,6 @@ import taskbuddy.logic.Task;
  * class, for dependency injection into <code>Database</code> class to test its
  * exception handling when user is offline.
  * 
- * @author Soh Yong Sheng
- *
  */
 public class OfflineGoogleCalendarManagerStub extends GoogleCalendarManager {
     static final String ERROR_USER_OFFLINE = "User is offline";

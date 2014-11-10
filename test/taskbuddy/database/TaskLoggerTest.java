@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import static org.junit.Assert.*;
@@ -8,7 +10,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -47,7 +48,7 @@ public class TaskLoggerTest {
      * Deletes existing log file before running tests
      */
     public void deleteLog() {
-        File log = new File(DatabaseHandler.LOG_NAME);
+        File log = new File(DatabaseHandler.TASK_LOG_NAME);
         if (log.isFile()) {
             log.delete();
         }
@@ -76,7 +77,6 @@ public class TaskLoggerTest {
         return task;
     }
 
-    @Before
     public void setup() throws Exception {
         deleteLog();
 
@@ -85,7 +85,7 @@ public class TaskLoggerTest {
 
         tasks = new ArrayList<Task>();
         taskLogger = new TaskLogger();
-        logName = DatabaseHandler.LOG_NAME;
+        logName = DatabaseHandler.TASK_LOG_NAME;
     }
 
     /**
@@ -98,9 +98,6 @@ public class TaskLoggerTest {
 
     /**
      * Can only be used only after task is initialised
-     * 
-     * @param task
-     *            TODO
      */
     public void splitFields(Task task) {
         splitFields = taskLogger.splitToFields(task.displayTask());
@@ -114,10 +111,10 @@ public class TaskLoggerTest {
                 log.isFile());
 
         // Create empty log file since log file hasn't existed.
-        taskLogger.prepareLog(logName);
+        taskLogger.prepareTaskLog(logName);
         createDummyLog();
         // prepareLog method should read tasks in from existing log file
-        ArrayList<Task> readTasks = taskLogger.prepareLog(logName);
+        ArrayList<Task> readTasks = taskLogger.prepareTaskLog(logName);
 
         // Test if tasks read in from task log match those of temporary memory,
         // i.e. ArrayList tasks.
@@ -134,7 +131,7 @@ public class TaskLoggerTest {
         deleteLog();
 
         // Test for non-existing log file
-        taskLogger.prepareLog(logName);
+        taskLogger.prepareTaskLog(logName);
         assertTrue("Log file object not initialised with prepareLog method.",
                 taskLogger.log instanceof File);
         assertTrue("Log file doesn't exist even when it's supposed to have "
@@ -315,13 +312,12 @@ public class TaskLoggerTest {
                 actual.equals(expected));
     }
 
-    // TODO 
     @Test
     public void testReadTasks() throws Exception {
         setup();
         try {
             // prepareLog initialises log variable in taskLogger
-            taskLogger.prepareLog(logName);
+            taskLogger.prepareTaskLog(logName);
             // Delete log file intentionally to force reading of non-existent
             // log file to test for IOException
             deleteLog();
@@ -335,7 +331,7 @@ public class TaskLoggerTest {
                     e.getMessage().equals(ERR_CANNOT_OPEN_LOG));
         }
 
-        taskLogger.prepareLog(logName);
+        taskLogger.prepareTaskLog(logName);
         createDummyLog();
 
         ArrayList<Task> readTasks = taskLogger.readTasks();

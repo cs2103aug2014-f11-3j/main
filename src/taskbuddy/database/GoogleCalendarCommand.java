@@ -1,3 +1,5 @@
+//@author A0098745L
+
 package taskbuddy.database;
 
 import java.net.UnknownHostException;
@@ -10,8 +12,6 @@ import taskbuddy.logic.Task;
  * in a queue in <code>Database</code> when the user is offline and syncing to
  * Google Calendar is impossible. This class implements the command pattern.
  * 
- * @author Soh Yong Sheng
- *
  */
 abstract class GoogleCalendarCommand {
     // @formatter:off
@@ -52,5 +52,13 @@ abstract class GoogleCalendarCommand {
      *             when user is offline
      */
     public abstract void execute() throws UnknownHostException;
+
+    /**
+     * String-ifies this command for writing out to the command log.
+     * 
+     * @return a string holding the command type as well as all details of the
+     *         task to be manipulated by this command
+     */
+    public abstract String displayCommand();
 
 }
