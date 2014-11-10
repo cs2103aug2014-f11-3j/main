@@ -258,7 +258,10 @@ public class TaskBuddyViewController implements DatabaseObserver {
 			if (!gcCont.isCalendarAuthenticated()) {
 				String authURL = gcCont.getAuthorizationUrl();
 				try {
-					Desktop.getDesktop().browse(new URI(authURL));
+					GoogleCalendarController gcc = new GoogleCalendarController();
+					if (gcc.isUserOnline()){
+						Desktop.getDesktop().browse(new URI(authURL));
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
