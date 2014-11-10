@@ -244,7 +244,7 @@ public class Parser {
 			if(hasStartTimeSpecifier(contentToAdd)){
 				startTimeWithSpecifier = findStartTimeWithSpecifier(contentToAdd);
 				contentToAdd = removeStartTime(contentToAdd);
-				
+				startTimeWithSpecifier = convertTimeToFourDigit(startTimeWithSpecifier);
 			}else{
 				startTimeWithSpecifier = NULL_VALUE;
 			}
@@ -252,7 +252,7 @@ public class Parser {
 			if(hasEndTimeSpecifier(contentToAdd)){
 				endTimeWithSpecifier = findEndTimeWithSpecifier(contentToAdd);
 				contentToAdd = removeEndTime(contentToAdd);
-				
+				endTimeWithSpecifier = convertTimeToFourDigit(endTimeWithSpecifier);
 			}else{
 				endTimeWithSpecifier = NULL_VALUE;
 			}
@@ -262,6 +262,9 @@ public class Parser {
 			}else{
 				descriptionWithSpecifier = NULL_VALUE;
 			}
+			
+			startDateWithSpecifier = convertTodayAndTomorrow(startDateWithSpecifier);
+			endDateWithSpecifier = convertTodayAndTomorrow(endDateWithSpecifier);
 			
 			b.putCommand(commandType);
 			b.putTitle(titleWithSpecifier);
@@ -1902,9 +1905,10 @@ public class Parser {
 		int indexOfTitleSpecifier = contentSplitCopy.indexOf("-t");
 		int nextIndex = indexOfTitleSpecifier + 1;
 		while(indexOfTitleSpecifier + 1 < contentSplitCopy.size()){
-			if((contentSplitCopy.get(nextIndex).equals("-s")==false)&&
-					(contentSplitCopy.get(nextIndex).equals("-e")==false)&&
-					(contentSplitCopy.get(nextIndex).equals("-d")==false)){
+			if((contentSplitCopy.get(nextIndex).equals("-st")==false)&&
+					(contentSplitCopy.get(nextIndex).equals("-et")==false)&&
+					(contentSplitCopy.get(nextIndex).equals("-sd")==false)&&
+					(contentSplitCopy.get(nextIndex).equals("-ed")==false)){
 				title += contentSplitCopy.get(nextIndex);
 				title += " ";
 				contentSplitCopy.remove(nextIndex);
