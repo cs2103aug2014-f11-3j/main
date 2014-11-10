@@ -3,9 +3,6 @@
 
 package taskbuddy.logic;
 
-import java.util.ArrayList;
-import java.util.Stack;
-
 import taskbuddy.database.Database;
 
 public class RedoCommand {
@@ -16,7 +13,8 @@ public class RedoCommand {
 		try {
 			CommandParser cp = CommandParser.getInstance();
 			Database db = cp.getDatabase();
-			UserInputBundle commandToRedo = cp.getRedo();
+			UserInputBundle commandToRedo = new UserInputBundle(); 
+			commandToRedo = cp.getRedo();
 			cp.pushUndo(commandToRedo);
 			String commandType = commandToRedo.getCommand();
 			try {
