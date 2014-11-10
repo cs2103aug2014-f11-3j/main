@@ -1,8 +1,11 @@
 package taskbuddy.parser;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import taskbuddy.gui.AWTgui;
 import taskbuddy.logic.AcknowledgeBundle;
@@ -277,6 +280,10 @@ public class Parser {
 		}
 		// System.out.println("end date is "+endDate);
 
+		
+		startDate = convertTodayAndTomorrow(startDate);
+		endDate = convertTodayAndTomorrow(endDate);
+		
 		b.putCommand(commandType);
 		b.putTitle(title);
 		b.putDescription(description);
@@ -1718,6 +1725,109 @@ public class Parser {
 
 		return time;
 
+	}
+	
+	private static String getCurrentDate(){
+		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		Calendar cal = Calendar.getInstance();
+		return dateFormat.format(cal.getTime()); 
+	}
+	
+	private static String getDay(String format) {
+		String day = format.substring(0, 2);
+		return day;	
+	}
+	
+	private static String getMonth(String format) {
+		String month = format.substring(3, 5);
+		return month;	
+	}
+	
+	private static String getYear(String format) {
+		String year = format.substring(6, 10);
+		return year;	
+	}
+	
+	private static String convertTodayAndTomorrow(String s){
+		
+		if(s.equalsIgnoreCase("today")){
+			String date = getCurrentDate();
+			s = date;
+		}else if(s.equalsIgnoreCase("tomorrow")){
+			String date = getCurrentDate();
+			String dayStr = getDay(date);
+			String monthStr = getMonth(date);
+			String yearStr = getYear(date);
+			
+			int day = Integer.parseInt(dayStr);
+			int month = Integer.parseInt(monthStr);
+			int year = Integer.parseInt(yearStr);
+			
+			if(month == 2){
+				if(year % 4 == 0){
+					// today is 29/02/2012
+					if(day + 1 > 29){
+						month = 3;
+						day = 1;
+					}else{
+						day = day + 1;
+					}
+				}else if(year % 4 != 0){
+					if(day + 1 > 28){
+						month = 3;
+						day = 1;
+					}else{
+						day = day + 1;
+					}
+				}
+			}else if(month == 1 || month == 3 || month == 5 || month == 7 
+					|| month == 8 || month == 10){
+				
+				if(day + 1 > 31){
+					month = month + 1;
+					day = 1;
+				}else{
+					day = day + 1;
+				}
+				
+			}else if(month == 4 || month == 6 || month == 9 || month == 11){
+				
+				if(day + 1 > 30){
+					month = month + 1;
+					day = 1;
+				}else{
+					day = day + 1;
+				}
+			}else if(month == 12){
+				
+				if(day + 1 > 31){
+					year = year + 1;
+					month = 1;
+					day = 1;
+				}else{
+					day = day + 1;
+				}
+			}
+			
+			if(day < 10){
+				dayStr = "0" + day;
+			}else{
+				dayStr = "" + day;
+			}
+			
+			if(month < 10){
+				monthStr = "0" + month;
+			}else{
+				monthStr = "" + month;
+			}
+			
+			yearStr = "" + year;
+			s = dayStr + "/" + monthStr + "/" + yearStr;
+			
+		}
+		
+		return s;
+			
 	}
 
 }

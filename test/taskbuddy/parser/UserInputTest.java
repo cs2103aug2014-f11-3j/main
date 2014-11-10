@@ -55,18 +55,37 @@ public class UserInputTest {
 		}
 		
 		
+		command = "add do programming from today 9pm to tomorrow 9am";
+		try {
+			Parser.userInput(command);
+			UserInputBundle bundle = Parser.getUserInput();
+			assertEquals("Incorrect Command Type for case 3", "add", bundle.getCommand());
+			assertEquals("Incorrect Description for case 3", NULL_VALUE, bundle.getDescription());
+			assertEquals("Incorrect Title for case 3", "do programming", bundle.getTitle());
+			assertEquals("Incorrect Start Time for case 3", "2100", bundle.getStartTime());
+			assertEquals("Incorrect End Time for case 3", "0900", bundle.getEndTime());
+			assertEquals("Incorrect Start Date for case 3", "10/11/2014", bundle.getStartDate());
+			assertEquals("Incorrect End Date for case 3", "11/11/2014", bundle.getEndDate());
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
 		command = "edit 6 go to Japan";
 		try {
 			Parser.userInput(command);
 			UserInputBundle bundle = Parser.getUserInput();
-			assertEquals("Incorrect Command Type for case 3", "edit", bundle.getCommand());
-			assertEquals("Incorrect ID for case 3", "6", bundle.getTaskID());
-			assertEquals("Incorrect Description for case 3", NULL_VALUE, bundle.getDescription());
-			assertEquals("Incorrect Title for case 3", "go to Japan", bundle.getTitle());
-			assertEquals("Incorrect Start Time for case 3", NULL_VALUE, bundle.getStartTime());
-			assertEquals("Incorrect End Time for case 3", NULL_VALUE, bundle.getEndTime());
-			assertEquals("Incorrect Start Date for case 3", NULL_VALUE, bundle.getStartDate());
-			assertEquals("Incorrect End Date for case 3", NULL_VALUE, bundle.getEndDate());
+			assertEquals("Incorrect Command Type for case 4", "edit", bundle.getCommand());
+			assertEquals("Incorrect ID for case 4", "6", bundle.getTaskID());
+			assertEquals("Incorrect Description for case 4", NULL_VALUE, bundle.getDescription());
+			assertEquals("Incorrect Title for case 4", "go to Japan", bundle.getTitle());
+			assertEquals("Incorrect Start Time for case 4", NULL_VALUE, bundle.getStartTime());
+			assertEquals("Incorrect End Time for case 4", NULL_VALUE, bundle.getEndTime());
+			assertEquals("Incorrect Start Date for case 4", NULL_VALUE, bundle.getStartDate());
+			assertEquals("Incorrect End Date for case 4", NULL_VALUE, bundle.getEndDate());
 			
 		} catch (ParseException e) {
 			e.printStackTrace();
