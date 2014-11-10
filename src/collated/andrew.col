@@ -1,16 +1,11 @@
-//@author A0110649J
-//andrew
+//@author: andrew
 
-package taskbuddy.parser;
 
-import java.io.IOException;
-import java.text.ParseException;
 
-import taskbuddy.logic.AcknowledgeBundle;
-import taskbuddy.logic.CommandParser;
-import taskbuddy.logic.UserInputBundle;
+	/**
+	 * origin: .\taskbuddy\parser\Parser2.java
+	 */
 
-//@Author: andrew
 public class Parser2 {
 	private final static String commandSync = "sync";
 	private final static String commandDone = "done";
@@ -207,3 +202,10 @@ public class Parser2 {
 		return -1;
 	}
 }
+
+	// End of segment: .\taskbuddy\parser\Parser2.java
+
+
+
+
+
