@@ -386,6 +386,9 @@ public class Parser {
 				endDate = NULL_VALUE;
 			}
 			// System.out.println("end date is "+endDate);
+			
+			startDate = convertTodayAndTomorrow(startDate);
+			endDate = convertTodayAndTomorrow(endDate);
 
 			b.putCommand(commandType);
 			b.putID(ID);
