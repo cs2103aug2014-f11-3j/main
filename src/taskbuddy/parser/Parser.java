@@ -85,8 +85,12 @@ public class Parser {
 			return a;
 
 		} else if (isDeleteType(commandType)) {
-			deleteDataPadding(userInputs, commandType, userCommand);
 			AcknowledgeBundle a = commandParser.parseUserInputs(userInputs);
+			try{
+				deleteDataPadding(userInputs, commandType, userCommand);
+			}catch(NullPointerException e){
+				a.putMessage(e.getMessage());
+			}
 			return a;
 
 		} else if (isDisplayType(commandType)) {
@@ -366,7 +370,9 @@ public class Parser {
 			b.putEndDate(NULL_VALUE);
 			b.putTitle(NULL_VALUE);
 			b.putID(contentToDelete);
-		} 
+		} else {
+			throw new NullPointerException("Please enter task ID");
+		}
 
 	}
 
