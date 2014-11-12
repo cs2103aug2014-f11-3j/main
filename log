@@ -1,7 +1,3 @@
-6 tasks:
-Task ID: 1 | Title: a | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: r8ldom994k6e0n3opkt3efl70k
-Task ID: 2 | Title: b | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: gjb6kq4dl7rk9mdj1ai6i3cso0
-Task ID: 3 | Title: c | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: d3lrbnc9o2pq7mvtb07m1ps9rs
-Task ID: 1 | Title: a | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: r8ldom994k6e0n3opkt3efl70k
-Task ID: 2 | Title: b | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: gjb6kq4dl7rk9mdj1ai6i3cso0
-Task ID: 3 | Title: c | Description: nil | Start: 10-11-2014 at 00:00 | End: 10-11-2014 at 23:59 | Priority: 0 | Completed: false | Floating task: false | Google Calendar ID: d3lrbnc9o2pq7mvtb07m1ps9rs
+2 tasks:
+Task ID: 1 | Title: First | Description: First description. | Start: 12-11-2014 at 14:28 | End: 12-11-2014 at 14:28 | Priority: 1 | Completed: true | Floating task: false | Google Calendar ID: 11111
+Task ID: 2 | Title: Second | Description: Second description. | Start: 12-11-2014 at 14:28 | End: 12-11-2014 at 14:28 | Priority: 1 | Completed: true | Floating task: false | Google Calendar ID: 11111
