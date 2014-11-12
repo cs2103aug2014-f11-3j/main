@@ -3,7 +3,7 @@
 
 
 	/**
-	 * origin: .\taskbuddy\parser\Parser.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\parser\Parser.java
 	 */
 
 
@@ -2072,7 +2072,7 @@ public class Parser {
 	}
 	
 }
-	// End of segment: .\taskbuddy\parser\Parser.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\parser\Parser.java
 
 
 

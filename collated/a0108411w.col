@@ -3,7 +3,7 @@
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\BackwardSyncAddCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\BackwardSyncAddCommand.java
 	 */
 
 package taskbuddy.googlecal;
@@ -28,6 +28,8 @@ public class BackwardSyncAddCommand {
 	//private Task taskToAdd = new Task();
 	private ArrayList<Task> tasksToAdd = new ArrayList<Task>();
 	Database db;
+	GoogleCalendarBackwardSyncCommandCreator googleCalendarBackwardSyncCommandCreator = new GoogleCalendarBackwardSyncCommandCreator();
+	
 	
 	// Constructor 
 	public BackwardSyncAddCommand(ArrayList<Task> tasks) {
@@ -47,6 +49,7 @@ public class BackwardSyncAddCommand {
 		for (Task task : tasksToAdd) {
 			try {
 				db.addBackwardSync(task);
+				googleCalendarBackwardSyncCommandCreator.clearAllArrayLists();
 				//System.out.println(task);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -63,14 +66,14 @@ public class BackwardSyncAddCommand {
 	}
 }
 
-	// End of segment: .\taskbuddy\googlecal\BackwardSyncAddCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\BackwardSyncAddCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\BackwardSyncDeleteCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\BackwardSyncDeleteCommand.java
 	 */
 
 package taskbuddy.googlecal;
@@ -98,6 +101,7 @@ public class BackwardSyncDeleteCommand {
 	private ArrayList<Task> tasksToDelete = new ArrayList<Task>();
 	Database db;
 	
+	GoogleCalendarBackwardSyncCommandCreator googleCalendarBackwardSyncCommandCreator = new GoogleCalendarBackwardSyncCommandCreator();
 	
 	// Constructor 
 	public BackwardSyncDeleteCommand(ArrayList<Task> tasks) {
@@ -127,6 +131,7 @@ public class BackwardSyncDeleteCommand {
 
 				try {
 					db.deleteBackwardSync(task.getGID());
+					googleCalendarBackwardSyncCommandCreator.clearAllArrayLists();
 				} catch (IllegalAccessException | NoSuchElementException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -140,14 +145,14 @@ public class BackwardSyncDeleteCommand {
 	}
 }
 
-	// End of segment: .\taskbuddy\googlecal\BackwardSyncDeleteCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\BackwardSyncDeleteCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\BackwardSyncEditCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\BackwardSyncEditCommand.java
 	 */
 
 package taskbuddy.googlecal;
@@ -174,6 +179,8 @@ public class BackwardSyncEditCommand {
 	//private Task taskToAdd = new Task();
 	private ArrayList<Task> tasksToEdit = new ArrayList<Task>();
 	Database db;
+	GoogleCalendarBackwardSyncCommandCreator googleCalendarBackwardSyncCommandCreator = new GoogleCalendarBackwardSyncCommandCreator();
+	
 	
 	// Constructor 
 	public BackwardSyncEditCommand(ArrayList<Task> tasks) {
@@ -201,6 +208,7 @@ public class BackwardSyncEditCommand {
 		for (Task task : tasksToEdit) {
 			try {
 				db.editBackwardSync(task.getGID(), task);
+				googleCalendarBackwardSyncCommandCreator.clearAllArrayLists();
 			} catch (IOException | IllegalAccessException | NoSuchElementException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -209,14 +217,14 @@ public class BackwardSyncEditCommand {
 	}
 }
 
-	// End of segment: .\taskbuddy\googlecal\BackwardSyncEditCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\BackwardSyncEditCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\GooCalBackend.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GooCalBackend.java
 	 */
 
 package taskbuddy.googlecal;
@@ -430,14 +438,14 @@ public class GooCalBackend {
 	}
 }
 
-	// End of segment: .\taskbuddy\googlecal\GooCalBackend.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GooCalBackend.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\GooCalRetriever.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GooCalRetriever.java
 	 */
 
 package taskbuddy.googlecal;
@@ -543,14 +551,14 @@ public class GooCalRetriever {
 		return retrievedDescription;
 	}
 }
-	// End of segment: .\taskbuddy\googlecal\GooCalRetriever.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GooCalRetriever.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\GoogleCalendarAuthorizerStatus.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalendarAuthorizerStatus.java
 	 */
 
 package taskbuddy.googlecal;
@@ -763,14 +771,14 @@ public class GoogleCalendarAuthorizerStatus {
 	}	
 }
 
-	// End of segment: .\taskbuddy\googlecal\GoogleCalendarAuthorizerStatus.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalendarAuthorizerStatus.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandCreator.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandCreator.java
 	 */
 
 package taskbuddy.googlecal;
@@ -996,16 +1004,27 @@ public class GoogleCalendarBackwardSyncCommandCreator {
 		generateArrayListOfEdits();
 		executeCommandCreator();
 	}
+	
+	public void clearAllArrayLists() {
+		tasksToAddToDb.clear();
+		tasksToDeleteFromDb.clear();
+		tasksToEdit.clear();
+		tasksFromDatabase.clear();
+		tasksFromGoogleCal.clear();
+		tasksInDb_ScanForEdits.clear();
+		tasksInGCal_ScanForEdits.clear();
+		googleCalRetrieveAll.clearArrayList();
+	}
 }
 
-	// End of segment: .\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandCreator.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandCreator.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandQueue.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandQueue.java
 	 */
 
 package taskbuddy.googlecal;
@@ -1055,14 +1074,14 @@ public class GoogleCalendarBackwardSyncCommandQueue {
 	}
 }
 
-	// End of segment: .\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandQueue.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalendarBackwardSyncCommandQueue.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\GoogleCalendarManager.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalendarManager.java
 	 */
 
 package taskbuddy.googlecal;
@@ -1220,14 +1239,14 @@ public class GoogleCalendarManager {
 		return task.getTitle();
 	}
 }
-	// End of segment: .\taskbuddy\googlecal\GoogleCalendarManager.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalendarManager.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\GoogleCalendarPreferenceLogger.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalendarPreferenceLogger.java
 	 */
 
 package taskbuddy.googlecal;
@@ -1398,14 +1417,14 @@ public class GoogleCalendarPreferenceLogger {
 
 
 
-	// End of segment: .\taskbuddy\googlecal\GoogleCalendarPreferenceLogger.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalendarPreferenceLogger.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecal\GoogleCalRetrieveAll.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalRetrieveAll.java
 	 */
 
 package taskbuddy.googlecal;
@@ -1647,15 +1666,19 @@ public class GoogleCalRetrieveAll {
 		
 		return tasks;
 	}
+	
+	public void clearArrayList() {
+		tasks.clear();
+	}
 }
-	// End of segment: .\taskbuddy\googlecal\GoogleCalRetrieveAll.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecal\GoogleCalRetrieveAll.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\googlecalcontroller\GoogleCalendarController.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\googlecalcontroller\GoogleCalendarController.java
 	 */
 
 package taskbuddy.googlecalcontroller;
@@ -1735,14 +1758,14 @@ public class GoogleCalendarController {
 	}
 }
 
-	// End of segment: .\taskbuddy\googlecalcontroller\GoogleCalendarController.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\googlecalcontroller\GoogleCalendarController.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\Task.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\Task.java
 	 */
 
 	/**
@@ -1767,14 +1790,14 @@ public class GoogleCalendarController {
 		return formatter.format(date);
 	}
 	
-	// End of segment: .\taskbuddy\logic\Task.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\Task.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\Task.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\Task.java
 	 */
 
 	/**
@@ -1801,7 +1824,7 @@ public class GoogleCalendarController {
 	/**
 	 * @return a list of all string-ified fields of this task
 	 * 
-	// End of segment: .\taskbuddy\logic\Task.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\Task.java
 
 
 

@@ -3,7 +3,7 @@
 
 
 	/**
-	 * origin: .\taskbuddy\gui\MainApp.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\gui\MainApp.java
 	 */
 
 //andrew
@@ -53,14 +53,14 @@ public class MainApp extends Application {
 	
 }
 
-	// End of segment: .\taskbuddy\gui\MainApp.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\gui\MainApp.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\gui\TaskBuddyViewController.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\gui\TaskBuddyViewController.java
 	 */
 
 //andrew
@@ -362,14 +362,14 @@ public class TaskBuddyViewController implements DatabaseObserver {
 
 }
 
-	// End of segment: .\taskbuddy\gui\TaskBuddyViewController.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\gui\TaskBuddyViewController.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\AcknowledgeBundle.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\AcknowledgeBundle.java
 	 */
 
 //andrew
@@ -441,14 +441,14 @@ public class AcknowledgeBundle extends Bundle{
 	}
 }
 
-	// End of segment: .\taskbuddy\logic\AcknowledgeBundle.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\AcknowledgeBundle.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\AddCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\AddCommand.java
 	 */
 
 //andrew
@@ -570,14 +570,14 @@ public class AddCommand {
 	}
 }
 
-	// End of segment: .\taskbuddy\logic\AddCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\AddCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\Bundle.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\Bundle.java
 	 */
 
 //andrew
@@ -612,14 +612,14 @@ public class Bundle {
     }
 
 }
-	// End of segment: .\taskbuddy\logic\Bundle.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\Bundle.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\CommandParser.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\CommandParser.java
 	 */
 
 //andrew
@@ -760,14 +760,14 @@ public class CommandParser {
 	}
 }
 
-	// End of segment: .\taskbuddy\logic\CommandParser.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\CommandParser.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\DeleteCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\DeleteCommand.java
 	 */
 
 //andrew
@@ -811,14 +811,14 @@ public class DeleteCommand {
 	
 }
 
-	// End of segment: .\taskbuddy\logic\DeleteCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\DeleteCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\DisplayCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\DisplayCommand.java
 	 */
 
 //andrew
@@ -871,14 +871,14 @@ public class DisplayCommand {
 	}
 }
 
-	// End of segment: .\taskbuddy\logic\DisplayCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\DisplayCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\EditCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\EditCommand.java
 	 */
 
 //andrew
@@ -1003,14 +1003,14 @@ public class EditCommand {
 	}
 }
 
-	// End of segment: .\taskbuddy\logic\EditCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\EditCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\RedoCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\RedoCommand.java
 	 */
 
 //andrew
@@ -1062,14 +1062,14 @@ public class RedoCommand {
 
 }
 
-	// End of segment: .\taskbuddy\logic\RedoCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\RedoCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\SearchCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\SearchCommand.java
 	 */
 
 //andrew
@@ -1147,14 +1147,14 @@ public class SearchCommand {
 	}
 }
 
-	// End of segment: .\taskbuddy\logic\SearchCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\SearchCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\SyncCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\SyncCommand.java
 	 */
 
 //andrew
@@ -1185,14 +1185,14 @@ public class SyncCommand {
 	
 }
 
-	// End of segment: .\taskbuddy\logic\SyncCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\SyncCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\Task.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\Task.java
 	 */
 
 //andrew
@@ -1328,14 +1328,14 @@ public class Task {
 	 * 
 	 * @return the task ID
 	 * 
-	// End of segment: .\taskbuddy\logic\Task.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\Task.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\UndoCommand.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\UndoCommand.java
 	 */
 
 //andrew
@@ -1416,14 +1416,14 @@ public class UndoCommand {
 
 }
 
-	// End of segment: .\taskbuddy\logic\UndoCommand.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\UndoCommand.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\logic\UserInputBundle.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\logic\UserInputBundle.java
 	 */
 
 //andrew
@@ -1536,14 +1536,14 @@ public class UserInputBundle extends Bundle {
 	}
 }
 
-	// End of segment: .\taskbuddy\logic\UserInputBundle.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\logic\UserInputBundle.java
 
 
 
 
 
 	/**
-	 * origin: .\taskbuddy\parser\Parser2.java
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\parser\Parser2.java
 	 */
 
 //andrew
@@ -1557,7 +1557,406 @@ import taskbuddy.logic.AcknowledgeBundle;
 import taskbuddy.logic.CommandParser;
 import taskbuddy.logic.UserInputBundle;
 
-	// End of segment: .\taskbuddy\parser\Parser2.java
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\parser\Parser2.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\logic\BundleTest.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+public class BundleTest {
+
+    Bundle bundle;
+    String status;
+    String message;
+
+    // Constructs bundle
+    public void setup() {
+        bundle = new Bundle();
+    }
+
+    @Test
+    public void testSuccessful() throws Exception {
+        setup();
+
+        // Say we have added a task successfully and want to report this
+        // success message using bundle
+        status = "Successful";
+        message = "Task added successfully.";
+
+        bundle.putString(status, message);
+        assertTrue("Status key not extracted properly from bundle",
+                bundle.bundle.containsKey(status));
+    }
+
+    @Test
+    public void testFailure() throws Exception {
+        setup();
+
+        // Say we have added a task unsuccessfully and want to report this
+        // failure message using bundle
+        status = "Fail";
+        message = "Task not added due to invalid task title";
+
+        bundle.putString(status, message);
+        assertFalse(bundle.bundle.containsKey("Successful"));
+        assertTrue("Fail status key not extracted from bundle",
+                bundle.bundle.containsKey(status));
+        assertTrue("Fail status message not extracted from bundle.", bundle
+                .getItem(status).equals(message));
+    }
+}
+
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\logic\BundleTest.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\logic\CommandParserTest.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+
+import org.junit.After;
+import org.junit.Test;
+
+import taskbuddy.database.Database;
+
+public class CommandParserTest {
+
+	private static String nullValue = "padding value";
+	private CommandParser cp;
+
+	@Test
+	public void testAddFloating() throws ParseException, IOException {
+		try {
+			CommandParser cp = CommandParser.getInstance();
+			UserInputBundle uf = new UserInputBundle();
+			AcknowledgeBundle bf = new AcknowledgeBundle();
+			uf.putTitle("task floating");
+			uf.putDescription("test task for integration");
+			uf.putEndDate(nullValue);
+			uf.putEndTime(nullValue);
+			uf.putStartDate(nullValue);
+			uf.putStartTime(nullValue);
+			uf.putCommand("add");
+			bf = cp.parseUserInputs(uf);
+			Database db = cp.getDatabase();
+			db.printTasks();
+			String status = bf.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			// e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testAddNormal() throws ParseException, IOException {
+		try {
+			CommandParser cp = CommandParser.getInstance();
+			UserInputBundle uf = new UserInputBundle();
+			AcknowledgeBundle bf = new AcknowledgeBundle();
+			uf.putTitle("task normal");
+			uf.putDescription("test task for 2 dates");
+			uf.putEndDate("23/10/2014");
+			uf.putEndTime("2300");
+			uf.putStartDate("23/10/2014");
+			uf.putStartTime("2100");
+			uf.putCommand("add");
+			bf = cp.parseUserInputs(uf);
+			Database db = cp.getDatabase();
+			db.printTasks();
+			String status = bf.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			// e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testAddDeadline() throws ParseException, IOException {
+		try {
+			CommandParser cp = CommandParser.getInstance();
+			UserInputBundle uf = new UserInputBundle();
+			AcknowledgeBundle bf = new AcknowledgeBundle();
+			uf.putTitle("task deadline today");
+			uf.putDescription("test task for deadline");
+			uf.putEndDate(nullValue);
+			uf.putEndTime("2000");
+			uf.putStartDate(nullValue);
+			uf.putStartTime("2000");
+			uf.putCommand("add");
+			bf = cp.parseUserInputs(uf);
+			Database db = cp.getDatabase();
+			// db.printTasks();
+			String status = bf.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			// e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testEdit() throws Exception {
+		try {
+			CommandParser cp = CommandParser.getInstance();
+			UserInputBundle et = new UserInputBundle();
+			AcknowledgeBundle eb = new AcknowledgeBundle();
+			et.putCommand("edit");
+			et.putDescription("changed desc");
+			et.putID("1");
+			et.putTitle("changed title");
+			et.putEndDate(nullValue);
+			et.putEndTime(nullValue);
+			et.putStartDate(nullValue);
+			et.putStartTime(nullValue);
+			eb = cp.parseUserInputs(et);
+			String status = eb.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testSearch() throws Exception {
+		try {
+			CommandParser cp = CommandParser.getInstance();
+			UserInputBundle st = new UserInputBundle();
+			AcknowledgeBundle sb = new AcknowledgeBundle();
+			st.putCommand("search");
+			st.putDescription("changed");
+			st.putTitle("changed");
+			st.putEndDate(nullValue);
+			st.putEndTime(nullValue);
+			st.putStartDate(nullValue);
+			st.putStartTime(nullValue);
+			sb = cp.parseUserInputs(st);
+			String status = sb.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@After
+	public void deleteLog() {
+		File log = new File("log");
+		if (log.isFile()) {
+			log.delete();
+		}
+	}
+}
+
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\logic\CommandParserTest.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\logic\TaskTest.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import static org.junit.Assert.*;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+import org.junit.Test;
+
+public class TaskTest {
+    // @formatter:off
+    private static final String DELIMITER           = " | ";
+    private static final String TASK_ID             = "Task ID: ";
+    private static final String TITLE               = "Title: ";
+    private static final String DESCRIPTION         = "Description: ";
+    private static final String START               = "Start: ";
+    private static final String END                 = "End: ";
+    private static final String PRIORITY            = "Priority: ";
+    private static final String IS_COMPLETE         = "Completed: ";
+    private static final String IS_FLOATING         = "Floating task: ";
+    private static final String GOOGLE_CALENDAR_ID  = "Google Calendar ID: ";
+    // @formatter:on
+
+    int year;
+    int month;
+    int date;
+    int hour;
+    int minute;
+    int second;
+    Calendar start;
+    Calendar end;
+
+    Task task;
+
+    int taskId;
+    String title;
+    String description;
+    int priority;
+    boolean isComplete;
+    boolean isFloating;
+    String googleCalendarId;
+
+    public void setup() {
+        year = 1;
+        month = 1;
+        date = 1;
+        hour = 1;
+        minute = 1;
+        second = 1;
+
+        // Month argument is an int from 0-11, not 1-12
+        start = new GregorianCalendar(year, month - 1, date, hour, minute,
+                second);
+        end = new GregorianCalendar(year, month - 1, date, hour, minute, second);
+
+        taskId = 1;
+        title = "Title";
+        description = "Description";
+        priority = 1;
+        isComplete = true;
+        isFloating = false;
+        googleCalendarId = "11111";
+
+        task = new Task("Title");
+        task.setTaskId(taskId);
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(end);
+        task.setPriority(priority);
+        task.setCompletion(true);
+        task.setFloating(isFloating);
+        task.setGID(googleCalendarId);
+    }
+
+    @Test
+    public void testDisplayTask() throws Exception {
+        setup();
+        String expected;
+        String actual;
+
+        // Test for conversion of start/end dates/times from string to Calendar
+        // type.
+        expected = date + "-" + month + "-" + String.format("%04d", year)
+                + " at " + String.format("%02d", hour) + ":"
+                + String.format("%02d", minute);
+        // Test for start
+        actual = task.displayDateTime(start);
+        assertTrue("Calendar not converted to string properly.",
+                actual.equals(expected));
+        // Test for end
+        actual = task.displayDateTime(end);
+        assertTrue("Calendar not converted to string properly.",
+                actual.equals(expected));
+
+        // @formatter:off
+        expected = TASK_ID + taskId + DELIMITER +
+               TITLE + title + DELIMITER + 
+               DESCRIPTION + description + DELIMITER + 
+               START + task.displayDateTime(task.getStartTime()) + DELIMITER +
+               END + task.displayDateTime(end) + DELIMITER +
+               PRIORITY + priority + DELIMITER +
+               IS_COMPLETE + Boolean.toString(isComplete) + DELIMITER + 
+               IS_FLOATING + Boolean.toString(isFloating) + DELIMITER + 
+               GOOGLE_CALENDAR_ID + googleCalendarId;
+        // @formatter:on
+
+        actual = task.displayTask();
+        assertTrue("Task does not convert to string properly.",
+                expected.equals(actual));
+
+    }
+}
+
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\logic\TaskTest.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\logic\UndoTest.java
+	 */
+
+//andrew
+
+package taskbuddy.logic;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+import taskbuddy.database.Database;
+
+public class UndoTest {
+
+	@Test
+	public void testAdd() throws Exception {
+		try {
+			CommandParser cp = CommandParser.getInstance();
+			UserInputBundle uf = new UserInputBundle();
+			AcknowledgeBundle bf = new AcknowledgeBundle();
+			uf.putTitle("task normal");
+			uf.putDescription("test task for 2 dates");
+			uf.putEndDate("23/10/2014");
+			uf.putEndTime("2300");
+			uf.putStartDate("23/10/2014");
+			uf.putStartTime("2100");
+			uf.putCommand("add");
+			bf = cp.parseUserInputs(uf);
+			Database db = cp.getDatabase();
+			db.printTasks();
+			String status = bf.getStatus();
+			assertEquals("Success", status);
+		} catch (Exception e) {
+			// e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testUndo() throws Exception {
+		CommandParser cp = CommandParser.getInstance();
+		UserInputBundle undo = new UserInputBundle();
+		undo.putCommand("undo");
+		AcknowledgeBundle b = new AcknowledgeBundle();
+		Database db = cp.getDatabase();
+		try {
+			b = cp.parseUserInputs(undo);
+			db.printTasks();
+			assertEquals("Success", b.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\logic\UndoTest.java
 
 
 

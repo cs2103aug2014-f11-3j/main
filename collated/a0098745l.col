@@ -1,0 +1,3538 @@
+//@author: a0098745l
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\CommandLogger.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.LinkedList;
+
+import taskbuddy.logic.Task;
+
+/**
+ * This class logs the commands for syncing task manipulations to Google
+ * Calendar when the user goes online again. When the user goes offline, task
+ * manipulations in database are not executed in Google Calendar. These task
+ * manipulations are logged so that the user can sync them to Google Calendar
+ * should he exit TaskBuddy.
+ *
+ */
+public class CommandLogger {
+
+    private static final String ERROR_NO_SUCH_COMMAND = "No such command.";
+    private static final String ERROR_CANNOT_CREATE_COMMAND_LOG = "Cannot create command log file.";
+    private static final String ERR_CANNOT_OPEN_LOG = "Cannot open log file.";
+
+    private static final String DELIMITER_SPLIT = "\\|";
+    private static final int NUMBER_OF_SPLIT_ELEMENTS = 2;
+    private static final int POSITION_COMMAND = 0;
+    private static final int POSITION_TASK = 1;
+    private static final String COMMANDS = " commands:";
+
+    SimpleDateFormat formatter = new SimpleDateFormat(
+            Task.DATABASE_DATE_TIME_FORMATTER);
+
+    File log;
+    BufferedWriter writer = null;
+    BufferedReader reader = null;
+
+    /**
+     * Returns the <code>File</code> object representing the log file. Used
+     * primarily for <code>File</code> and <code>Path</code> manipulation.
+     * 
+     * @return the <code>File</code> object representing the log file
+     */
+    public File getLog() {
+        return log;
+    }
+
+    /**
+     * Prepares the command log to be read/written from/to. If the command log
+     * exists, this method assumes that it came from a previous session. If the
+     * command log does not exist, this method creates it and logs all commands
+     * into newly created command log.
+     * 
+     * @param logName
+     *            name of command log file
+     * @return queue of commands read from existing log file, otherwise empty
+     *         command queue for non-existing command log
+     * @throws IOException
+     *             when log file cannot be read properly
+     * @throws ParseException
+     *             when commands cannot be parsed from log file properly
+     */
+    public LinkedList<GoogleCalendarCommand> prepareCommandLog(String logName)
+            throws IOException, ParseException {
+        LinkedList<GoogleCalendarCommand> commandQueue = new LinkedList<GoogleCalendarCommand>();
+        this.log = new File(logName);
+
+        if (this.getLog().isFile()) {
+            commandQueue = this.readCommands();
+        } else {
+            try {
+                log.createNewFile();
+            } catch (IOException e) {
+                // TODO Test this
+                throw new IOException(ERROR_CANNOT_CREATE_COMMAND_LOG, e);
+            }
+        }
+        return commandQueue;
+    }
+
+    /**
+     * Converts all commands in the command queue to a string for writing to
+     * command log.
+     * 
+     * @param commandQueue
+     *            commands to be written to command log
+     * @return string containing all commands and details about their associated
+     *         tasks
+     */
+    public String commandsToString(
+            LinkedList<GoogleCalendarCommand> commandQueue) {
+        int numberOfCommands = commandQueue.size();
+        String result = Integer.toString(numberOfCommands) + COMMANDS + "\n";
+
+        for (GoogleCalendarCommand aCommand : commandQueue) {
+            result = result + aCommand.displayCommand() + "\n";
+        }
+        return result;
+    }
+
+    /**
+     * Writes all commands in the command queue as a string into the command
+     * log. The <code>prepareCommandLog</code> method must be called first
+     * before calling this.
+     * 
+     * @param commandQueue
+     *            the commands in the command queue to be written to command log
+     * @throws IOException
+     *             if there are write problems to the log file
+     */
+    public void writeToLogFile(LinkedList<GoogleCalendarCommand> commandQueue)
+            throws IOException {
+        Path logFilePath = this.getLog().toPath();
+        try {
+            writer = Files.newBufferedWriter(logFilePath,
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            writer.write(this.commandsToString(commandQueue));
+            writer.flush();
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+    }
+
+    /**
+     * Splits a command string into its command type and the task to be
+     * manipulated.
+     * 
+     * @param commandString
+     *            command string read in from command log, which is also the
+     *            result of the <code>displayCommand</code> method
+     * @return a string array holding the command type and task
+     */
+    public String[] splitCommandTask(String commandString) {
+        String[] result = commandString.split(DELIMITER_SPLIT,
+                NUMBER_OF_SPLIT_ELEMENTS);
+        for (int i = 0; i < NUMBER_OF_SPLIT_ELEMENTS; i++) {
+            result[i] = result[i].trim();
+        }
+        return result;
+    }
+
+    /**
+     * Reads in a <code>GoogleCalendarCommand</code> object from a given command
+     * string.
+     * 
+     * @param commandString
+     *            command string read in from command log, which is also the
+     *            result of the <code>displayCommand</code> method
+     * @return the read in <code>GoogleCalendarCommand</code> object
+     * @throws ParseException
+     *             when command string is not parsed properly
+     */
+    public GoogleCalendarCommand readCommand(String commandString)
+            throws ParseException {
+        String[] splitCommandTask = this.splitCommandTask(commandString);
+        String commandType = splitCommandTask[POSITION_COMMAND];
+        String taskString = splitCommandTask[POSITION_TASK];
+        Task task = (new TaskLogger()).readTask(taskString);
+
+        // @formatter:off
+        switch (commandType) {
+            case GoogleCalendarAdd.COMMAND_TYPE :
+                return new GoogleCalendarAdd(task);
+            case GoogleCalendarDelete.COMMAND_TYPE :
+                return new GoogleCalendarDelete(task);
+            case GoogleCalendarUpdate.COMMAND_TYPE :
+                return new GoogleCalendarUpdate(task);
+        default :
+            throw new IllegalArgumentException(ERROR_NO_SUCH_COMMAND);
+        }
+        // @formatter:on
+    }
+
+    /**
+     * Retrieves queue of commands from command log. This method can only be
+     * executed after the <code>prepareCommandLog</code> method of this class.
+     * 
+     * @return queue of commands from command log
+     * @throws ParseException
+     *             when command string is not parsed properly
+     * @throws IOException
+     *             when command log cannot be read properly
+     */
+    public LinkedList<GoogleCalendarCommand> readCommands()
+            throws ParseException, IOException {
+        Path logPath = this.getLog().toPath();
+        // @formatter:off
+        LinkedList<GoogleCalendarCommand> result = 
+                new LinkedList<GoogleCalendarCommand>();
+        // @formatter:on
+        String aCommandString;
+
+        try {
+            reader = Files.newBufferedReader(logPath);
+            reader.readLine();
+
+            while ((aCommandString = reader.readLine()) != null) {
+                GoogleCalendarCommand aCommand = this
+                        .readCommand(aCommandString);
+                result.add(aCommand);
+            }
+        } catch (IOException e) {
+            throw new IOException(ERR_CANNOT_OPEN_LOG, e);
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+        return result;
+    }
+
+}
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\CommandLogger.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\Database.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+
+import taskbuddy.googlecal.GoogleCalendarBackwardSyncCommandCreator;
+import taskbuddy.logic.Task;
+
+/**
+ *
+ * Facade class for <code>DatabaseHandler</code> that stores tasks and
+ * implements methods associated with adding/retrieval of tasks. This class
+ * provides the API for database component. It is primarily called by logic
+ * component and effectively communicates with Google Calendar manager for task
+ * synchronisation with Google Calendar.
+ *
+ */
+public class Database {
+    private static Database instance = null;
+    DatabaseHandler databaseHandler;
+
+    /**
+     * TODO Delete this before sending to production For debugging
+     */
+    public void printTasks() {
+        ArrayList<Task> tasks = databaseHandler.getTasks();
+        TaskLogger myTaskLogger = databaseHandler.taskLogger;
+        System.out.println(myTaskLogger.tasksToString(tasks));
+    }
+
+    /**
+     * @return an instance of this class.
+     * @throws IOException
+     *             when the same circumstances in this class' private
+     *             constructor apply
+     * @throws ParseException
+     *             when the same circumstances in this class' private
+     *             constructor apply
+     */
+    public static Database getInstance() throws IOException, ParseException {
+        if (Database.instance == null) {
+            Database.instance = new Database();
+        }
+        return Database.instance;
+    }
+
+    /**
+     * Private constructor for this class that defeats instantiation by other
+     * classes. Initialises temporary and logged memory for tasks and commands
+     * through the database handler.
+     * 
+     * @throws IOException
+     *             when log file cannot be read from, written to or created when
+     *             user is offline and tasks cannot be synced to Google
+     *             Calendar.
+     * @throws ParseException
+     *             when tasks cannot be parsed from existing log file
+     */
+    Database() throws IOException, ParseException {
+        databaseHandler = new DatabaseHandler();
+    }
+
+    /**
+     * Retrieves all stored tasks.
+     * 
+     * @return all tasks
+     */
+    public ArrayList<Task> getTasks() {
+        return databaseHandler.getTasks();
+    }
+
+    /**
+     * Adds task to temporary and logged list of tasks, as well as syncing to
+     * Google Calendar.
+     * 
+     * @param task
+     *            task to be added
+     * @throws IOException
+     *             when there are problems writing to log file
+     * @throws UnknownHostException
+     *             when user is offline and task cannot be synced to Google
+     *             Calendar
+     */
+    public void addTask(Task task) throws IOException, UnknownHostException {
+        databaseHandler.addTask(task);
+    }
+
+    /**
+     * Searches for and returns a task based on its task ID from an empty or
+     * non-empty stored list of tasks.
+     * 
+     * @param taskId
+     *            title of task to retrieve
+     * @return task whose title matches search string, null if stored list of
+     *         task is empty or if no title match found.
+     * @throws IllegalAccessException
+     *             when this method tries to read from an empty list of tasks
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to the given
+     *             task ID.
+     * 
+     */
+    public Task read(int taskId) throws IllegalAccessException,
+            NoSuchElementException {
+        return databaseHandler.read(taskId);
+    }
+
+    /**
+     * Searches for and returns a task based on its Google Calendar ID from an
+     * empty or non-empty stored list of tasks.
+     * 
+     * @param googleId
+     *            Google Calendar ID of task to retrieve
+     * @return task whose Google Calendar ID matches given Google Calendar ID,
+     *         null if stored list of task is empty or if no Google Calendar ID
+     *         match is found.
+     * @throws IllegalAccessException
+     *             when this method tries to read from an empty list of tasks
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to the given
+     *             Google Calendar ID.
+     * 
+     */
+    public Task read(String googleId) throws IllegalAccessException,
+            NoSuchElementException {
+        return databaseHandler.read(googleId);
+    }
+
+    /**
+     * Deletes a task from temporary and logged memory, as well as Google
+     * Calendar, based on its task ID from an empty or non-empty stored list of
+     * tasks.
+     *
+     * @param taskId
+     *            task ID of task to be deleted
+     * @throws IllegalAccessException
+     *             when list of tasks is empty and there is no task for this
+     *             method to delete
+     * @throws NoSuchElementException
+     *             when no matching task to given task ID is found
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void delete(int taskId) throws IllegalAccessException,
+            NoSuchElementException, IOException {
+        databaseHandler.delete(taskId);
+    }
+
+    /**
+     * Searches for and returns a list of tasks whose descriptions and/or titles
+     * match the search string.
+     *
+     * @param searchString
+     *            search string
+     * @return task whose title and/or description matches search string; empty
+     *         list if no matches found
+     * @throws IllegalArgumentException
+     *             when search string is empty
+     * @throws IllegalAccessException
+     *             when task list is empty and there is nothing to search for
+     */
+    public ArrayList<Task> search(String searchString)
+            throws IllegalArgumentException, IllegalAccessException {
+        return databaseHandler.search(searchString);
+    }
+
+    /**
+     * Edits a task with task ID of argument <code>newTask</code> by replacing
+     * the old task with the new task from the argument of this method.
+     * 
+     * @param newTask
+     *            new task, which has the same task ID as that of old task, to
+     *            replace old task
+     * @throws IllegalAccessException
+     *             when there are no tasks stored currently and hence there is
+     *             no task to edit
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to task ID in
+     *             the given task argument.
+     * @throws IOException
+     *             when there are problems writing to log file
+     * 
+     */
+    public void edit(Task newTask) throws IllegalAccessException,
+            NoSuchElementException, IOException {
+        databaseHandler.edit(newTask);
+    }
+
+    /**
+     * Adds observer to observe changes to tasks stored in this class.
+     * 
+     * @param databaseObserver
+     *            observer subscribing for tasks updates in this class
+     */
+    public void addObserver(DatabaseObserver databaseObserver) {
+        databaseHandler.addObserver(databaseObserver);
+    }
+
+    /**
+     * Synchronises tasks between database and Google Calendar. This achieved by
+     * first executing the forward sync, followed by the backward sync. Forward
+     * sync entails synchronising task manipulations done in database but not
+     * Google Calendar when the user was previously offline. Backward sync is
+     * the reverse, that is synchronising task manipulations done in Google
+     * Calendar but not database when the user was previously offline.
+     * 
+     * @throws IOException
+     *             when command log cannot be written to
+     */
+    public void sync() throws IOException {
+    	databaseHandler.forwardSync();
+        databaseHandler.googleCal.executeBackwardSync();
+        
+    }
+
+    /**
+     * Adds a task to database like the <code>addTask</code> method, except
+     * without adding the this task to Google Calendar. This method is used when
+     * Google Calendar manager needs to add a task to database to synchronise
+     * tasks between Google Calendar manager and database, which is also known
+     * as backward sync.
+     * 
+     * @param task
+     *            task to be added
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void addBackwardSync(Task task) throws IOException {
+        databaseHandler.addBackwardSync(task);
+    }
+
+    /**
+     * Deletes a task from database like the <code>delete</code> method, except
+     * without deleting this task from Google Calendar. This method is the
+     * delete variant of the <code>addBackwardSync</code> method.
+     *
+     * @param googleId
+     *            Google Calendar ID of task to be deleted
+     * @throws IllegalAccessException
+     *             when list of tasks is empty and there is no task for this
+     *             method to delete
+     * @throws NoSuchElementException
+     *             when no matching task to given Google Calendar ID is found
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void deleteBackwardSync(String googleId)
+            throws IllegalAccessException, NoSuchElementException, IOException {
+        databaseHandler.deleteBackwardSync(googleId);
+    }
+
+    /**
+     * Edits a task from database like the <code>edit</code> method, except
+     * without updating this task to Google Calendar. This method is the edit
+     * variant of the <code>addBackwardSync</code> method.
+     * 
+     * @param googleIdToEdit
+     *            Google Calendar ID of task to edit
+     * @param newTask
+     *            new task to replace task to be edited
+     */
+    public void editBackwardSync(String googleIdToEdit, Task newTask)
+            throws IllegalAccessException, NoSuchElementException, IOException {
+        // TODO Auto-generated method stub
+        databaseHandler.editBackwardSync(googleIdToEdit, newTask);
+
+    }
+
+}
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\Database.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\DatabaseHandler.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+
+import taskbuddy.googlecal.GoogleCalendarManager;
+import taskbuddy.logic.Task;
+
+public class DatabaseHandler {
+    static final String TASK_LOG_NAME = "log";
+    static final String COMMAND_LOG_NAME = "commandLog";
+    static final String EMPTY_STRING = "";
+
+    // @formatter:off
+    static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = 
+            "Changes made to database and task log but not Google Calendar. ";
+    static final String ERR_NO_TASKS = 
+            "Cannot read from empty list of tasks.";
+    static final String ERR_NO_SUCH_TASK_ID = 
+            "No such task ID";
+    static final String ERR_NO_SUCH_GOOGLE_ID = 
+            "No such Google Calendar ID";
+    static final String ERR_MSG_SEARCH_STRING_EMPTY = 
+            "Search string cannot be empty.";
+    // @formatter:on
+
+    TaskLogger taskLogger;
+    CommandLogger commandLogger;
+    ArrayList<Task> tasks;
+    GoogleCalendarManager googleCal;
+    LinkedList<GoogleCalendarCommand> commandQueue;
+    ArrayList<DatabaseObserver> observerList;
+
+    /**
+     * Constructor for this class. Initialises temporary and logged memory for
+     * tasks and commands.
+     * 
+     * @throws IOException
+     *             when log file cannot be read from, written to or created
+     * @throws ParseException
+     *             when tasks cannot be parsed from existing log file
+     */
+    DatabaseHandler() throws IOException, ParseException {
+        this.taskLogger = new TaskLogger();
+        this.commandLogger = new CommandLogger();
+        this.tasks = taskLogger.prepareTaskLog(TASK_LOG_NAME);
+        this.commandQueue = commandLogger.prepareCommandLog(COMMAND_LOG_NAME);
+        this.googleCal = new GoogleCalendarManager();
+        GoogleCalendarCommand.googleCal = this.googleCal;
+        this.commandQueue = new LinkedList<GoogleCalendarCommand>();
+        this.observerList = new ArrayList<DatabaseObserver>();
+    }
+
+    /**
+     * Retrieves all stored tasks.
+     * 
+     * @return all tasks stored temporarily in this class
+     */
+    ArrayList<Task> getTasks() {
+        return this.tasks;
+    }
+
+    /**
+     * Retrieves command queue for Google Calendar commands.
+     * 
+     * @return command queue for Google Calendar commands
+     */
+    public LinkedList<GoogleCalendarCommand> getCommandQueue() {
+        return commandQueue;
+    }
+
+    /**
+     * Set task IDs in order of their arraylist indices. This method is called
+     * whenever a task manipulation affects the arraylist index of a task, thus
+     * making task ID allocation dynamic.
+     */
+    void setTaskIds() {
+        for (Task aTask : this.getTasks()) {
+            int taskId = this.getTasks().indexOf(aTask) + 1;
+            aTask.setTaskId(taskId);
+        }
+    }
+
+    /**
+     * Adds task to temporary and logged list of tasks, as well as syncing to
+     * Google Calendar.
+     * 
+     * @param task
+     *            task to be added
+     * @throws IOException
+     *             when there are problems writing to log file
+     * @throws UnknownHostException
+     *             when user is offline and task cannot be synced to Google
+     *             Calendar
+     */
+    void addTask(Task task) throws IOException, UnknownHostException {
+        this.tasks.add(task);
+        try {
+            googleCal.add(task);
+        } catch (UnknownHostException e) {
+            // TODO Add add command to command queue
+            assert GoogleCalendarCommand.googleCal != null;
+            this.commandQueue.add(new GoogleCalendarAdd(task));
+            commandLogger.writeToLogFile(this.getCommandQueue());
+            throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
+                    + e.getMessage());
+        } finally {
+            followUpOnTaskUpdate();
+        }
+    }
+
+    /**
+     * Finds the task whose task ID matches a given task ID
+     * 
+     * @param taskId
+     *            task ID to search
+     * @return task with matching task ID
+     */
+    Task findMatchingTask(int taskId) {
+        Task result = null;
+        for (Task aTask : this.getTasks()) {
+            if (aTask.getTaskId() == taskId) {
+                result = aTask;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Finds the task whose Google Calendar ID matches a given task Google
+     * Calendar ID.
+     * 
+     * @param googleId
+     *            Google Calendar ID to search
+     * @return task with matching Google Calendar ID
+     */
+    public Task findMatchingTask(String googleId) {
+        Task result = null;
+        for (Task aTask : this.getTasks()) {
+            if (aTask.getGID().equals(googleId)) {
+                result = aTask;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Searches for and returns a task based on its task ID from an empty or
+     * non-empty stored list of tasks.
+     * 
+     * @param taskId
+     *            title of task to retrieve
+     * @return task whose task ID matches given task ID, null if stored list of
+     *         task is empty or if no task ID match is found.
+     * @throws IllegalAccessException
+     *             when this method tries to read from an empty list of tasks
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to the given
+     *             task ID.
+     * 
+     */
+    Task read(int taskId) throws IllegalAccessException, NoSuchElementException {
+        if (this.getTasks().isEmpty()) {
+            throw new IllegalAccessException(ERR_NO_TASKS);
+        }
+
+        assert !this.getTasks().isEmpty();
+        Task result = findMatchingTask(taskId);
+        if (result == null) {
+            throw new NoSuchElementException(ERR_NO_SUCH_TASK_ID);
+        }
+
+        assert result != null;
+        return result;
+    }
+
+    /**
+     * Searches for and returns a task based on its Google Calendar ID from an
+     * empty or non-empty stored list of tasks.
+     * 
+     * @param googleId
+     *            Google Calendar ID of task to retrieve
+     * @return task whose Google Calendar ID matches given Google Calendar ID,
+     *         null if stored list of task is empty or if no Google Calendar ID
+     *         match is found.
+     * @throws IllegalAccessException
+     *             when this method tries to read from an empty list of tasks
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to the given
+     *             Google Calendar ID.
+     * 
+     */
+    Task read(String googleId) throws IllegalAccessException,
+            NoSuchElementException {
+        if (this.getTasks().isEmpty()) {
+            throw new IllegalAccessException(ERR_NO_TASKS);
+        }
+
+        assert !this.getTasks().isEmpty();
+        Task result = findMatchingTask(googleId);
+        if (result == null) {
+            throw new NoSuchElementException(ERR_NO_SUCH_GOOGLE_ID);
+        }
+
+        // If result is null, it means the above exception was not thrown.
+        assert result != null;
+        return result;
+    }
+
+    /**
+     * Deletes a task from temporary and logged memory, as well as Google
+     * Calendar, based on its task ID from an empty or non-empty stored list of
+     * tasks.
+     *
+     * @param taskId
+     *            task ID of task to be deleted
+     * @throws IllegalAccessException
+     *             when list of tasks is empty and there is no task for this
+     *             method to delete
+     * @throws NoSuchElementException
+     *             when no matching task to given task ID is found
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    void delete(int taskId) throws IllegalAccessException,
+            NoSuchElementException, IOException {
+        Task taskToDelete = this.read(taskId);
+        String gCalIdToDelete = taskToDelete.getGID();
+
+        assert !this.getTasks().isEmpty() && taskToDelete != null;
+        this.tasks.remove(taskToDelete);
+        try {
+            googleCal.delete(gCalIdToDelete);
+        } catch (UnknownHostException e) {
+            // TODO Add delete command to command queue
+            assert GoogleCalendarCommand.googleCal != null;
+            this.commandQueue.add(new GoogleCalendarDelete(taskToDelete));
+            commandLogger.writeToLogFile(this.getCommandQueue());
+            throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
+                    + e.getMessage());
+        } finally {
+            followUpOnTaskUpdate();
+        }
+    }
+
+    /**
+     * Checks if a string contains a given sub-string
+     * 
+     * @param container
+     *            larger string that contains the given sub-string
+     * @param contained
+     *            sub-string
+     * @return true if larger string contains given sub-string, false otherwise
+     */
+    boolean containsIgnoreCase(String container, String contained) {
+        String containerLower = container.toLowerCase();
+        String containedLower = contained.toLowerCase();
+
+        return containerLower.contains(containedLower);
+    }
+
+    /**
+     * Searches for and returns a list of tasks whose descriptions and/or titles
+     * match the search string.
+     *
+     * @param searchString
+     *            search string
+     * @return task whose title and/or description matches search string; empty
+     *         list if no matches found
+     * @throws IllegalArgumentException
+     *             when search string is empty
+     * @throws IllegalAccessException
+     *             when task list is empty and there is nothing to search for
+     */
+    ArrayList<Task> search(String searchString)
+            throws IllegalArgumentException, IllegalAccessException {
+        if (searchString.equals(EMPTY_STRING)) {
+            throw new IllegalArgumentException(ERR_MSG_SEARCH_STRING_EMPTY);
+        }
+        if (this.getTasks().isEmpty()) {
+            throw new IllegalAccessException(ERR_NO_TASKS);
+        }
+
+        assert !searchString.equals(EMPTY_STRING) && !this.getTasks().isEmpty();
+        ArrayList<Task> results = new ArrayList<Task>();
+        for (Task aTask : this.getTasks()) {
+            if (this.containsIgnoreCase(aTask.getTitle(), searchString)
+                    || this.containsIgnoreCase(aTask.getDescription(),
+                            searchString)) {
+                results.add(aTask);
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Similar to <code>search</code> method but searches only in the title
+     * fields of tasks.
+     *
+     * @param searchString
+     *            search string
+     * @return list of tasks whose titles contain search string; empty list if
+     *         no title matches found
+     */
+    ArrayList<Task> searchTitle(String searchString) {
+        ArrayList<Task> results = new ArrayList<Task>();
+        for (Task aTask : this.getTasks()) {
+            if (aTask.getTitle().contains(searchString)) {
+                results.add(aTask);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Similar to <code>search</code> method but searches only in the
+     * description fields of tasks.
+     *
+     * @param searchString
+     *            search string
+     * @return list of tasks whose descriptions contain search string; empty
+     *         list if no description matches found
+     */
+    ArrayList<Task> searchDescription(String searchString) {
+        ArrayList<Task> results = new ArrayList<Task>();
+        for (Task aTask : this.getTasks()) {
+            if (aTask.getDescription().contains(searchString)) {
+                results.add(aTask);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Replaces task to edit with this new task, based on the assumption that
+     * this new task has the same task ID set as the task to edit and replace.
+     * 
+     * @param newTask
+     *            New task to replace task to edit
+     * @throws IllegalAccessException
+     *             when there are no tasks stored currently and hence there is
+     *             no task to edit
+     */
+    public void replaceTaskToEdit(Task newTask) throws IllegalAccessException {
+        int taskIdToEdit = newTask.getTaskId();
+        Task oldTask = this.read(taskIdToEdit);
+        int oldTaskIndex = this.getTasks().indexOf(oldTask);
+        this.getTasks().set(oldTaskIndex, newTask);
+    }
+
+    /**
+     * Executes follow up actions when attempt to update Google Calendar about
+     * task edit fails, such as adding the update command to the command queue
+     * and adding information to the exception message thrown by Google Calendar
+     * Manager during the update failure.
+     * 
+     * @param newTask
+     *            new task to replace task to edit
+     * @param e
+     *            exception thrown by Google Calendar manager when user is
+     *            offline
+     * @throws IOException
+     *             when command Log cannot be written to
+     */
+    public void followUpGoogleCalendarUpdateFailure(Task newTask,
+            UnknownHostException e) throws IOException {
+        assert GoogleCalendarCommand.googleCal != null;
+        this.commandQueue.add(new GoogleCalendarUpdate(newTask));
+        commandLogger.writeToLogFile(this.getCommandQueue());
+        throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR
+                + e.getMessage());
+    }
+
+    /**
+     * Executes actions to follow up after task to edit has been replaced by new
+     * task in <code>replaceTaskToEdit</code> method, such as re-setting task
+     * IDs, writing tasks to the task log and notifying observers of this
+     * object.
+     * 
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void followUpOnTaskUpdate() throws IOException {
+        this.setTaskIds();
+        this.taskLogger.writeToLogFile(this.getTasks());
+        this.notifyObservers();
+    }
+
+    /**
+     * Edits a task with task ID of argument <code>newTask</code> by replacing
+     * the old task with the new task from the argument of this method.
+     * 
+     * @param newTask
+     *            new task, which has the same task ID as that of old task, to
+     *            replace old task
+     * @throws IllegalAccessException
+     *             when there are no tasks stored currently and hence there is
+     *             no task to edit
+     * @throws NoSuchElementException
+     *             when this method cannot find a matching task to task ID in
+     *             the given task argument.
+     * @throws IOException
+     *             when there are problems writing to log file
+     * 
+     */
+    void edit(Task newTask) throws IllegalAccessException,
+            NoSuchElementException, IOException {
+        replaceTaskToEdit(newTask);
+        try {
+            googleCal.update(newTask);
+        } catch (UnknownHostException e) {
+            followUpGoogleCalendarUpdateFailure(newTask, e);
+        } finally {
+            followUpOnTaskUpdate();
+        }
+
+    }
+
+    /**
+     * Adds observer to observe changes to tasks stored in this class.
+     * 
+     * @param databaseObserver
+     *            observer subscribing for tasks updates in this class
+     */
+    void addObserver(DatabaseObserver databaseObserver) {
+        this.observerList.add(databaseObserver);
+    }
+
+    /**
+     * Notify observers of updates to tasks stored in this class
+     */
+    void notifyObservers() {
+        for (DatabaseObserver anObserver : observerList) {
+            anObserver.update();
+        }
+    }
+
+    /**
+     * Synchronises tasks that are manipulated in database but not in Google
+     * Calendar when user is offline forward to Google Calendar Manager. This is
+     * achieved by executing the commands in the command queue. The reversed
+     * synchronisation from Google Calendar to database is called backward
+     * synchronisation.
+     * 
+     * @throws IOException
+     *             when command log cannot be written to
+     */
+    void forwardSync() throws IOException {
+        while (!this.getCommandQueue().isEmpty()) {
+            GoogleCalendarCommand nextCommand = this.getCommandQueue().peek();
+            nextCommand.execute();
+            // If execution is unsuccessful due to user still being offline, the
+            // following code will not be executed and the command that has just
+            // failed to be executed will remain in the command queue.
+            this.getCommandQueue().remove();
+            commandLogger.writeToLogFile(this.getCommandQueue());
+        }
+    }
+
+    /**
+     * Adds a task to database like the <code>addTask</code> method, except
+     * without synchronisation to Google Calendar. This method is used when
+     * Google Calendar manager needs to add a task to database to synchronise
+     * tasks between Google Calendar manager and database, which is also known
+     * as backward sync.
+     * 
+     * @param task
+     *            task to be added
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void addBackwardSync(Task task) throws IOException {
+        this.tasks.add(task);
+        followUpOnTaskUpdate();
+    }
+
+    /**
+     * Deletes a task from database like the <code>delete</code> method, except
+     * without deleting this task from Google Calendar. This method is the
+     * delete variant of the <code>addBackwardSync</code> method.
+     *
+     * @param googleId
+     *            Google Calendar ID of task to be deleted
+     * @throws IllegalAccessException
+     *             when list of tasks is empty and there is no task for this
+     *             method to delete
+     * @throws NoSuchElementException
+     *             when no matching task to given Google Calendar ID is found
+     * @throws IOException
+     *             when there are problems writing to log file
+     */
+    public void deleteBackwardSync(String googleId)
+            throws IllegalAccessException, NoSuchElementException, IOException {
+        Task taskToDelete = this.read(googleId);
+        assert !this.getTasks().isEmpty() && taskToDelete != null;
+
+        this.tasks.remove(taskToDelete);
+        followUpOnTaskUpdate();
+
+    }
+
+    /**
+     * Replaces task to edit with this new task, where the task to edit is
+     * specified by a given Google Calendar ID.
+     * 
+     * @param googleIdToEdit
+     *            Google Calendar ID of task to edit and replace.
+     * @param newTask
+     *            New task to replace task to edit
+     * @throws IllegalAccessException
+     *             when there are no tasks stored currently and hence there is
+     *             no task to edit
+     */
+    public void replaceTaskToEdit(String googleIdToEdit, Task newTask)
+            throws IllegalAccessException {
+        Task oldTask = this.read(googleIdToEdit);
+        int oldTaskIndex = this.tasks.indexOf(oldTask);
+        this.tasks.set(oldTaskIndex, newTask);
+    }
+
+    /**
+     * Edits a task from database like the <code>edit</code> method, except
+     * without updating this task to Google Calendar. This method is the edit
+     * variant of the <code>addBackwardSync</code> method.
+     * 
+     * @param googleIdToEdit
+     *            Google Calendar ID of task to edit
+     * @param newTask
+     *            new task to replace task to be edited
+     */
+    public void editBackwardSync(String googleIdToEdit, Task newTask)
+            throws IllegalAccessException, NoSuchElementException, IOException {
+        replaceTaskToEdit(googleIdToEdit, newTask);
+        followUpOnTaskUpdate();
+    }
+
+}
+
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\DatabaseHandler.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\DatabaseObserver.java
+	 */
+
+
+package taskbuddy.database;
+
+/**
+ * Interface that observes tasks stored in a <code>Database</code> object.
+ * 
+ */
+public interface DatabaseObserver {
+    /**
+     * Gets updates on tasks by pulling data from a <code>Database</code>
+     * object.
+     */
+    void update();
+}
+
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\DatabaseObserver.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\DatabaseObserverStub.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+
+import taskbuddy.logic.Task;
+
+/**
+ * Stub that observes tasks stored in a <code>Database</code> object.
+ * 
+ */
+public class DatabaseObserverStub implements DatabaseObserver {
+    Database database;
+    ArrayList<Task> observedTasks;
+
+    /**
+     * Constructor that takes in and specifies the database to be observed for
+     * this class
+     * 
+     * @param database
+     *            database to be observed
+     * @throws IOException
+     *             when task log cannot be read from, written to or created when
+     *             constructing database
+     * @throws ParseException
+     *             when tasks cannot be parsed from existing log file when
+     *             constructing database
+     */
+    public DatabaseObserverStub(Database database) throws IOException,
+            ParseException {
+        observedTasks = new ArrayList<Task>();
+        this.database = database;
+        database.addObserver(this);
+    }
+
+    @Override
+    public void update() {
+        observedTasks = database.getTasks();
+    }
+
+    /**
+     * @return list of tasks in this class that gets updates from
+     *         <code>Database</code>'s tasks
+     */
+    public ArrayList<Task> getObservedTasks() {
+        return observedTasks;
+    }
+
+}
+
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\DatabaseObserverStub.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\GoogleCalendarAdd.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.net.UnknownHostException;
+
+import taskbuddy.logic.Task;
+
+/**
+ * This class is used by <code>Database</code> to store an "add task" command to
+ * Google Calendar when the user is offline.
+ * 
+ */
+public class GoogleCalendarAdd extends GoogleCalendarCommand {
+    static final String COMMAND_TYPE = "Add";
+    static final String DELIMITER = " | ";
+
+    public GoogleCalendarAdd(Task task) {
+        super(task);
+    }
+
+    @Override
+    public void execute() throws UnknownHostException {
+        try {
+            googleCal.add(task);
+        } catch (UnknownHostException e) {
+            throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR);
+        }
+    }
+
+    @Override
+    public String displayCommand() {
+        return COMMAND_TYPE + DELIMITER + this.getTask().displayTask();
+    }
+
+}
+
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\GoogleCalendarAdd.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\GoogleCalendarCommand.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.net.UnknownHostException;
+
+import taskbuddy.googlecal.GoogleCalendarManager;
+import taskbuddy.logic.Task;
+
+/**
+ * Represents a command to be executed by Google Calendar. Commands are stored
+ * in a queue in <code>Database</code> when the user is offline and syncing to
+ * Google Calendar is impossible. This class implements the command pattern.
+ * 
+ */
+abstract class GoogleCalendarCommand {
+    // @formatter:off
+    static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = 
+            "Cannot synchronise tasks to Google Calendar.";
+    // @formatter:on
+    static GoogleCalendarManager googleCal;
+    Task task;
+
+    /**
+     * Constructor for this class, which initialises the task to be manipulated
+     * by the command, and the associated Google Calendar manager. For example,
+     * the task field of an add command is the task to be added to Google
+     * Calendar.
+     * 
+     * @param task
+     *            task to be manipulated by the command
+     */
+    public GoogleCalendarCommand(Task task) {
+        this.task = task;
+    }
+
+    /**
+     * Retrieves and returns the task to be manipulated by the command.
+     * 
+     * @return the task to be manipulated by the command
+     */
+    public Task getTask() {
+        return task;
+    }
+
+    /**
+     * Executes the command, where the execution behaviour depends on the type
+     * of subclass, that is an add command's execution will be different from a
+     * delete command's execution/
+     * 
+     * @throws UnknownHostException
+     *             when user is offline
+     */
+    public abstract void execute() throws UnknownHostException;
+
+    /**
+     * String-ifies this command for writing out to the command log.
+     * 
+     * @return a string holding the command type as well as all details of the
+     *         task to be manipulated by this command
+     */
+    public abstract String displayCommand();
+
+}
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\GoogleCalendarCommand.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\GoogleCalendarDelete.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.net.UnknownHostException;
+
+import taskbuddy.logic.Task;
+
+/**
+ * This class is the delete variant of the <code>GoogleCalendarAdd</code> class.
+ * 
+ */
+public class GoogleCalendarDelete extends GoogleCalendarCommand {
+    static final String COMMAND_TYPE = "Delete";
+    static final String DELIMITER = " | ";
+
+    public GoogleCalendarDelete(Task task) {
+        super(task);
+    }
+
+    @Override
+    public void execute() throws UnknownHostException {
+        try {
+            googleCal.delete(task.getGID());
+        } catch (UnknownHostException e) {
+            throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR);
+        }
+    }
+
+    @Override
+    public String displayCommand() {
+        return COMMAND_TYPE + DELIMITER + this.getTask().displayTask();
+    }
+}
+
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\GoogleCalendarDelete.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\GoogleCalendarManagerStub.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.net.UnknownHostException;
+
+import taskbuddy.googlecal.GoogleCalendarManager;
+import taskbuddy.logic.Task;
+
+/**
+ * This class is a stub for the GoogleCalendarManager class, for dependency
+ * injection in testing the Database class
+ * 
+ */
+public class GoogleCalendarManagerStub extends GoogleCalendarManager {
+    // These flags will turn true if add, delete and update methods are
+    // executed.
+    public String googleCalendarId = "11111";
+
+    public void add(Task task) throws UnknownHostException {
+        task.setGID(googleCalendarId);
+    }
+
+    public void delete(String eventId) throws UnknownHostException {
+    }
+
+    public void update(Task newTask) throws UnknownHostException {
+    }
+}
+
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\GoogleCalendarManagerStub.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\GoogleCalendarUpdate.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.net.UnknownHostException;
+
+import taskbuddy.logic.Task;
+
+/**
+ * This class is the update variant of the <code>GoogleCalendarAdd</code> class.
+ * 
+ */
+public class GoogleCalendarUpdate extends GoogleCalendarCommand {
+    static final String DELIMITER = " | ";
+    static final String COMMAND_TYPE = "Update";
+    
+    
+    public GoogleCalendarUpdate(Task task) {
+        super(task);
+    }
+
+    @Override
+    public void execute() throws UnknownHostException {
+        try {
+            googleCal.update(task);
+        } catch (UnknownHostException e) {
+            throw new UnknownHostException(ERR_NOT_SYNCED_GOOGLE_CALENDAR);
+        }
+    }
+
+    @Override
+    public String displayCommand() {
+        return COMMAND_TYPE + DELIMITER + this.getTask().displayTask();
+    }
+}
+
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\GoogleCalendarUpdate.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\OfflineGoogleCalendarManagerStub.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.net.UnknownHostException;
+
+import taskbuddy.googlecal.GoogleCalendarManager;
+import taskbuddy.logic.Task;
+
+/**
+ * This class is a stub for the offline <code>GoogleCalendarManager</code>
+ * class, for dependency injection into <code>Database</code> class to test its
+ * exception handling when user is offline.
+ * 
+ */
+public class OfflineGoogleCalendarManagerStub extends GoogleCalendarManager {
+    static final String ERROR_USER_OFFLINE = "User is offline";
+
+    public void add(Task task) throws UnknownHostException {
+        throw new UnknownHostException(ERROR_USER_OFFLINE);
+    }
+
+    public void delete(String eventId) throws UnknownHostException {
+        throw new UnknownHostException(ERROR_USER_OFFLINE);
+    }
+
+    public void update(Task newTask) throws UnknownHostException {
+        throw new UnknownHostException(ERROR_USER_OFFLINE);
+    }
+}
+
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\OfflineGoogleCalendarManagerStub.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\src\taskbuddy\database\TaskLogger.java
+	 */
+
+
+package taskbuddy.database;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import taskbuddy.logic.Task;
+
+public class TaskLogger {
+
+    private static final String ERROR_CANNOT_PARSE = "Cannot parse task";
+    private static final String ERROR_CANNOT_OPEN_LOG = "Cannot open log file.";
+
+    // @formatter:off
+    private static final String TASK_ID             = "Task ID: ";
+    private static final String TITLE               = "Title: ";
+    private static final String DESCRIPTION         = "Description: ";
+    private static final String START               = "Start: ";
+    private static final String END                 = "End: ";
+    private static final String PRIORITY            = "Priority: ";
+    private static final String IS_COMPLETE         = "Completed: ";
+    private static final String IS_FLOATING         = "Floating task: ";
+    private static final String GOOGLE_CALENDAR_ID  = "Google Calendar ID: ";
+
+    private static final String EMPTY_STRING        = "";
+    private static final String DELIMITER_SPLIT     = "\\|";
+    
+    private static final int NUMBER_OF_FIELDS       = 9;
+    private static final int POSITION_TASK_ID       = 0;
+    private static final int POSITION_TITLE         = 1;
+    private static final int POSITION_DESCRIPTION   = 2;
+    private static final int POSITION_START         = 3;
+    private static final int POSITION_END           = 4;
+    private static final int POSITION_PRIORITY      = 5;
+    private static final int POSITION_IS_COMPLETE   = 6;
+    private static final int POSITION_IS_FLOATING   = 7;
+    private static final int POSITION_GOOGLE_ID     = 8;
+    // @formatter:on
+
+    private static final String TASKS = " tasks:";
+    
+    SimpleDateFormat formatter = new SimpleDateFormat(
+            Task.DATABASE_DATE_TIME_FORMATTER);
+
+    File log;
+    BufferedWriter writer = null;
+    BufferedReader reader = null;
+
+    /**
+     * Returns the <code>File</code> object representing the log file. Used
+     * primarily for <code>File</code> and <code>Path</code> manipulation.
+     * 
+     * @return the <code>File</code> object representing the log file
+     */
+    public File getLog() {
+        return log;
+    }
+
+    /**
+     * Prepares the task log to be read/written from/to. If the task log exists,
+     * this method assumes that it came from a previous session. Thus to use an
+     * existing task log, the text in the it must be properly formatted. If the
+     * task log does not exist, this method creates it and logs all tasks into
+     * newly created task log.
+     * 
+     * @param logName
+     *            name of task log file
+     * @return list of tasks read from existing task log, otherwise empty list
+     *         of tasks for non-existing task log
+     * @throws IOException
+     *             when task log cannot be read properly
+     * @throws ParseException
+     *             when tasks cannot be parsed from task log properly
+     */
+    public ArrayList<Task> prepareTaskLog(String logName) throws IOException,
+            ParseException {
+        ArrayList<Task> tasks = new ArrayList<Task>();
+        this.log = new File(logName);
+
+        if (this.getLog().isFile()) {
+            tasks = this.readTasks();
+        } else {
+            try {
+                log.createNewFile();
+            } catch (IOException e) {
+                // TODO Test this
+                throw new IOException("Cannot create log file.", e);
+            }
+        }
+        return tasks;
+    }
+
+    /**
+     * Converts list of tasks to a string for writing to task log.
+     * 
+     * @param tasks
+     *            list of tasks to be converted to string
+     * @return string containing all tasks and associated information
+     */
+    public String tasksToString(ArrayList<Task> tasks) {
+        int numberOfTasks = tasks.size();
+        String result = Integer.toString(numberOfTasks) + TASKS + "\n";
+
+        for (Task aTask : tasks) {
+            result = result + aTask.displayTask() + "\n";
+        }
+        return result;
+    }
+
+    /**
+     * Writes all existing tasks represented as a <code>String</code> into the
+     * task log. The <code>prepareLog</code> method must be called first before
+     * calling this.
+     * 
+     * @param tasks
+     *            all tasks to be written to the task log
+     * @throws IOException
+     *             if there are write problems to the log file
+     */
+    public void writeToLogFile(ArrayList<Task> tasks) throws IOException {
+        Path logFilePath = this.getLog().toPath();
+        try {
+            writer = Files.newBufferedWriter(logFilePath,
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            writer.write(this.tasksToString(tasks));
+            writer.flush();
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+    }
+
+    /**
+     * Splits a task string, that is a string representing all the information
+     * of a task, into a string array holding separate fields of the task.
+     * 
+     * @param taskString
+     *            string holding all information of a task
+     * @return a string array holding separate fields of the task
+     */
+    public String[] splitToFields(String taskString) {
+        String[] splitFields = taskString.split(DELIMITER_SPLIT,
+                NUMBER_OF_FIELDS);
+        for (int i = 0; i < NUMBER_OF_FIELDS; i++) {
+            splitFields[i] = splitFields[i].trim();
+        }
+        return splitFields;
+    }
+
+    /**
+     * Extracts the task ID out of the task ID field split by
+     * <code>splitToField</code> method.
+     * 
+     * @param displayTaskId
+     *            task ID field split by <code>splitToField</code> method, which
+     *            is also equivalent to the <code>Task</code> class'
+     *            <code>displayTaskId</code> method
+     * @return task ID
+     */
+    public int extractTaskId(String displayTaskId) {
+        String taskIdString = displayTaskId.replace(TASK_ID, EMPTY_STRING);
+        return Integer.parseInt(taskIdString);
+    }
+
+    /**
+     * Similar to <code>extractTaskId</code> method, except that task title is
+     * extracted here.
+     * 
+     * @param displayTitle
+     *            description field split by <code>splitToField</code> method
+     * @return title of this task
+     */
+    public String extractTitle(String displayTitle) {
+        return displayTitle.replace(TITLE, EMPTY_STRING);
+    }
+
+    /**
+     * Similar to <code>extractTitle</code> method, except that task description
+     * is extracted here.
+     * 
+     * @param displayDescription
+     *            description field split by <code>splitToField</code> method
+     * @return description of this task
+     */
+    public String extractDescription(String displayDescription) {
+        return displayDescription.replace(DESCRIPTION, EMPTY_STRING);
+    }
+
+    /**
+     * Similar to <code>extractTitle</code> method, except that task's start
+     * time is extracted here.
+     * 
+     * @param displayStart
+     *            start time field split by <code>splitToField</code> method
+     * @return start time of this task
+     */
+    public Calendar extractStart(String displayStart) throws ParseException {
+        String startString = displayStart.replace(START, EMPTY_STRING);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(startString));
+        return cal;
+    }
+
+    /**
+     * Similar to <code>extractStart</code> method, except that task's end time
+     * is extracted here.
+     * 
+     * @param displayEnd
+     *            end time field split by <code>splitToField</code> method
+     * @return end time of this task
+     */
+    public Calendar extractEnd(String displayEnd) throws ParseException {
+        String endString = displayEnd.replace(END, EMPTY_STRING);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(endString));
+        return cal;
+    }
+
+    /**
+     * Similar to <code>extractTitle</code> method, except that task's priority
+     * rank is extracted here
+     * 
+     * @param displayPriority
+     *            priority field split by <code>splitToField</code> method
+     * @return priority rank of this task
+     */
+    public int extractPriority(String displayPriority) {
+        String priorityString = displayPriority.replace(PRIORITY, EMPTY_STRING);
+        return Integer.parseInt(priorityString);
+    }
+
+    /**
+     * Similar to <code>extractTitle</code> method, except that task completion
+     * status is extracted here.
+     * 
+     * @param displayIsComplete
+     *            isComplete field split by <code>splitToField</code> method
+     * @return true if task is completed, false otherwise
+     */
+    public boolean extractIsComplete(String displayIsComplete) {
+        String isCompleteString = displayIsComplete.replace(IS_COMPLETE,
+                EMPTY_STRING);
+        return Boolean.parseBoolean(isCompleteString);
+    }
+
+    /**
+     * Similar to <code>extractIsComplete</code> method, except that task
+     * floating status is extracted here.
+     * 
+     * @param displayIsFloating
+     *            isFloating field split by <code>splitToField</code> method
+     * @return true for a floating task, false otherwise
+     */
+    public boolean extractIsFloating(String displayIsFloating) {
+        String isFloatingString = displayIsFloating.replace(IS_FLOATING,
+                EMPTY_STRING);
+        return Boolean.parseBoolean(isFloatingString);
+    }
+
+    /**
+     * Similar to <code>extractTitle</code> method, except that task's Google
+     * Calendar ID is extracted here.
+     * 
+     * @param displayGoogleId
+     *            google ID field split by <code>splitToField</code> method
+     * @return task's Google Calendar ID
+     */
+    public String extractGoogleId(String displayGoogleId) {
+        return displayGoogleId.replace(GOOGLE_CALENDAR_ID, EMPTY_STRING);
+    }
+
+    /**
+     * Converts a string representing all information of a task to a
+     * <code>Task</code> object.
+     * 
+     * @param taskString
+     *            string representing all information of a task
+     * @return this task as a <code>Task</code> object
+     * @throws ParseException
+     *             when task string is not parsed properly
+     */
+    public Task readTask(String taskString) throws ParseException {
+        Task result = new Task();
+        try {
+            String[] splitFields = this.splitToFields(taskString);
+
+            result.setTaskId(this.extractTaskId(splitFields[POSITION_TASK_ID]));
+            result.setTitle(this.extractTitle(splitFields[POSITION_TITLE]));
+            result.setDescription(this
+                    .extractDescription(splitFields[POSITION_DESCRIPTION]));
+            result.setStartTime(this.extractStart(splitFields[POSITION_START]));
+            result.setEndTime(this.extractEnd(splitFields[POSITION_END]));
+            result.setPriority(this
+                    .extractPriority(splitFields[POSITION_PRIORITY]));
+            result.setCompletion(this
+                    .extractIsComplete(splitFields[POSITION_IS_COMPLETE]));
+            result.setFloating(this
+                    .extractIsFloating(splitFields[POSITION_IS_FLOATING]));
+            result.setGID(this.extractGoogleId(splitFields[POSITION_GOOGLE_ID]));
+        } catch (ParseException e) {
+            // TODO Test this
+            throw new ParseException(ERROR_CANNOT_PARSE, e.getErrorOffset());
+        }
+
+        return result;
+    }
+
+    /**
+     * Reads tasks from the log file and returns an arraylist of tasks.
+     * 
+     * @throws ParseException
+     *             when task string read from log file is not parsed properly
+     * @throws IOException
+     *             when log file is not readable
+     * @return arraylist of read tasks
+     *
+     */
+    public ArrayList<Task> readTasks() throws IOException, ParseException {
+        Path logPath = this.getLog().toPath();
+        ArrayList<Task> result = new ArrayList<Task>();
+        String aTaskString;
+
+        try {
+            reader = Files.newBufferedReader(logPath);
+            // Always remove first header line, i.e. the line that says
+            // "n tasks:", where n is the number of stored tasks.
+            @SuppressWarnings("unused")
+            String headerLineToDiscard = reader.readLine();
+
+            while ((aTaskString = reader.readLine()) != null) {
+                Task aTask = this.readTask(aTaskString);
+                result.add(aTask);
+            }
+        } catch (IOException e) {
+            throw new IOException(ERROR_CANNOT_OPEN_LOG, e);
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+        return result;
+    }
+}
+	// End of segment: H:\workspace\cs2103\main\src\taskbuddy\database\TaskLogger.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\database\AllTests.java
+	 */
+
+
+package taskbuddy.database;
+
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
+
+import taskbuddy.logic.TaskTest;
+
+@RunWith(Suite.class)
+@SuiteClasses({ TaskLoggerTest.class, CommandLoggerTest.class,
+        DatabaseMethodsTest.class, DatabaseInitialisationTest.class,
+        DatabaseObserverStubTest.class, GoogleCalendarCommandsTest.class,
+        TaskTest.class })
+public class AllTests {
+
+}
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\database\AllTests.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\database\CommandLoggerTest.java
+	 */
+
+
+package taskbuddy.database;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.util.Calendar;
+import java.util.LinkedList;
+
+import org.junit.Test;
+
+import taskbuddy.database.DatabaseHandler;
+import taskbuddy.logic.Task;
+
+public class CommandLoggerTest {
+    Task firstTask;
+    Task secondTask;
+    String logName;
+    CommandLogger commandLogger;
+
+    String expected;
+    String actual;
+    GoogleCalendarAdd firstAddCommand;
+    GoogleCalendarDelete firstDeleteCommand;
+    GoogleCalendarUpdate firstUpdateCommand;
+    LinkedList<GoogleCalendarCommand> commandQueue;
+
+    /**
+     * Deletes existing log file before running tests
+     */
+    public void deleteLog() {
+        File log = new File(DatabaseHandler.COMMAND_LOG_NAME);
+        if (log.isFile()) {
+            log.delete();
+        }
+    }
+
+    public Task createTask(String title, String description) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        int priority = 1;
+        boolean isComplete = true;
+        boolean isFloating = false;
+
+        Task task = new Task(title);
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(end);
+        task.setPriority(priority);
+        task.setCompletion(isComplete);
+        task.setFloating(isFloating);
+
+        return task;
+    }
+
+    public void setup() throws Exception {
+        deleteLog();
+
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
+
+        firstAddCommand = new GoogleCalendarAdd(firstTask);
+        firstDeleteCommand = new GoogleCalendarDelete(firstTask);
+        firstUpdateCommand = new GoogleCalendarUpdate(firstTask);
+
+        commandQueue = new LinkedList<GoogleCalendarCommand>();
+        commandLogger = new CommandLogger();
+        logName = DatabaseHandler.COMMAND_LOG_NAME;
+    }
+
+    @Test
+    public void testSplitCommandTask() throws Exception {
+        setup();
+        String[] splitCommandTask = commandLogger
+                .splitCommandTask(firstAddCommand.displayCommand());
+        assertEquals("Add command type not split from add command correctly.",
+                "Add", splitCommandTask[0]);
+        assertEquals("First task not split from add command correctly.",
+                firstTask.displayTask(), splitCommandTask[1]);
+        // TODO repeat for other command types
+    }
+
+    @Test
+    public void testReadCommand() throws Exception {
+        setup();
+        // @formatter:off
+        GoogleCalendarCommand readCommand = 
+                commandLogger.readCommand(firstAddCommand.displayCommand());
+        // @formatter:on
+        assertTrue("Add command type not read properly.",
+                readCommand instanceof GoogleCalendarAdd);
+        assertEquals("Task not read properly from add command.", readCommand
+                .getTask().getTitle(), firstTask.getTitle());
+        // TODO repeat for description
+    }
+
+    @Test
+    public void testPrepareCommandLog() throws Exception {
+        setup();
+        File commandLog = new File(logName);
+        assertFalse("Command log exists when it's not supposed to.",
+                commandLog.isFile());
+
+        commandQueue.add(firstAddCommand);
+        commandQueue.add(firstDeleteCommand);
+        commandQueue.add(firstUpdateCommand);
+
+        // Create dummy command log
+        commandLogger.prepareCommandLog(logName);
+        commandLogger.writeToLogFile(commandQueue);
+        assertTrue("Command log doesn't exist when it's supposed to.",
+                commandLog.isFile());
+
+        LinkedList<GoogleCalendarCommand> readCommandQueue = commandLogger
+                .prepareCommandLog(logName);
+        GoogleCalendarCommand nextCommand;
+        nextCommand = readCommandQueue.remove();
+        assertTrue(
+                "First command popped out of command queue is not add command.",
+                nextCommand instanceof GoogleCalendarAdd);
+        assertEquals("Task in first command not correct.",
+                firstTask.getTitle(), nextCommand.getTask().getTitle());
+        nextCommand = readCommandQueue.remove();
+        assertTrue(
+                "Second command popped out of command queue is not delete command.",
+                nextCommand instanceof GoogleCalendarDelete);
+        assertEquals("Task in second command not correct.",
+                firstTask.getTitle(), nextCommand.getTask().getTitle());
+        nextCommand = readCommandQueue.remove();
+        assertTrue(
+                "Third command popped out of command queue is not update command.",
+                nextCommand instanceof GoogleCalendarUpdate);
+        assertEquals("Task in first command not correct.",
+                firstTask.getTitle(), nextCommand.getTask().getTitle());
+
+    }
+}
+
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\database\CommandLoggerTest.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\database\DatabaseInitialisationTest.java
+	 */
+
+
+package taskbuddy.database;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.LinkedList;
+
+import org.junit.Test;
+
+import taskbuddy.googlecal.GoogleCalendarManager;
+import taskbuddy.logic.Task;
+
+public class DatabaseInitialisationTest {
+
+    Task firstTask;
+    Task secondTask;
+
+    Database database;
+    String logName = DatabaseHandler.TASK_LOG_NAME;
+    GoogleCalendarManagerStub googleCalendarManagerStub;
+    DatabaseHandler myDatabaseHandler;
+
+    String expected;
+    String actual;
+    File taskLog;
+    File commandLog;
+
+    /**
+     * Deletes existing command and task log files.
+     */
+    public void deleteLogs() {
+        taskLog = new File(DatabaseHandler.TASK_LOG_NAME);
+        if (taskLog.isFile()) {
+            taskLog.delete();
+        }
+        commandLog = new File(DatabaseHandler.COMMAND_LOG_NAME);
+        if (commandLog.isFile()) {
+            commandLog.delete();
+        }
+    }
+
+    public void addTasks() throws IOException, UnknownHostException {
+        database.addTask(firstTask);
+        database.addTask(secondTask);
+    }
+
+    public Task createTask(String title, String description) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        int priority = 1;
+        boolean isComplete = true;
+        boolean isFloating = false;
+
+        Task task = new Task(title);
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(end);
+        task.setPriority(priority);
+        task.setCompletion(isComplete);
+        task.setFloating(isFloating);
+
+        return task;
+    }
+
+    public void setup() throws Exception {
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
+
+        database = new Database();
+        myDatabaseHandler = database.databaseHandler;
+
+        googleCalendarManagerStub = new GoogleCalendarManagerStub();
+        myDatabaseHandler.googleCal = googleCalendarManagerStub;
+    }
+
+    @Test
+    public void testDatabase() throws Exception {
+        deleteLogs();
+        database = new Database();
+        assertEquals("Static variable googleCal of GoogleCalendarCommand "
+                + "not initialised properly in Database's constructor.",
+                database.databaseHandler.googleCal,
+                GoogleCalendarCommand.googleCal);
+
+        deleteLogs();
+        setup();
+        assertTrue("Database not constructed with an instance of TaskLogger.",
+                myDatabaseHandler.taskLogger instanceof TaskLogger);
+        assertTrue("Database not constructed with arraylist of Task objects.",
+                myDatabaseHandler.tasks instanceof ArrayList);
+        assertTrue("Database not constructed with an instance of "
+                + "GoogleCalendarManager.",
+                myDatabaseHandler.googleCal instanceof GoogleCalendarManager);
+
+        assertTrue("Database not constructed with linkedlist "
+                + "of GoogleCalendarCommand objects.",
+                myDatabaseHandler.commandQueue instanceof LinkedList);
+        assertTrue(
+                "Database not constructed with arraylist of Observer objects.",
+                myDatabaseHandler.observerList instanceof ArrayList);
+
+        assertTrue(
+                "Task log not initialised with Database's constructor.",
+                myDatabaseHandler.taskLogger.log instanceof File);
+        assertTrue("Task log file doesn't exist even when it's supposed to have "
+                + "been created.", myDatabaseHandler.taskLogger.getLog()
+                .exists());
+        assertTrue(
+                "Command log not initialised with Database's constructor.",
+                myDatabaseHandler.commandLogger.log instanceof File);
+        assertTrue("Command log file doesn't exist even when it's supposed to have "
+                + "been created.", myDatabaseHandler.commandLogger.getLog()
+                .exists());
+
+        // Populate task log first in preparation for next test
+        addTasks();    
+        taskLog = new File(DatabaseHandler.TASK_LOG_NAME);
+        assertTrue("Task log doesn't exist when it should.", taskLog.isFile());
+        
+        
+        setup();
+        ArrayList<Task> tasks = database.getTasks();
+        assertEquals("No tasks read in from log file", 2, tasks.size());
+        expected = tasks.get(0).displayTask();
+        actual = database.getTasks().get(0).displayTask();
+        assertTrue("First task not read properly when preparing from "
+                + "existing log file.", expected.equals(actual));
+        expected = tasks.get(1).displayTask();
+        actual = database.getTasks().get(1).displayTask();
+        assertTrue("Second task not read properly when preparing from "
+                + "existing log file.", expected.equals(actual));
+    }
+
+    @Test
+    public void testMultipleInstances() throws Exception {
+        deleteLogs();
+        assertFalse("Log file exists when it shouldn't.", taskLog.isFile());
+
+        // Initialise database using getInstance
+        database = Database.getInstance();
+        myDatabaseHandler = database.databaseHandler;
+        googleCalendarManagerStub = new GoogleCalendarManagerStub();
+        myDatabaseHandler.googleCal = googleCalendarManagerStub;
+
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
+        addTasks();
+        ArrayList<Task> tasks = database.getTasks();
+
+        Database newDatabase = Database.getInstance();
+        ArrayList<Task> newTasks = newDatabase.getTasks();
+
+        for (int i = 0; i < tasks.size(); i++) {
+            assertEquals("Task " + i + " not equal to that "
+                    + "of its new task counterpart, i.e. getInstance "
+                    + "method not working properly.", tasks.get(i).getTitle(),
+                    newTasks.get(i).getTitle());
+        }
+    }
+
+}
+
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\database\DatabaseInitialisationTest.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\database\DatabaseMethodsTest.java
+	 */
+
+
+package taskbuddy.database;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.NoSuchElementException;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import taskbuddy.database.Database;
+import taskbuddy.database.DatabaseHandler;
+import taskbuddy.database.GoogleCalendarManagerStub;
+import taskbuddy.logic.Task;
+
+/**
+ * Contains unit tests for <code>Database</code> class
+ * 
+ */
+public class DatabaseMethodsTest {
+    Task firstTask;
+    Task secondTask;
+    String firstGoogleId;
+    String secondGoogleId;
+
+    Database database;
+    String taskLogName = DatabaseHandler.TASK_LOG_NAME;
+    GoogleCalendarManagerStub googleCalendarManagerStub;
+    DatabaseHandler myDatabaseHandler;
+
+    String expected;
+    String actual;
+
+    DatabaseObserverStub databaseObserverStub;
+
+    /**
+     * Deletes existing log file before running tests
+     */
+    public void deleteLog() {
+        File taskLog = new File(DatabaseHandler.TASK_LOG_NAME);
+        if (taskLog.isFile()) {
+            taskLog.delete();
+        }
+        File commandLog = new File(DatabaseHandler.COMMAND_LOG_NAME);
+        if (commandLog.isFile()) {
+            commandLog.delete();
+        }
+    }
+
+    // These added tasks do not have set Google Calendar IDs.
+    public void addTasks() throws IOException, UnknownHostException {
+        database.addTask(firstTask);
+        database.addTask(secondTask);
+    }
+
+    public Task createTask(String title, String description) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        int priority = 1;
+        boolean isComplete = true;
+        boolean isFloating = false;
+
+        Task task = new Task(title);
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(end);
+        task.setPriority(priority);
+        task.setCompletion(isComplete);
+        task.setFloating(isFloating);
+
+        return task;
+    }
+
+    public void checkTaskLogCorrectness() throws IOException, ParseException {
+        ArrayList<Task> readTasks = myDatabaseHandler.taskLogger.readTasks();
+        assertEquals(
+                "Number of tasks in task log is not the same as that in database.",
+                readTasks.size(), database.getTasks().size());
+        for (int i = 0; i < readTasks.size(); i++) {
+            actual = readTasks.get(i).displayTask();
+            expected = database.getTasks().get(i).displayTask();
+            assertTrue("Task " + i + " not correctly logged.",
+                    actual.equals(expected));
+        }
+    }
+
+    @Before
+    public void setup() throws Exception {
+        deleteLog();
+
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
+
+        database = new Database();
+        myDatabaseHandler = database.databaseHandler;
+
+        googleCalendarManagerStub = new GoogleCalendarManagerStub();
+        myDatabaseHandler.googleCal = googleCalendarManagerStub;
+
+        databaseObserverStub = new DatabaseObserverStub(database);
+    }
+
+    @Test
+    public void testSetTaskIds() throws Exception {
+        addTasks();
+
+        myDatabaseHandler.setTaskIds();
+        ArrayList<Task> tasks = database.getTasks();
+        for (Task aTask : tasks) {
+            int expectedTaskId = tasks.indexOf(aTask) + 1;
+            assertEquals(expectedTaskId, aTask.getTaskId());
+        }
+    }
+
+    @Test
+    public void testAddTask() throws Exception {
+        database.addTask(firstTask);
+        assertEquals("Number of tasks did not increase from 0 to 1 after task "
+                + "addition", 1, database.getTasks().size());
+        assertTrue("Task not added properly", database.getTasks().get(0)
+                .equals(firstTask));
+        assertEquals("Google Calendar ID of task not set properly.", database
+                .getTasks().get(0).getGID(),
+                googleCalendarManagerStub.googleCalendarId);
+
+        ArrayList<Task> readTasks = myDatabaseHandler.taskLogger.readTasks();
+        assertEquals("Number of tasks in log did not increase from 0 to 1 ", 1,
+                readTasks.size());
+        actual = readTasks.get(0).displayTask();
+        expected = database.getTasks().get(0).displayTask();
+        assertTrue("Task not logged correctly in log file.",
+                actual.equals(expected));
+    }
+
+    @Test
+    public void testRead() throws Exception {
+        try {
+            database.read(1);
+            fail("Exception not thrown when trying to "
+                    + "read from empty list of tasks.");
+        } catch (IllegalAccessException e) {
+            assertTrue("Empty list exception not thrown.", e.getMessage()
+                    .equals(DatabaseHandler.ERR_NO_TASKS));
+        }
+        try {
+            database.read("1111");
+            fail("Exception not thrown when trying to "
+                    + "read from empty list of tasks.");
+        } catch (IllegalAccessException e) {
+            assertTrue("Empty list exception not thrown.", e.getMessage()
+                    .equals(DatabaseHandler.ERR_NO_TASKS));
+        }
+
+        addTasks();
+        setGoogleIds();
+        assertTrue("First task not read correctly from given task ID.",
+                database.read(1).equals(firstTask));
+        assertTrue(
+                "First task not read correctly from given Google Calendar ID.",
+                database.read(firstGoogleId).equals(firstTask));
+        assertTrue("Second task not read correctly from given task ID.",
+                database.read(2).equals(secondTask));
+        assertTrue(
+                "Second task not read correctly from given Google Calendar ID.",
+                database.read(secondGoogleId).equals(secondTask));
+
+        try {
+            database.read(3);
+            fail("No exception thrown for invalid task ID.");
+        } catch (NoSuchElementException e) {
+            assertTrue("No such task ID exception not thrown.", e.getMessage()
+                    .equals(DatabaseHandler.ERR_NO_SUCH_TASK_ID));
+        }
+        try {
+            database.read("3333");
+        } catch (NoSuchElementException e) {
+            assertEquals("No such task ID exception not thrown.",
+                    e.getMessage(), DatabaseHandler.ERR_NO_SUCH_GOOGLE_ID);
+        }
+
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+        // Test for deletion from empty task list
+        try {
+            database.delete(0);
+            fail("Exception not thrown when trying to delete "
+                    + "from empty list of tasks.");
+        } catch (Exception e) {
+            assertTrue("Empty list exception not thrown.", e.getMessage()
+                    .equals(DatabaseHandler.ERR_NO_TASKS));
+        }
+
+        addTasks();
+        assertEquals("Number of tasks in temporary memory is not two.",
+                database.getTasks().size(), 2);
+
+        int taskIdToDelete = 1;
+        database.delete(taskIdToDelete);
+
+        assertEquals("Number of tasks did not decrease to one.", database
+                .getTasks().size(), 1);
+        assertTrue("Remaining task after deletion is not correct.", database
+                .getTasks().get(0).equals(secondTask));
+
+        checkTaskLogCorrectness();
+
+        // Test for invalid task ID
+        try {
+            database.delete(3);
+            fail("Should have thrown no such task ID exception.");
+        } catch (Exception e) {
+            assertTrue("No such task ID exception not thrown.", e.getMessage()
+                    .equals(DatabaseHandler.ERR_NO_SUCH_TASK_ID));
+        }
+    }
+
+    @Test
+    public void testEdit() throws Exception {
+        addTasks();
+        int numberOfTasks = 2;
+        assertEquals("Number of tasks is not two", numberOfTasks, database
+                .getTasks().size());
+
+        // Create task with task ID 1
+        Task newTask = createTask("New", "New description.");
+        int taskIdToEdit = 1;
+        newTask.setTaskId(taskIdToEdit);
+
+        database.edit(newTask);
+        assertTrue("First task is not replaced properly",
+                newTask.equals(database.read(taskIdToEdit)));
+        int taskIdNotEdited = 2;
+        assertTrue("Second task is wrongly edited.",
+                secondTask.equals(database.read(taskIdNotEdited)));
+
+        // Test for task edition to task log
+        ArrayList<Task> readTasks = myDatabaseHandler.taskLogger.readTasks();
+        for (int i = 0; i < numberOfTasks; i++) {
+            actual = readTasks.get(i).displayTask();
+            expected = database.getTasks().get(i).displayTask();
+            assertTrue("Task " + i + " not logged correctly in log file.",
+                    actual.equals(expected));
+        }
+    }
+
+    // TODO
+    @Ignore
+    @Test
+    public void testSearchWord() throws Exception {
+
+    }
+
+    public void checkObservedTasksCorrectness() {
+        ArrayList<Task> databaseTasks = database.getTasks();
+        ArrayList<Task> observedTasks = databaseObserverStub.getObservedTasks();
+        int numberOfDatabaseTasks = databaseTasks.size();
+        int numberOfObservedTasks = observedTasks.size();
+
+        for (int i = 0; i < numberOfDatabaseTasks; i++) {
+            Task aDatabaseTask = databaseTasks.get(i);
+            Task anObservedTask = observedTasks.get(i);
+            String aDatabaseTitle = aDatabaseTask.getTitle();
+            String anObservedTitle = anObservedTask.getTitle();
+            String aDatabaseDescription = aDatabaseTask.getDescription();
+            String anObservedDescription = anObservedTask.getDescription();
+
+            assertEquals("Number of tasks in observer stub is not "
+                    + "the same as that stored in database.",
+                    numberOfDatabaseTasks, numberOfObservedTasks);
+            assertEquals("Observed task " + i
+                    + "'s title doesn't match that of its"
+                    + " database task counterpart.", aDatabaseTitle,
+                    anObservedTitle);
+            assertEquals("Observed task " + i
+                    + "'s description doesn't match that of its"
+                    + " database task counterpart.", aDatabaseDescription,
+                    anObservedDescription);
+        }
+    }
+
+    @Test
+    public void testObserver() throws Exception {
+        int numberOfObservers = 1;
+        assertEquals(numberOfObservers, myDatabaseHandler.observerList.size());
+
+        addTasks();
+        checkObservedTasksCorrectness();
+
+        int taskIdToDelete = 1;
+        database.delete(taskIdToDelete);
+        checkObservedTasksCorrectness();
+
+        Task newTask = createTask("New Task", "New description.");
+        int taskIdToEdit = 1;
+        newTask.setTaskId(taskIdToEdit);
+        database.edit(newTask);
+        checkObservedTasksCorrectness();
+    }
+
+    public void setGoogleIds() {
+        firstGoogleId = "1111";
+        firstTask.setGID(firstGoogleId);
+
+        secondGoogleId = "2222";
+        secondTask.setGID(secondGoogleId);
+
+    }
+
+    @Test
+    public void testAddBackwardSync() throws Exception {
+        setGoogleIds();
+        database.addBackwardSync(firstTask);
+
+        assertEquals("Number of tasks did not increase from 0 to 1 after task "
+                + "addition", 1, database.getTasks().size());
+        assertTrue("Task not added properly", database.getTasks().get(0)
+                .equals(firstTask));
+        checkTaskLogCorrectness();
+        checkObservedTasksCorrectness();
+    }
+
+    @Test
+    public void testDeleteBackwardSync() throws Exception {
+        try {
+            database.deleteBackwardSync("1111");
+            fail("Exception not thrown when trying to "
+                    + "read from empty list of tasks.");
+        } catch (IllegalAccessException e) {
+            assertTrue("Empty list exception not thrown.", e.getMessage()
+                    .equals(DatabaseHandler.ERR_NO_TASKS));
+        }
+
+        addTasks();
+        setGoogleIds();
+        assertEquals("Number of tasks in temporary memory is not two.",
+                database.getTasks().size(), 2);
+        assertEquals("Google Calendar ID for first task not set.",
+                firstGoogleId, database.getTasks().get(0).getGID());
+        assertEquals("Google Calendar ID for first task not set.",
+                secondGoogleId, database.getTasks().get(1).getGID());
+
+        database.deleteBackwardSync(firstGoogleId);
+
+        assertEquals("Number of tasks did not decrease to one.", database
+                .getTasks().size(), 1);
+        assertTrue("Remaining task after deletion is not correct.", database
+                .getTasks().get(0).equals(secondTask));
+        checkTaskLogCorrectness();
+        checkObservedTasksCorrectness();
+
+        try {
+            database.deleteBackwardSync("3333");
+        } catch (NoSuchElementException e) {
+            assertEquals("No such task ID exception not thrown.",
+                    e.getMessage(), DatabaseHandler.ERR_NO_SUCH_GOOGLE_ID);
+        }
+    }
+
+    @Test
+    public void testEditBackwardSync() throws Exception {
+        addTasks();
+        setGoogleIds();
+        assertEquals("Number of tasks is not two", 2, database.getTasks()
+                .size());
+        Task newTask = createTask("New", "New description.");
+        newTask.setGID("3333");
+
+        database.editBackwardSync("1111", newTask);
+        assertEquals("First task is not replaced properly by new task",
+                newTask, database.getTasks().get(0));
+        assertEquals("Number of tasks is not two", 2, database.getTasks()
+                .size());
+        assertEquals("Second task is wrongly edited.", secondTask, database
+                .getTasks().get(1));
+        checkTaskLogCorrectness();
+        checkObservedTasksCorrectness();
+    }
+
+}
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\database\DatabaseMethodsTest.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\database\DatabaseObserverStubTest.java
+	 */
+
+
+package taskbuddy.database;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import taskbuddy.logic.Task;
+
+public class DatabaseObserverStubTest {
+    Task firstTask;
+    Task secondTask;
+    Database database;
+    DatabaseObserverStub databaseObserverStub;
+
+    String expected;
+    String actual;
+
+    /**
+     * Deletes existing log file before running tests
+     */
+    public void deleteLog() {
+        File log = new File(DatabaseHandler.TASK_LOG_NAME);
+        if (log.isFile()) {
+            log.delete();
+        }
+    }
+
+    public Task createTask(String title, String description) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        int priority = 1;
+        boolean isComplete = true;
+        boolean isFloating = false;
+
+        Task task = new Task(title);
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(end);
+        task.setPriority(priority);
+        task.setCompletion(isComplete);
+        task.setFloating(isFloating);
+
+        return task;
+    }
+
+    public void addTasks() throws IOException, UnknownHostException {
+        database.addTask(firstTask);
+        database.addTask(secondTask);
+    }
+
+    @Before
+    public void setup() throws Exception {
+        deleteLog();
+
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
+
+        database = new Database();
+        DatabaseHandler myDatabaseHandler = database.databaseHandler;
+        
+        GoogleCalendarManagerStub googleCalendarManagerStub = new GoogleCalendarManagerStub();
+        myDatabaseHandler.googleCal = googleCalendarManagerStub;
+        
+        databaseObserverStub = new DatabaseObserverStub(database);
+    }
+
+    @Test
+    public void testDatabaseObserverStub() throws Exception {
+        assertTrue("Database observer stub not initialised with database.",
+                databaseObserverStub.database instanceof Database);
+    }
+
+    @Test
+    public void testUpdate() throws Exception {
+        assertTrue(databaseObserverStub.getObservedTasks().isEmpty());
+
+        addTasks();
+        databaseObserverStub.update();
+        ArrayList<Task> observedTasks = databaseObserverStub.getObservedTasks();
+        int numberOfAddedTasks = 2;
+        assertEquals("Number of observed tasks is not two.",
+                numberOfAddedTasks, observedTasks.size());
+        assertEquals("Observed tasks not the same as that in database.",
+                database.getTasks(), observedTasks);
+    }
+}
+
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\database\DatabaseObserverStubTest.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\database\GoogleCalendarCommandsTest.java
+	 */
+
+
+package taskbuddy.database;
+
+import static org.junit.Assert.*;
+
+import java.net.UnknownHostException;
+import java.util.Calendar;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import taskbuddy.logic.Task;
+
+public class GoogleCalendarCommandsTest {
+    Task firstTask;
+    GoogleCalendarManagerStub googleCalendarManagerStub;
+    OfflineGoogleCalendarManagerStub offlineGoogleCalendarManagerStub;
+
+    public Task createTask(String title, String description) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        int priority = 1;
+        boolean isComplete = true;
+        boolean isFloating = false;
+
+        Task task = new Task(title);
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(end);
+        task.setPriority(priority);
+        task.setCompletion(isComplete);
+        task.setFloating(isFloating);
+
+        return task;
+    }
+
+    @Before
+    public void setup() {
+        firstTask = createTask("First", "First description.");
+
+        googleCalendarManagerStub = new GoogleCalendarManagerStub();
+        offlineGoogleCalendarManagerStub = new OfflineGoogleCalendarManagerStub();
+    }
+
+    @Test
+    public void testAddCommand() throws Exception {
+        GoogleCalendarAdd addCommand = new GoogleCalendarAdd(firstTask);
+
+        GoogleCalendarCommand.googleCal = googleCalendarManagerStub;
+        try {
+            addCommand.execute();
+        } catch (Exception e) {
+            fail("Add command was not executed normally.");
+        }
+        assertEquals("Google Calendar ID not added to task.",
+                googleCalendarManagerStub.googleCalendarId, firstTask.getGID());
+
+        GoogleCalendarCommand.googleCal = offlineGoogleCalendarManagerStub;
+        try {
+            addCommand.execute();
+            fail("No exception thrown when sync to Google Calendar "
+                    + "fails due to user being offline.");
+        } catch (UnknownHostException e) {
+            assertEquals(
+                    "Wrong error message when unable to execute add command.",
+                    GoogleCalendarCommand.ERR_NOT_SYNCED_GOOGLE_CALENDAR,
+                    e.getMessage());
+        }
+
+        assertEquals("Add command not string-ified properly.",
+                addCommand.displayCommand(), "Add | "
+                        + addCommand.getTask().displayTask());
+    }
+
+    @Test
+    public void testDeleteCommand() throws Exception {
+        GoogleCalendarDelete deleteCommand = new GoogleCalendarDelete(firstTask);
+
+        GoogleCalendarCommand.googleCal = googleCalendarManagerStub;
+        try {
+            deleteCommand.execute();
+        } catch (Exception e) {
+            fail("Delete command was not executed normally.");
+        }
+
+        GoogleCalendarCommand.googleCal = offlineGoogleCalendarManagerStub;
+        try {
+            deleteCommand.execute();
+            fail("No exception thrown when sync to Google Calendar "
+                    + "fails due to user being offline.");
+        } catch (UnknownHostException e) {
+            assertEquals(
+                    "Wrong error message when unable to execute add command.",
+                    GoogleCalendarAdd.ERR_NOT_SYNCED_GOOGLE_CALENDAR,
+                    e.getMessage());
+        }
+        
+        assertEquals("Delete command not string-ified properly.",
+                deleteCommand.displayCommand(), "Delete | "
+                        + deleteCommand.getTask().displayTask());
+    }
+
+    @Test
+    public void testUpdateCommand() throws Exception {
+        GoogleCalendarUpdate updateCommand = new GoogleCalendarUpdate(firstTask);
+
+        GoogleCalendarCommand.googleCal = googleCalendarManagerStub;
+        try {
+            updateCommand.execute();
+        } catch (Exception e) {
+            fail("Update command was not executed normally.");
+        }
+
+        GoogleCalendarCommand.googleCal = offlineGoogleCalendarManagerStub;
+        try {
+            updateCommand.execute();
+            fail("No exception thrown when sync to Google Calendar "
+                    + "fails due to user being offline.");
+        } catch (UnknownHostException e) {
+            assertEquals(
+                    "Wrong error message when unable to execute add command.",
+                    GoogleCalendarAdd.ERR_NOT_SYNCED_GOOGLE_CALENDAR,
+                    e.getMessage());
+        }
+        
+        assertEquals("Update command not string-ified properly.",
+                updateCommand.displayCommand(), "Update | "
+                        + updateCommand.getTask().displayTask());
+    }
+
+}
+
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\database\GoogleCalendarCommandsTest.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\database\GoogleCalendarSyncFailTest.java
+	 */
+
+
+package taskbuddy.database;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.LinkedList;
+
+import org.junit.Test;
+
+import taskbuddy.database.GoogleCalendarCommand;
+import taskbuddy.logic.Task;
+
+public class GoogleCalendarSyncFailTest {
+    // @formatter:off
+    private static final String ERR_NOT_SYNCED_GOOGLE_CALENDAR = 
+            "Changes made to database and task log but not Google Calendar. ";
+    // @formatter:on
+
+    Task firstTask;
+    Task secondTask;
+    Database database;
+    DatabaseHandler myDatabaseHandler;
+    OfflineGoogleCalendarManagerStub offlineGoogleCalendarManagerStub;
+
+    /**
+     * Deletes existing log file before running tests
+     */
+    public void deleteLog() {
+        File log = new File(DatabaseHandler.TASK_LOG_NAME);
+        if (log.isFile()) {
+            log.delete();
+        }
+    }
+
+    public void addTasks() throws IOException, UnknownHostException {
+        database.addTask(firstTask);
+        database.addTask(secondTask);
+    }
+
+    public Task createTask(String title, String description) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        int priority = 1;
+        boolean isComplete = true;
+        boolean isFloating = false;
+
+        Task task = new Task(title);
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(end);
+        task.setPriority(priority);
+        task.setCompletion(isComplete);
+        task.setFloating(isFloating);
+
+        return task;
+    }
+
+    public void setup() throws Exception {
+        deleteLog();
+
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
+
+        database = new Database();
+        myDatabaseHandler = database.databaseHandler;
+
+        // @formatter:off
+        offlineGoogleCalendarManagerStub 
+            = new OfflineGoogleCalendarManagerStub();
+        // @formatter:on
+        myDatabaseHandler.googleCal = offlineGoogleCalendarManagerStub;
+        GoogleCalendarCommand.googleCal = myDatabaseHandler.googleCal;
+    }
+
+    public void checkCommandQueueCorrectness(
+            LinkedList<GoogleCalendarCommand> googleCalendarCommands)
+            throws ParseException, IOException {
+        LinkedList<GoogleCalendarCommand> readCommands = myDatabaseHandler.commandLogger
+                .readCommands();
+        assertEquals("Number of commands read from command log is not the "
+                + "same as that in command queue.",
+                googleCalendarCommands.size(), readCommands.size());
+        for (int i = 0; i < readCommands.size(); i++) {
+            assertEquals("Title of command " + i + " in command log is"
+                    + " different from that in command queue.",
+                    googleCalendarCommands.get(i).getTask().getTitle(),
+                    readCommands.get(i).getTask().getTitle());
+        }
+    }
+
+    @Test
+    public void testAdd() throws Exception {
+        setup();
+        LinkedList<GoogleCalendarCommand> googleCalendarCommands = myDatabaseHandler
+                .getCommandQueue();
+        ArrayList<Task> tasks = database.getTasks();
+
+        try {
+            database.addTask(firstTask);
+            fail("No exception thrown when adding task "
+                    + "to Google Calendar when user is offline.");
+        } catch (UnknownHostException e) {
+            String errorDatabase = ERR_NOT_SYNCED_GOOGLE_CALENDAR;
+            // @formatter:on
+            String errorGoogleCalendarManager = OfflineGoogleCalendarManagerStub.ERROR_USER_OFFLINE;
+            // @formatter:off
+            assertEquals("Wrong exception message when syncing to "
+                    + "Google Calendar when user is offline.", errorDatabase
+                    + errorGoogleCalendarManager, e.getMessage());
+
+            assertEquals("Number of commands in command queue is not one.", 1,
+                    googleCalendarCommands.size());
+            assertEquals("Number of tasks in database is not one.", 1,
+                    tasks.size());            
+            checkCommandQueueCorrectness(googleCalendarCommands);
+        }
+
+        try {
+            secondTask.setTaskId(firstTask.getTaskId());
+            database.edit(secondTask);
+            fail("No exception thrown when editing task to "
+                    + "Google Calendar when user is offline.");
+        } catch (UnknownHostException e) {
+            assertEquals("Number of commands in command queue is not two.", 2,
+                    googleCalendarCommands.size());
+            assertEquals("Number of tasks in database is not one.", 1,
+                    tasks.size());
+            assertEquals("Task title not edited properly in database.",
+                    secondTask.getTitle(), tasks.get(0).getTitle());
+            assertEquals("Task description not edited properly in database.",
+                    secondTask.getDescription(), tasks.get(0).getDescription());
+            checkCommandQueueCorrectness(googleCalendarCommands);
+        }
+
+        try {
+            database.delete(1);
+            fail("No exception thrown when deleting task from "
+                    + "Google Calendar when user is offline.");
+        } catch (UnknownHostException e) {
+            assertEquals("Number of commands in command queue is not three.",
+                    3, googleCalendarCommands.size());
+            assertEquals("Number of tasks in database is not zero.", 0,
+                    tasks.size());
+            checkCommandQueueCorrectness(googleCalendarCommands);
+        }
+
+        assertTrue("First command to be executed is not the add command.",
+                googleCalendarCommands.peek() instanceof GoogleCalendarAdd);
+        assertTrue(
+                "Last command to be executed is not the delete command.",
+                googleCalendarCommands.peekLast() instanceof 
+                    GoogleCalendarDelete);
+
+        try {
+            myDatabaseHandler.forwardSync();
+            fail("No exception thrown when trying "
+                    + "to sync when user is offline.");
+        } catch (UnknownHostException e) {
+            assertEquals("Number of commands in command queue is not three.",
+                    3, googleCalendarCommands.size());
+            checkCommandQueueCorrectness(googleCalendarCommands);
+        }
+
+        // @formatter:off
+        GoogleCalendarManagerStub googleCalendarManagerStub 
+            = new GoogleCalendarManagerStub();
+        // @formatter:on
+        myDatabaseHandler.googleCal = googleCalendarManagerStub;
+        GoogleCalendarCommand.googleCal = googleCalendarManagerStub;
+        try {
+            myDatabaseHandler.forwardSync();
+            assertEquals("Number of commands in command queue is not zero.", 0,
+                    googleCalendarCommands.size());
+        } catch (UnknownHostException e) {
+            fail("Exception thrown even though sync is supposed to be "
+                    + "successful when user is online.");
+            checkCommandQueueCorrectness(googleCalendarCommands);
+        }
+    }
+
+    @Test
+    public void testGoogleIdLog() throws Exception {
+        setup();
+        try {
+            database.addTask(firstTask);
+        } catch (Exception e) {
+            assertNull(firstTask.getGID());
+            Database newDatabase = new Database();
+            assertNotEquals("Google Calendar ID of read task from task log is "
+                    + "the same as that of firstTask, which is null.",
+                    firstTask.getGID(), newDatabase.getTasks().get(0).getGID());
+            assertEquals("Google Calendar ID of read task from "
+                    + "task log is not 'null'.", "null", newDatabase.getTasks()
+                    .get(0).getGID());
+        }
+    }
+}
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\database\GoogleCalendarSyncFailTest.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\database\IntegratedGoogleCalDatabaseTest.java
+	 */
+
+
+package taskbuddy.database;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import taskbuddy.database.Database;
+import taskbuddy.logic.Task;
+
+public class IntegratedGoogleCalDatabaseTest {
+
+    Database database;
+    Task firstTask;
+    Task secondTask;
+    Task thirdTask;
+
+    String expected;
+    String actual;
+
+    /**
+     * Deletes existing log file before running tests
+     */
+    public void deleteLog() {
+        File log = new File(DatabaseHandler.TASK_LOG_NAME);
+        if (log.isFile()) {
+            log.delete();
+        }
+    }
+
+    public void addTasks() throws IOException, UnknownHostException {
+        database.addTask(firstTask);
+        database.addTask(secondTask);
+        database.addTask(thirdTask);
+    }
+
+    public Task createTask(String title, String description) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        int priority = 1;
+        boolean isComplete = true;
+        boolean isFloating = false;
+
+        Task task = new Task(title);
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(end);
+        task.setPriority(priority);
+        task.setCompletion(isComplete);
+        task.setFloating(isFloating);
+
+        return task;
+    }
+
+    @Before
+    public void setup() throws Exception {
+        deleteLog();
+
+        database = new Database();
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
+        thirdTask = createTask("Third", "Third description.");
+    }
+
+    /**
+     * Have to manually check if tasks are added to Google Calendar
+     */
+    @Test
+    public void testEdit() throws Exception {
+        addTasks();
+        assertEquals("Number of tasks is not three", 3, database.getTasks()
+                .size());
+
+        // Create new task with same task and Google ID as old task
+        Task newTask = createTask("New task", "New description.");
+        int taskIDToEdit = 2;
+        Task oldTask = database.read(taskIDToEdit);
+        newTask.setTaskId(taskIDToEdit);
+        newTask.setGID(oldTask.getGID());
+
+        // Edit second task by replacing second task with new task
+        database.edit(newTask);
+        int indexOfEditedTask = taskIDToEdit - 1;
+        assertTrue("Second task is not replaced properly",
+                newTask.equals(database.getTasks().get(indexOfEditedTask)));
+
+        // Check that other tasks are not edited
+        expected = firstTask.displayTitle();
+        actual = database.getTasks().get(0).displayTitle();
+        assertTrue("First task got edited.", expected.equals(actual));
+
+        expected = thirdTask.displayTitle();
+        actual = database.getTasks().get(2).displayTitle();
+        assertTrue("Third task got edited.", expected.equals(actual));
+
+        // Test for task edition to task log
+        // Read tasks from log file first
+        ArrayList<Task> readTasks = database.databaseHandler.taskLogger
+                .readTasks();
+        // Then compare read tasks from log file with that of arraylist in
+        // database
+        for (int i = 0; i < 3; i++) {
+            actual = readTasks.get(i).displayTask();
+            expected = database.getTasks().get(i).displayTask();
+            assertTrue("Task " + i + " not logged correctly in log file.",
+                    actual.equals(expected));
+        }
+    }
+
+    // @Test
+    // public void testAddDelete() throws Exception {
+    // setup();
+    // database.delete(0);
+    // }
+
+    @Ignore
+    @Test
+    public void testSearchEdit() throws Exception {
+        setup();
+
+        String searchString = "DESCRIP";
+        ArrayList<Task> searchResults = database.search(searchString);
+
+        for (Task aTask : searchResults) {
+            System.out.println(aTask.getTitle());
+        }
+        searchResults.get(1).setTitle("change title");
+        for (Task aTask : searchResults) {
+            System.out.println(aTask.getTaskId() + ": " + aTask.getTitle());
+        }
+    }
+
+}
+
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\database\IntegratedGoogleCalDatabaseTest.java
+
+
+
+
+
+	/**
+	 * origin: H:\workspace\cs2103\main\test\taskbuddy\database\TaskLoggerTest.java
+	 */
+
+
+package taskbuddy.database;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
+import taskbuddy.database.DatabaseHandler;
+import taskbuddy.database.TaskLogger;
+import taskbuddy.logic.Task;
+
+public class TaskLoggerTest {
+
+    private static final String ERR_CANNOT_OPEN_LOG = "Cannot open log file.";
+
+    // @formatter:off
+    private static final int POSITION_TASK_ID       = 0;
+    private static final int POSITION_TITLE         = 1;
+    private static final int POSITION_DESCRIPTION   = 2;
+    private static final int POSITION_START         = 3;
+    private static final int POSITION_END           = 4;
+    private static final int POSITION_PRIORITY      = 5;
+    private static final int POSITION_IS_COMPLETE   = 6;
+    private static final int POSITION_IS_FLOATING   = 7;
+    private static final int POSITION_GOOGLE_ID     = 8;
+    // @formatter:on
+    private static final String DUMMY_GOOGLE_ID = "1111";
+
+    Task firstTask;
+    Task secondTask;
+    ArrayList<Task> tasks;
+    String logName;
+    TaskLogger taskLogger;
+    String[] splitFields;
+
+    String expected;
+    String actual;
+
+    /**
+     * Deletes existing log file before running tests
+     */
+    public void deleteLog() {
+        File log = new File(DatabaseHandler.TASK_LOG_NAME);
+        if (log.isFile()) {
+            log.delete();
+        }
+    }
+
+    public void addTasks() throws IOException, UnknownHostException {
+        tasks.add(firstTask);
+        tasks.add(secondTask);
+    }
+
+    public Task createTask(String title, String description) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        int priority = 1;
+        boolean isComplete = true;
+        boolean isFloating = false;
+
+        Task task = new Task(title);
+        task.setDescription(description);
+        task.setStartTime(start);
+        task.setEndTime(end);
+        task.setPriority(priority);
+        task.setCompletion(isComplete);
+        task.setFloating(isFloating);
+
+        return task;
+    }
+
+    public void setup() throws Exception {
+        deleteLog();
+
+        firstTask = createTask("First", "First description.");
+        secondTask = createTask("Second", "Second description.");
+
+        tasks = new ArrayList<Task>();
+        taskLogger = new TaskLogger();
+        logName = DatabaseHandler.TASK_LOG_NAME;
+    }
+
+    /**
+     * Create a dummy log file with tasks added by <code>addTasks</code> method
+     */
+    public void createDummyLog() throws IOException {
+        addTasks();
+        taskLogger.writeToLogFile(tasks);
+    }
+
+    /**
+     * Can only be used only after task is initialised
+     */
+    public void splitFields(Task task) {
+        splitFields = taskLogger.splitToFields(task.displayTask());
+    }
+
+    @Test
+    public void testPrepareLog() throws Exception {
+        setup();
+        File log = new File(logName);
+        assertFalse("Log file created when it's not supposed to exist.",
+                log.isFile());
+
+        // Create empty log file since log file hasn't existed.
+        taskLogger.prepareTaskLog(logName);
+        createDummyLog();
+        // prepareLog method should read tasks in from existing log file
+        ArrayList<Task> readTasks = taskLogger.prepareTaskLog(logName);
+
+        // Test if tasks read in from task log match those of temporary memory,
+        // i.e. ArrayList tasks.
+        assertEquals("No tasks read in from log file", 2, readTasks.size());
+        expected = readTasks.get(0).displayTask();
+        actual = tasks.get(0).displayTask();
+        assertTrue("First task not read properly when preparing from "
+                + "existing log file.", expected.equals(actual));
+        expected = readTasks.get(1).displayTask();
+        actual = tasks.get(1).displayTask();
+        assertTrue("Second task not read properly when preparing from "
+                + "existing log file.", expected.equals(actual));
+
+        deleteLog();
+
+        // Test for non-existing log file
+        taskLogger.prepareTaskLog(logName);
+        assertTrue("Log file object not initialised with prepareLog method.",
+                taskLogger.log instanceof File);
+        assertTrue("Log file doesn't exist even when it's supposed to have "
+                + "been created.", taskLogger.getLog().exists());
+    }
+
+    @Test
+    public void testTasksToString() throws Exception {
+        setup();
+        addTasks();
+        assertEquals("There are no two tasks stored.", this.tasks.size(), 2);
+
+        int numberOfTasks = tasks.size();
+        String expected = Integer.toString(numberOfTasks) + " tasks:\n"
+                + tasks.get(0).displayTask() + "\n"
+                + tasks.get(1).displayTask() + "\n";
+        String actual = taskLogger.tasksToString(tasks);
+        assertTrue("List of tasks not converted to string properly.",
+                actual.equals(expected));
+    }
+
+    @Test
+    public void testSplitToFields() throws Exception {
+        setup();
+        splitFields(firstTask);
+
+        assertTrue("Task ID field not extracted properly.",
+                splitFields[POSITION_TASK_ID].equals(firstTask.displayTaskId()));
+        assertTrue("Title field not extracted properly.",
+                splitFields[POSITION_TITLE].equals(firstTask.displayTitle()));
+        assertTrue("Description field not extracted properly.",
+                splitFields[POSITION_DESCRIPTION].equals(firstTask
+                        .displayDescription()));
+        assertTrue("Start field not extracted properly.",
+                splitFields[POSITION_START].equals(firstTask.displayStart()));
+        assertTrue("End field not extracted properly.",
+                splitFields[POSITION_END].equals(firstTask.displayEnd()));
+        assertTrue("End field not extracted properly.",
+                splitFields[POSITION_PRIORITY].equals(firstTask
+                        .displayPriority()));
+        assertTrue("End field not extracted properly.",
+                splitFields[POSITION_IS_COMPLETE].equals(firstTask
+                        .displayIsComplete()));
+        assertTrue("End field not extracted properly.",
+                splitFields[POSITION_IS_FLOATING].equals(firstTask
+                        .displayIsFloating()));
+        assertTrue("End field not extracted properly.",
+                splitFields[POSITION_GOOGLE_ID].equals(firstTask
+                        .displayGoogleId()));
+    }
+
+    @Test
+    public void testExtractTaskId() throws Exception {
+        setup();
+        splitFields(firstTask);
+        String displayTaskId = splitFields[POSITION_TASK_ID];
+        int extractedTaskId = taskLogger.extractTaskId(displayTaskId);
+
+        assertEquals("Title not extracted properly.", extractedTaskId,
+                firstTask.getTaskId());
+    }
+
+    @Test
+    public void testExtractTitle() throws Exception {
+        setup();
+        splitFields(firstTask);
+        String displayTitle = splitFields[POSITION_TITLE];
+        String extractedTitle = taskLogger.extractTitle(displayTitle);
+
+        assertTrue("Title not extracted properly.",
+                extractedTitle.equals(firstTask.getTitle()));
+    }
+
+    @Test
+    public void testExtractDescription() throws Exception {
+        setup();
+        splitFields(firstTask);
+        String displayDescription = splitFields[POSITION_DESCRIPTION];
+        String extractedDescription = taskLogger
+                .extractDescription(displayDescription);
+
+        assertTrue("Description not extracted properly.",
+                extractedDescription.equals(firstTask.getDescription()));
+    }
+
+    @Test
+    public void testExtractStart() throws Exception {
+        setup();
+        splitFields(firstTask);
+        String displayStart = splitFields[POSITION_START];
+        Calendar extractedStart = taskLogger.extractStart(displayStart);
+
+        // Have to convert to string because extractedStart is only accurate to
+        // minutes and will be different from task.getStartTime() that is
+        // accurate to seconds
+        String actual = firstTask.displayDateTime(extractedStart);
+        String expected = firstTask.displayDateTime(firstTask.getStartTime());
+        assertTrue("Start time not extracted properly.",
+                actual.equals(expected));
+    }
+
+    @Test
+    public void testExtractEnd() throws Exception {
+        setup();
+        splitFields(firstTask);
+        String displayEnd = splitFields[POSITION_END];
+        Calendar extractedEnd = taskLogger.extractEnd(displayEnd);
+
+        // Have to convert to string, same reason as that for extracting start
+        // time
+        String actual = firstTask.displayDateTime(extractedEnd);
+        String expected = firstTask.displayDateTime(firstTask.getEndTime());
+        assertTrue("End time not extracted properly.", actual.equals(expected));
+    }
+
+    @Test
+    public void testExtractPriority() throws Exception {
+        setup();
+        splitFields(firstTask);
+        String displayPriority = splitFields[POSITION_PRIORITY];
+        int extractedPriority = taskLogger.extractPriority(displayPriority);
+
+        assertEquals("Priority not extracted properly", extractedPriority,
+                firstTask.getPriority());
+    }
+
+    @Test
+    public void testExtractIsComplete() throws Exception {
+        setup();
+        splitFields(firstTask);
+        String displayIsComplete = splitFields[POSITION_IS_COMPLETE];
+        boolean extractedIsComplete = taskLogger
+                .extractIsComplete(displayIsComplete);
+
+        assertEquals("isComplete not extracted properly", extractedIsComplete,
+                firstTask.getCompletionStatus());
+    }
+
+    @Ignore
+    @Test
+    public void testExtractIsFloating() throws Exception {
+        setup();
+        splitFields(firstTask);
+        String displayIsFloating = splitFields[POSITION_IS_FLOATING];
+        boolean extractedIsFloating = taskLogger
+                .extractIsComplete(displayIsFloating);
+
+        assertEquals("isFloating not extracted properly", extractedIsFloating,
+                firstTask.isFloatingTask());
+    }
+
+    @Test
+    public void testExtractGoogleId() throws Exception {
+        setup();
+        firstTask.setGID(DUMMY_GOOGLE_ID);
+        splitFields(firstTask);
+        String displayGoogleId = splitFields[POSITION_GOOGLE_ID];
+        String extractedGoogleId = taskLogger.extractGoogleId(displayGoogleId);
+
+        assertEquals("Google Calendar ID not extracted properly",
+                extractedGoogleId, firstTask.getGID());
+    }
+
+    @Test
+    public void testReadTask() throws Exception {
+        setup();
+        String taskString = firstTask.displayTask();
+        Task actualTask = taskLogger.readTask(taskString);
+
+        // Use string versions of actual and expected tasks for comparison for
+        // the similar reason in testExtractStart method, i.e. start/end times
+        // for actual task is accurate to seconds whereas that for read task is
+        // only accurate to minutes.
+        actual = actualTask.displayTask();
+        expected = firstTask.displayTask();
+
+        assertTrue("Task not read in properly from task string.",
+                actual.equals(expected));
+    }
+
+    @Test
+    public void testReadTasks() throws Exception {
+        setup();
+        try {
+            // prepareLog initialises log variable in taskLogger
+            taskLogger.prepareTaskLog(logName);
+            // Delete log file intentionally to force reading of non-existent
+            // log file to test for IOException
+            deleteLog();
+
+            taskLogger.readTasks();
+            fail("Exception not thrown when trying to read"
+                    + " non-existent log file");
+        } catch (IOException e) {
+            assertTrue("Wrong IOException message when non-existent"
+                    + " log file cannot be read.",
+                    e.getMessage().equals(ERR_CANNOT_OPEN_LOG));
+        }
+
+        taskLogger.prepareTaskLog(logName);
+        createDummyLog();
+
+        ArrayList<Task> readTasks = taskLogger.readTasks();
+        // Again use strings for comparison; same reason as that of testReadTask
+        // method
+        Task firstTask = readTasks.get(0);
+        actual = firstTask.displayTask();
+        expected = tasks.get(0).displayTask();
+        assertTrue("First task read from log file not the same "
+                + "as actual first task.", actual.equals(expected));
+        Task secondTask = readTasks.get(1);
+        actual = secondTask.displayTask();
+        expected = tasks.get(1).displayTask();
+        assertTrue("Second task read from log file not the same "
+                + "as actual second task.", actual.equals(expected));
+    }
+
+}
+
+	// End of segment: H:\workspace\cs2103\main\test\taskbuddy\database\TaskLoggerTest.java
+
+
+
+
+
